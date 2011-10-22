@@ -80,7 +80,17 @@ public class WebLogicDeployerClient
          Thread outputReader = new Thread(new DeployerOutputReader());
          outputReader.start();
          int exitValue = deployer.waitFor();
-         logger.log(Level.INFO, "weblogic.Deployer terminated with exit code: {0}", exitValue);
+         if(exitValue == 0)
+         {
+            logger.log(Level.INFO, "weblogic.Deployer appears to have terminated successfully.");
+         }
+         else
+         {
+            logger.log(
+                  Level.WARNING,
+                  "weblogic.Deployer terminated with exit code {0}. There was possibly an error in deploying the application.",
+                  exitValue);
+         }
       }
       catch (InterruptedException interruptEx)
       {
