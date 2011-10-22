@@ -71,7 +71,7 @@ public class WebLogicContainer implements DeployableContainer<WebLogicConfigurat
    {
       String archiveFilename = archive.getName();
       int indexOfDot = archiveFilename.indexOf(".");
-      if(indexOfDot == -1)
+      if(indexOfDot != -1)
       {
          return archiveFilename.substring(0, indexOfDot);
       }
