@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
@@ -23,6 +24,8 @@ import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
 public class WebLogicJMXClient
 {
 
+   private static final Logger logger = Logger.getLogger(WebLogicJMXClient.class.getName());
+   
    private static final String WL_JMX_CLIENT_JAR_PATH = "server/lib/wljmxclient.jar";
 
    private static final String RUNNING = "RUNNING";
@@ -168,22 +171,27 @@ public class WebLogicJMXClient
    
    private void initWebLogicJMXLibClassLoader()
    {
-      ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
+      ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+      if(contextClassLoader.getClass().equals(WebLogicJMXLibClassLoader.class))
+      {
+         // Our thread's context classloader is already the WebLogicJMXLibClassLoader.
+         // We do not need to create a child classloader.
+         logger.fine("The thread's context classloader has already been set to the desired classloader.");
+         return;
+      }
       String wlsHome = configuration.getWlsHome();
       boolean separatorTerminated = wlsHome.endsWith(File.separator);
       String jmxLibPath = separatorTerminated ? wlsHome.concat(WL_JMX_CLIENT_JAR_PATH) : wlsHome.concat(File.separator).concat(WL_JMX_CLIENT_JAR_PATH);
       File wlHome =  new File(jmxLibPath);
-      URL jmxLibUrl;
       try
       {
-         jmxLibUrl = wlHome.toURI().toURL();
-         URL[] urls = {jmxLibUrl};
-         ClassLoader jmxLibraryClassLoader = new WebLogicJMXLibClassLoader(urls, parentClassLoader);
+         URL[] urls = { wlHome.toURI().toURL() };
+         ClassLoader jmxLibraryClassLoader = new WebLogicJMXLibClassLoader(urls, contextClassLoader);
          Thread.currentThread().setContextClassLoader(jmxLibraryClassLoader);
       }
-      catch (MalformedURLException e)
+      catch (MalformedURLException urlEx)
       {
-         throw new RuntimeException("The constructed path to wljmxclient.jar appears to be invalid. Verify that you have access to this jar and it's dependencies.", e);
+         throw new RuntimeException("The constructed path to wljmxclient.jar appears to be invalid. Verify that you have access to this jar and it's dependencies.", urlEx);
       }
    }
    
