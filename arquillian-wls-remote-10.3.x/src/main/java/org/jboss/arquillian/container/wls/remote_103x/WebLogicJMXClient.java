@@ -68,6 +68,13 @@ public class WebLogicJMXClient
       metadata.addContext(context);
       return metadata;
    }
+   
+   public void undeploy(String deploymentName) throws DeploymentException
+   {
+      undeployArchive(deploymentName);
+      //TODO: We would want to verify whether the MBeanServer also records a successful undeployment.
+   }
+
 
    private void deployArchive(String deploymentName, File deploymentArchive) throws DeploymentException
    {
@@ -75,6 +82,12 @@ public class WebLogicJMXClient
       deployerClient.deploy(deploymentName, deploymentArchive);
    }
 
+   private void undeployArchive(String deploymentName)
+   {
+      WebLogicDeployerClient deployerClient = new WebLogicDeployerClient(configuration);
+      deployerClient.undeploy(deploymentName);
+   }
+   
    private HTTPContext getTargetContextInfo() throws DeploymentException
    {
       HTTPContext httpContext = null;
