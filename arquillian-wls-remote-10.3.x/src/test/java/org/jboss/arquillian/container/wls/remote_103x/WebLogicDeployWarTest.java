@@ -53,20 +53,20 @@ public class WebLogicDeployWarTest {
     @Deployment
     public static WebArchive getTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
-                .addClasses(GreeterServlet.class, Greeter.class)
-                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+                .addClasses(MyServlet.class)
+                .setWebXML("in-container-web.xml");
         log.info(war.toString(true));
         return war;
     }
 
     @Test
-    public void assertWarDeployed(@ArquillianResource URL contextRoot) throws Exception {
-        final URLConnection response = new URL(contextRoot, "Test").openConnection();
+    public void assertWarDeployed() throws Exception {
+        final URLConnection response = new URL("http://localhost:7001/test" + MyServlet.URL_PATTERN).openConnection();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(response.getInputStream()));
         final String result = in.readLine();
 
-        assertThat(result, equalTo("Hello"));
+        assertThat(result, equalTo("hello"));
     }
 
 }
