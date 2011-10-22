@@ -45,6 +45,10 @@ public class WebLogicContainer implements DeployableContainer<WebLogicConfigurat
    {
       String deploymentName = getDeploymentName(archive);
       File deploymentArchive = ShrinkWrapUtil.toFile(archive);
+      
+      WebLogicDeployerClient deployerClient = new WebLogicDeployerClient(configuration);
+      deployerClient.deploy(deploymentName, deploymentArchive);
+      
       WebLogicJMXClient weblogicClient = new WebLogicJMXClient(configuration);
       ProtocolMetaData metadata = weblogicClient.deploy(deploymentName, deploymentArchive);
       return metadata;
@@ -53,8 +57,8 @@ public class WebLogicContainer implements DeployableContainer<WebLogicConfigurat
    public void undeploy(Archive<?> archive) throws DeploymentException
    {
       String deploymentName = getDeploymentName(archive);
-      WebLogicJMXClient weblogicClient = new WebLogicJMXClient(configuration);
-      weblogicClient.undeploy(deploymentName);
+      WebLogicDeployerClient deployerClient = new WebLogicDeployerClient(configuration);
+      deployerClient.undeploy(deploymentName);
    }
 
    public void deploy(Descriptor descriptor) throws DeploymentException
