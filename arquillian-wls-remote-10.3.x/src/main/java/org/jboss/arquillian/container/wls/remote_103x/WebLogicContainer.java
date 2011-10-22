@@ -52,8 +52,9 @@ public class WebLogicContainer implements DeployableContainer<WebLogicConfigurat
 
    public void undeploy(Archive<?> archive) throws DeploymentException
    {
-      // TODO Auto-generated method stub
-      
+      String deploymentName = getDeploymentName(archive);
+      WebLogicJMXClient weblogicClient = new WebLogicJMXClient(configuration);
+      weblogicClient.undeploy(deploymentName);
    }
 
    public void deploy(Descriptor descriptor) throws DeploymentException
