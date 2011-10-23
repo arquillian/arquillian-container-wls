@@ -54,7 +54,7 @@ public class WebLogicDeployWarTest {
     public static WebArchive getTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addClasses(MyServlet.class)
-                .setWebXML("in-container-web.xml");
+                .setWebXML("in-container-web-no-cdi.xml");
         log.info(war.toString(true));
         return war;
     }
