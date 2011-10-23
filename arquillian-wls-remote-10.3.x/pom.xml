@@ -1,26 +1,31 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>arquillian-parent-wls</artifactId>
-    <groupId>org.jboss.arquillian.container</groupId>
-    <version>0.0.1-SNAPSHOT</version>
-    <relativePath>..</relativePath>
-  </parent>
-  <artifactId>arquillian-wls-remote-10.3.x</artifactId>
-  <name>WebLogic 10.3.x container integration</name>
-  <description>WebLogic 10.3.x container integration for Arquillian</description>
-  <dependencies>
-      <dependency>
-          <groupId>org.jboss.arquillian.container</groupId>
-          <artifactId>arquillian-container-spi</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.jboss.arquillian.container</groupId>
-          <artifactId>arquillian-container-test-spi</artifactId>
-      </dependency>
-              <dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>arquillian-parent-wls</artifactId>
+        <groupId>org.jboss.arquillian.container</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <artifactId>arquillian-wls-remote-10.3.x</artifactId>
+    <name>WebLogic 10.3.x container integration</name>
+    <description>WebLogic 10.3.x container integration for Arquillian</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-container-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-container-test-spi</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.arquillian.protocol</groupId>
             <artifactId>arquillian-protocol-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.testenricher</groupId>
+            <artifactId>arquillian-testenricher-cdi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.arquillian.testenricher</groupId>
@@ -63,6 +68,17 @@
             <artifactId>jboss-ejb-api</artifactId>
             <version>3.0.0.GA</version>
         </dependency>
-      
-  </dependencies>
+
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.0-SP1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 </project>

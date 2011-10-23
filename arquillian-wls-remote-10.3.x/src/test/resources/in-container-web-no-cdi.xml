@@ -12,9 +12,9 @@
       <env-entry-value>Hello World from an env-entry</env-entry-value>
    </env-entry>
 
-   <listener>
+   <!-- <listener>
       <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
-   </listener>
+   </listener> -->
 
    <servlet>
       <servlet-name>TestServlet</servlet-name>

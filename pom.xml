@@ -32,6 +32,7 @@
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
         <version.arquillian_core>1.0.0.Final-SNAPSHOT</version.arquillian_core>
+        <version.weld_servlet>1.1.2.Final</version.weld_servlet>
     </properties>
 
     <!-- Dependency Management -->
@@ -50,6 +51,12 @@
                 <version>${version.arquillian_core}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld.servlet</groupId>
+                <artifactId>weld-servlet</artifactId>
+                <version>${version.weld_servlet}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
