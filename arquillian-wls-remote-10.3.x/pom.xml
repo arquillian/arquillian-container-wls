@@ -36,13 +36,25 @@
             <artifactId>arquillian-testenricher-initialcontext</artifactId>
         </dependency>
         
-        <!-- Weld Appender -->
+        <!-- Java EE 5 standards support -->
         <dependency>
-            <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+            <groupId>org.jboss.javaee</groupId>
+            <artifactId>jboss-servlet-api</artifactId>
+            <version>2.5.0.GA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.javaee</groupId>
+            <artifactId>jboss-ejb-api</artifactId>
+            <version>3.0.0.GA</version>
         </dependency>
         
-
+        <!-- CDI support -->
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.0-SP1</version>
+        </dependency>
+        
         <!-- testing -->
         <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
@@ -55,26 +67,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jboss.javaee</groupId>
-            <artifactId>jboss-servlet-api</artifactId>
-            <version>2.5.0.GA</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.javaee</groupId>
-            <artifactId>jboss-ejb-api</artifactId>
-            <version>3.0.0.GA</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>1.0-SP1</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld.servlet</groupId>

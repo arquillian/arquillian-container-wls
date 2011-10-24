@@ -4,9 +4,12 @@ import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +34,12 @@ public class CDIWarTestCase {
       return ShrinkWrap.create(WebArchive.class, "foo.war")
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
             .addClasses(SimpleBean.class, MyServlet.class)
-            .setWebXML("in-container-web.xml");
+            .setWebXML("in-container-web.xml")
+            .addAsLibraries(DependencyResolvers.use(MavenDependencyResolver.class)
+                  .loadMetadataFromPom("pom.xml")
+                  .goOffline()
+                  .artifact("org.jboss.weld.servlet:weld-servlet")
+                  .resolveAs(GenericArchive.class));
     }
 
     @Test
