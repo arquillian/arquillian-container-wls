@@ -34,10 +34,13 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,7 +67,12 @@ public class WebLogicDeployEarTest {
     public static Archive<?> getTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addClasses(GreeterServlet.class)
-                .setWebXML("in-container-web-eartest.xml");
+                .setWebXML("in-container-web-eartest.xml")
+                .addAsLibraries(DependencyResolvers.use(MavenDependencyResolver.class)
+                        .loadMetadataFromPom("pom.xml")
+                        .goOffline()
+                        .artifact("org.jboss.weld.servlet:weld-servlet")
+                        .resolveAs(GenericArchive.class));
         final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "test.jar")
                 .addClasses(Greeter.class, GreeterBean.class);
         final EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "test.ear")
