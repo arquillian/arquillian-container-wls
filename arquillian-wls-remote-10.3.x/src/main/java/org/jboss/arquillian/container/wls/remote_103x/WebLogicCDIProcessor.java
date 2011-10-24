@@ -35,19 +35,19 @@ public class WebLogicCDIProcessor implements ProtocolArchiveProcessor
 
    private void relocateBeansXML(Archive<?> testArchive, Archive<?> protocolArchive)
    {
-      if(WebArchive.class.isInstance(protocolArchive))
+      if(WebArchive.class.isInstance(testArchive))
       {
-         WebArchive webProtocolArchive = WebArchive.class.cast(protocolArchive);
-         Asset beansXML = testArchive.delete("WEB-INF/beans.xml").getAsset();
-         webProtocolArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
+         WebArchive webTestArchive = WebArchive.class.cast(testArchive);
+         Asset beansXML = webTestArchive.delete("WEB-INF/beans.xml").getAsset();
+         webTestArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
       }
-      else if(EnterpriseArchive.class.isInstance(protocolArchive))
+      else if(EnterpriseArchive.class.isInstance(testArchive))
       {
-         EnterpriseArchive enterpriseProtocolArchive = EnterpriseArchive.class.cast(protocolArchive);
-         for(WebArchive nestedWebProtocolArchive : enterpriseProtocolArchive.getAsType(WebArchive.class, Filters.include("/.*\\.war")))
+         EnterpriseArchive enterpriseTestArchive = EnterpriseArchive.class.cast(testArchive);
+         for(WebArchive nestedWebTestArchive : enterpriseTestArchive.getAsType(WebArchive.class, Filters.include("/.*\\.war")))
          {
-            Asset beansXML = nestedWebProtocolArchive.delete("WEB-INF/beans.xml").getAsset();
-            nestedWebProtocolArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
+            Asset beansXML = nestedWebTestArchive.delete("WEB-INF/beans.xml").getAsset();
+            nestedWebTestArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
          }
       }
    }
