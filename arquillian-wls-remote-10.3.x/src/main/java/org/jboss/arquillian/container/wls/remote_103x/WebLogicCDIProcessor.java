@@ -35,7 +35,7 @@ public class WebLogicCDIProcessor implements ProtocolArchiveProcessor
 
    private void relocateBeansXML(Archive<?> testArchive, Archive<?> protocolArchive)
    {
-      if(WebArchive.class.isInstance(testArchive))
+      if(WebArchive.class.isInstance(testArchive) && testArchive.contains("WEB-INF/beans.xml"))
       {
          WebArchive webTestArchive = WebArchive.class.cast(testArchive);
          Asset beansXML = webTestArchive.delete("WEB-INF/beans.xml").getAsset();
@@ -46,8 +46,11 @@ public class WebLogicCDIProcessor implements ProtocolArchiveProcessor
          EnterpriseArchive enterpriseTestArchive = EnterpriseArchive.class.cast(testArchive);
          for(WebArchive nestedWebTestArchive : enterpriseTestArchive.getAsType(WebArchive.class, Filters.include("/.*\\.war")))
          {
-            Asset beansXML = nestedWebTestArchive.delete("WEB-INF/beans.xml").getAsset();
-            nestedWebTestArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
+            if(nestedWebTestArchive.contains("WEB-INF/beans.xml"))
+            {
+               Asset beansXML = nestedWebTestArchive.delete("WEB-INF/beans.xml").getAsset();
+               nestedWebTestArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
+            }
          }
       }
    }
