@@ -63,9 +63,10 @@ public class WebLogicDeployEarTest {
     @Deployment(testable = false)
     public static Archive<?> getTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
-                .addClasses(GreeterServlet.class);
+                .addClasses(GreeterServlet.class)
+                .setWebXML("in-container-web-eartest.xml");
         final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "test.jar")
-                .addClasses(Greeter.class);
+                .addClasses(Greeter.class, GreeterBean.class);
         final EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "test.ear")
                 .setApplicationXML("application.xml")
                 .addAsModule(war)
@@ -76,7 +77,7 @@ public class WebLogicDeployEarTest {
 
     @Test
     public void shouldBeAbleToDeployEnterpriseArchive(@ArquillianResource URL contextRoot) throws Exception {
-        final URLConnection response = new URL(contextRoot, "Test").openConnection();
+        final URLConnection response = new URL(contextRoot, "Greeter").openConnection();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(response.getInputStream()));
         final String result = in.readLine();
