@@ -67,12 +67,7 @@ public class WebLogicDeployEarTest {
     public static Archive<?> getTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addClasses(GreeterServlet.class)
-                .setWebXML("in-container-web-eartest.xml")
-                .addAsLibraries(DependencyResolvers.use(MavenDependencyResolver.class)
-                        .loadMetadataFromPom("pom.xml")
-                        .goOffline()
-                        .artifact("org.jboss.weld.servlet:weld-servlet")
-                        .resolveAs(GenericArchive.class));
+                .setWebXML("in-container-web-eartest.xml");
         final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "test.jar")
                 .addClasses(Greeter.class, GreeterBean.class);
         final EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "test.ear")
