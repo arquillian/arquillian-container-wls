@@ -12,10 +12,6 @@
       <env-entry-value>Hello World from an env-entry</env-entry-value>
    </env-entry>
 
-   <!-- <listener>
-      <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
-   </listener> -->
-
    <servlet>
       <servlet-name>TestServlet</servlet-name>
       <servlet-class>org.jboss.arquillian.container.wls.remote_103x.MyServlet</servlet-class>

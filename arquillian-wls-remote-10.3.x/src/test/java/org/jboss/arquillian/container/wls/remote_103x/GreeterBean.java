@@ -31,7 +31,7 @@ import javax.ejb.Stateless;
  * @author <a href="http://community.jboss.org/people/aslak">Aslak Knutsen</a>
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
-@Stateless
+@Stateless(name="GreeterBean", mappedName="Greeter")
 public class GreeterBean implements Serializable, Greeter
 {
    private static final long serialVersionUID = 6410949671035595273L;
