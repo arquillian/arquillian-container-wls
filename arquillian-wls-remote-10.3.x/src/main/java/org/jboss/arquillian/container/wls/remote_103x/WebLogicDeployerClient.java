@@ -1,3 +1,19 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat Middleware LLC, and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.arquillian.container.wls.remote_103x;
 
 import java.io.BufferedReader;
@@ -13,7 +29,13 @@ import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 
 /**
  * Utility class that uses Weblogic.Deployer to conduct deployments and undeployments.
- * This might need to be revisited, especially since WebLogic supports JSR-88 in some form.
+ * 
+ * The use of this might need to be revisited, especially since WebLogic supports JSR-88 in some form.
+ * If the JSR-88 support can be used to deploy apps with the Java Management API and not
+ * required any proprietary classes, then we must look at replacing this class.
+ * 
+ * The output of the weblogic.Deployer process is only displayed and not parsed.
+ * We'll use the JMX client to actually figure out the details of the deployment.
  * 
  * @author Vineet Reynolds
  *
@@ -22,8 +44,6 @@ public class WebLogicDeployerClient
 {
 
    private static final Logger logger = Logger.getLogger(WebLogicDeployerClient.class.getName());
-   private static final String ADMIN_URL_TEMPLATE = "%s://%s:%d";
-   private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
    
    private Process deployer;
    private WebLogicConfiguration configuration;
@@ -33,15 +53,25 @@ public class WebLogicDeployerClient
       this.configuration = configuration;
    }
 
+   /**
+    * Forks the weblogic.Deployer process to trigger a deployment.
+    * 
+    * This is more or less a fire and forget method. Exceptions
+    * thrown by this method are generally indicative of a failed deployment.
+    * But this is not necessarily so - the caller must also verify the status
+    * of the deployment with the AdminServer, via JMX or other means.
+    *  
+    * @param deploymentName The name of the application to be deployed
+    * @param deploymentArchive The file archive (EAR/WAR) representing the application
+    * 
+    * @throws DeploymentException When forking of weblogic.Deployer fails,
+    * or when interaction with the forked process fails.
+    */
    public void deploy(String deploymentName, File deploymentArchive) throws DeploymentException
    {
-      String wlsHome = configuration.getWlsHome();
-      String weblogicJarPath = wlsHome.endsWith(File.separator) ?  wlsHome.concat(WEBLOGIC_JAR_PATH) : wlsHome.concat(File.separator).concat(WEBLOGIC_JAR_PATH);
-      String adminUrl = String.format(ADMIN_URL_TEMPLATE, configuration.getProtocol(), configuration.getAdminListenAddress(), configuration.getAdminListenPort());
-      
       CommandBuilder builder = new CommandBuilder()
-            .setWeblogicJarPath(weblogicJarPath)
-            .setAdminUrl(adminUrl)
+            .setWeblogicJarPath(configuration.getWeblogicJarPath())
+            .setAdminUrl(configuration.getAdminUrl())
             .setAdminUserName(configuration.getAdminUserName())
             .setAdminPassword(configuration.getAdminPassword())
             .setDeploymentName(deploymentName)
@@ -52,15 +82,19 @@ public class WebLogicDeployerClient
       forkWebLogicDeployer(builder.buildDeployCommand());
    }
 
+   /**
+    * Forks the weblogic.Deployer process to trigger an undeployment.
+    * 
+    * @param deploymentName The name of the application to be undeployed
+    * 
+    * @throws DeploymentException When forking of weblogic.Deployer fails,
+    * or when interaction with the forked process fails.
+    */
    public void undeploy(String deploymentName) throws DeploymentException
    {
-      String wlsHome = configuration.getWlsHome();
-      String weblogicJarPath = wlsHome.endsWith(File.separator) ?  wlsHome.concat(WEBLOGIC_JAR_PATH) : wlsHome.concat(File.separator).concat(WEBLOGIC_JAR_PATH);
-      String adminUrl = String.format(ADMIN_URL_TEMPLATE, configuration.getProtocol(), configuration.getAdminListenAddress(), configuration.getAdminListenPort());
-
       CommandBuilder builder = new CommandBuilder()
-            .setWeblogicJarPath(weblogicJarPath)
-            .setAdminUrl(adminUrl)
+            .setWeblogicJarPath(configuration.getWeblogicJarPath())
+            .setAdminUrl(configuration.getAdminUrl())
             .setAdminUserName(configuration.getAdminUserName())
             .setAdminPassword(configuration.getAdminPassword())
             .setDeploymentName(deploymentName)
@@ -80,6 +114,9 @@ public class WebLogicDeployerClient
          Thread outputReader = new Thread(new DeployerOutputReader());
          outputReader.start();
          int exitValue = deployer.waitFor();
+         // We'll not throw an error yet, as we do not want to parse the output of weblogic.Deployer
+         // to determine if the deployment failed. So, we'll log the process exit value,
+         // and defer the evaluation of the deployment status to the JMX client.
          if(exitValue == 0)
          {
             logger.log(Level.INFO, "weblogic.Deployer appears to have terminated successfully.");
@@ -102,6 +139,17 @@ public class WebLogicDeployerClient
       }
    }
 
+   /**
+    * Reads the output stream of the weblogic.Deployer process
+    * and logs it.
+    * 
+    * The logger level is set to FINE as we do not want
+    * to display these details to the user by default. This would
+    * make for cleaner JUnit/TestNG generated logs/reports.  
+    * 
+    * @author Vineet Reynolds
+    *
+    */
    class DeployerOutputReader implements Runnable
    {
 
