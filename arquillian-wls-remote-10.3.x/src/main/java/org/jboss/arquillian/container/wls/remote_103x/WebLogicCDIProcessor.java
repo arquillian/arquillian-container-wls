@@ -19,6 +19,7 @@ package org.jboss.arquillian.container.wls.remote_103x;
 import org.jboss.arquillian.container.test.spi.TestDeployment;
 import org.jboss.arquillian.container.test.spi.client.deployment.ProtocolArchiveProcessor;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.Filters;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -54,7 +55,7 @@ public class WebLogicCDIProcessor implements ProtocolArchiveProcessor
       if(WebArchive.class.isInstance(testArchive) && testArchive.contains("WEB-INF/beans.xml"))
       {
          WebArchive webTestArchive = WebArchive.class.cast(testArchive);
-         Asset beansXML = webTestArchive.delete("WEB-INF/beans.xml").getAsset();
+         Asset beansXML = webTestArchive.delete(ArchivePaths.create("WEB-INF/beans.xml")).getAsset();
          webTestArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
       }
       else if(EnterpriseArchive.class.isInstance(testArchive))
@@ -64,7 +65,7 @@ public class WebLogicCDIProcessor implements ProtocolArchiveProcessor
          {
             if(nestedWebTestArchive.contains("WEB-INF/beans.xml"))
             {
-               Asset beansXML = nestedWebTestArchive.delete("WEB-INF/beans.xml").getAsset();
+               Asset beansXML = nestedWebTestArchive.delete(ArchivePaths.create("WEB-INF/beans.xml")).getAsset();
                nestedWebTestArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
             }
          }
