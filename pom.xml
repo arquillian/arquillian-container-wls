@@ -1,67 +1,79 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <!-- Parent -->
-    <parent>
-        <groupId>org.jboss</groupId>
-        <artifactId>jboss-parent</artifactId>
-        <version>6-beta-2</version>
-        <relativePath />
-    </parent>
+	<!-- Parent -->
+	<parent>
+		<groupId>org.jboss</groupId>
+		<artifactId>jboss-parent</artifactId>
+		<version>6-beta-2</version>
+		<relativePath />
+	</parent>
 
-    <!-- Model Version -->
-    <modelVersion>4.0.0</modelVersion>
+	<!-- Model Version -->
+	<modelVersion>4.0.0</modelVersion>
 
-    <!-- Artifact Configuration -->
-    <groupId>org.jboss.arquillian.container</groupId>
-    <artifactId>arquillian-parent-wls</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <description>WebLogic Containers integration with the Arquillian project</description>
-    <name>Arquillian Container - WebLogic Parent Project</name>
+	<!-- Artifact Configuration -->
+	<groupId>org.jboss.arquillian.container</groupId>
+	<artifactId>arquillian-parent-wls</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<description>WebLogic Containers integration with the Arquillian project</description>
+	<name>Arquillian Container - WebLogic Parent Project</name>
 
-    <!-- SCM Info -->
-    <scm>
-        <connection>scm:git:git@github.com:VineetReynolds/arquillian-container-wls.git</connection>
-        <developerConnection>scm:git:git@github.com:VineetReynolds/arquillian-container-wls.git</developerConnection>
-        <url>https://github.com/VineetReynolds/arquillian-container-wls</url>
-    </scm>
+	<!-- SCM Info -->
+	<scm>
+		<connection>scm:git:git@github.com:VineetReynolds/arquillian-container-wls.git</connection>
+		<developerConnection>scm:git:git@github.com:VineetReynolds/arquillian-container-wls.git</developerConnection>
+		<url>https://github.com/VineetReynolds/arquillian-container-wls</url>
+	</scm>
 
-    <!-- Properties -->
-    <properties>
-        <maven.compiler.source>1.5</maven.compiler.source>
-        <maven.compiler.target>1.5</maven.compiler.target>
-        <version.arquillian_core>1.0.0.Final-SNAPSHOT</version.arquillian_core>
-        <version.weld_servlet>1.1.2.Final</version.weld_servlet>
-    </properties>
+	<!-- Properties -->
+	<properties>
+		<maven.compiler.source>1.5</maven.compiler.source>
+		<maven.compiler.target>1.5</maven.compiler.target>
+		<version.arquillian_core>1.0.0.Final-SNAPSHOT</version.arquillian_core>
+		<version.weld_servlet>1.1.2.Final</version.weld_servlet>
+	</properties>
 
-    <!-- Dependency Management -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>${version.arquillian_core}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-build</artifactId>
-                <version>${version.arquillian_core}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.weld.servlet</groupId>
-                <artifactId>weld-servlet</artifactId>
-                <version>${version.weld_servlet}</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+	<!-- Dependency Management -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-bom</artifactId>
+				<version>${version.arquillian_core}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-build</artifactId>
+				<version>${version.arquillian_core}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.weld.servlet</groupId>
+				<artifactId>weld-servlet</artifactId>
+				<version>${version.weld_servlet}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
-    <modules>
-        <module>arquillian-wls-remote-10.3.x</module>
-    </modules>
+	<modules>
+		<module>arquillian-wls-remote-10.3.x</module>
+	</modules>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.7.2</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
 </project>
