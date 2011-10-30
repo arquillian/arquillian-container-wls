@@ -4,21 +4,19 @@
 	xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
     <!-- Uncomment to have test archives exported to the file system for inspection -->
-    
-    <engine> 
+    <!-- 
+    <engine>
         <property name="deploymentExportPath">target/</property> 
-    </engine> 
-   
+    </engine>
+     -->
 
     <container qualifier="wls" default="true">
         <configuration>
-            <property name="adminListenAddress">localhost</property>
-            <property name="adminListenPort">7001</property>
-            <property name="protocol">t3</property>
+            <property name="adminUrl">t3://localhost:7001</property>
             <property name="adminUserName">weblogic</property>
             <property name="adminPassword">weblogic$1</property>
             <property name="target">AdminServer</property>
-            <property name="wlsHome">C:\\Oracle\\Middleware\\wlserver_10.3</property>
+            <property name="wlsHome">G:\Oracle\Middleware\wlserver_10.3</property>
         </configuration>
     </container>
 
