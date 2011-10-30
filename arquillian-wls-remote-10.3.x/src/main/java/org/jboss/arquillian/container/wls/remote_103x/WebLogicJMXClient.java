@@ -59,6 +59,12 @@ public class WebLogicJMXClient
    
    private static final String RUNNING = "RUNNING";
    
+   private static final ThreadLocal<String> trustStorePath = new ThreadLocal<String>();
+   
+   private static final ThreadLocal<String> trustStorePassword = new ThreadLocal<String>();
+   
+   private static final ThreadLocal<ClassLoader> originalContextClassLoader = new ThreadLocal<ClassLoader>();
+   
    private WebLogicConfiguration configuration;
    
    private MBeanServerConnection connection;
@@ -66,7 +72,7 @@ public class WebLogicJMXClient
    private JMXConnector connector;
    
    private ObjectName domainRuntimeService;
-
+   
    public WebLogicJMXClient(WebLogicConfiguration configuration)
    {
       this.configuration = configuration;
@@ -92,8 +98,8 @@ public class WebLogicJMXClient
    {
       try
       {
-         // Sets the thread's context classloader to load the WLS libs.
-         initWebLogicJMXLibClassLoader();
+         // Store the initial state pre-invocation.
+         stashInitialState();
          // Now, create a connection to the Domain Runtime MBean Server.
          createConnection();
 
@@ -115,8 +121,8 @@ public class WebLogicJMXClient
       {
          // Close the connection first.
          closeConnection();
-         // Reset the thread's context classloader back to the original. 
-         destroyWebLogicJMXLibClassLoader();
+         // Reset the state. 
+         revertToInitialState();
       }
    }
    
@@ -131,8 +137,8 @@ public class WebLogicJMXClient
    {
       try
       {
-         // Sets the thread's context classloader to load the WLS libs.
-         initWebLogicJMXLibClassLoader();
+         // Store the initial state pre-invocation.
+         stashInitialState();
          // Now, create a connection to the Domain Runtime MBean Server.
          createConnection();
          
@@ -146,8 +152,8 @@ public class WebLogicJMXClient
       {
          // Close the connection first.
          closeConnection();
-         // Reset the thread's context classloader back to the original.
-         destroyWebLogicJMXLibClassLoader();
+         // Reset the state.
+         revertToInitialState();
       }
    }
 
@@ -285,56 +291,29 @@ public class WebLogicJMXClient
     * that has the wljmxclient.jar from WL_HOME as a codesource.
     * The original context classloader of the thread is the parent of the new classloader,
     * and all classes to be loaded will be delegated to the parent first,
-    * and then searched for in wljmxclient.jar (and associated classes in the Manifest).
+    * and then searched for in wljmxclient.jar (and associated archives in the Manifest).
+    * 
+    * We have to set the current thread's context classloader, 
+    * instead of relying on the "jmx.remote.protocol.provider.class.loader" key
+    * with an associated value of an instance of {@link WebLogicJMXLibClassLoader}
+    * in the environment specified to {@link JMXConnectorFactory}.
+    * Classes like weblogic.jndi.WLInitialContextFactory will be loaded by the thread's
+    * context classloader and not by the classloader used to load the JMX provider. 
     * 
     * This method is preferably invoked as late as possible.
     */
    private void initWebLogicJMXLibClassLoader()
    {
-      ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-      if(contextClassLoader.getClass().equals(WebLogicJMXLibClassLoader.class))
-      {
-         // Our thread's context classloader is already the WebLogicJMXLibClassLoader.
-         // We do not need to create a child classloader.
-         logger.fine("The thread's context classloader has already been set to the desired classloader.");
-         return;
-      }
-
       File wlHome =  new File(configuration.getJmxLibPath());
       try
       {
          URL[] urls = { wlHome.toURI().toURL() };
-         ClassLoader jmxLibraryClassLoader = new WebLogicJMXLibClassLoader(urls, contextClassLoader);
+         ClassLoader jmxLibraryClassLoader = new WebLogicJMXLibClassLoader(urls, Thread.currentThread().getContextClassLoader());
          Thread.currentThread().setContextClassLoader(jmxLibraryClassLoader);
       }
       catch (MalformedURLException urlEx)
       {
          throw new RuntimeException("The constructed path to wljmxclient.jar appears to be invalid. Verify that you have access to this jar and it's dependencies.", urlEx);
-      }
-   }
-   
-   /**
-    * Unsets the thread's context classloader to the original parent,
-    * from the existing {@link WebLogicJMXLibClassLoader}.
-    * We'll do this to ensure that Arquillian tests may run unaffected,
-    * if the {@link WebLogicJMXLibClassLoader} were to interfere somehow.
-    * 
-    * This method is preferably invoked as soon as possible.
-    */
-   private void destroyWebLogicJMXLibClassLoader()
-   {
-      ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-      if(!contextClassLoader.getClass().equals(WebLogicJMXLibClassLoader.class))
-      {
-         // Our thread's context classloader is no longer the WebLogicJMXLibClassLoader.
-         // We'll not reset the classloader to the original parent.
-         logger.fine("The thread's context classloader was not the WebLogicJMXClassLoader.");
-         return;
-      }
-      else
-      {
-         ClassLoader originalParentClassLoader = contextClassLoader.getParent();
-         Thread.currentThread().setContextClassLoader(originalParentClassLoader);
       }
    }
    
@@ -345,11 +324,28 @@ public class WebLogicJMXClient
     */
    private void createConnection() throws DeploymentException
    {
+      if(connection != null)
+      {
+         return;
+      }
+      
       initWebLogicJMXLibClassLoader();
-      String protocol = configuration.getProtocol();
-      String hostname = configuration.getAdminListenAddress();
-      int portNum = Integer.valueOf(configuration.getAdminListenPort());
+      String protocol = configuration.getJmxProtocol();
+      String hostname = configuration.getJmxHost();
+      int portNum = configuration.getJmxPort();
       String domainRuntimeMBeanServerURL = "/jndi/weblogic.management.mbeanservers.domainruntime";
+      if(configuration.isUseDemoTrust() || configuration.isUseCustomTrust() || configuration.isUseJavaStandardTrust())
+      {
+         System.setProperty("javax.net.ssl.trustStore", configuration.getTrustStoreLocation());
+         String trustStorePassword = configuration.getTrustStorePassword();
+         // The default password for JKS truststores 
+         // usually need not be specified to read the CA certs.
+         // But, if this was specified in arquillian.xml, we'll set it.
+         if(trustStorePassword != null && !trustStorePassword.equals(""))
+         {
+            System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword); 
+         }
+      }
 
       try
       {
@@ -374,11 +370,59 @@ public class WebLogicJMXClient
    {
       try
       {
-         connector.close();
+         if(connector != null)
+         {
+            connector.close();
+         }
       }
       catch (IOException ioEx)
       {
-         logger.log(Level.FINE, "Failed to close the connection to the MBean Server.", ioEx);
+         logger.log(Level.INFO, "Failed to close the connection to the MBean Server.", ioEx);
+      }
+   }
+   
+   /**
+    * Stores the current state before attempting to change the classloaders,
+    * and the system properties.
+    */
+   private void stashInitialState()
+   {
+      if(trustStorePath.get() == null && trustStorePassword.get() == null)
+      {
+         trustStorePath.set(System.getProperty("javax.net.ssl.trustStore"));
+         trustStorePassword.set(System.getProperty("javax.net.ssl.trustStorePassword"));
+      }
+      if(originalContextClassLoader.get() == null)
+      {
+         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+         originalContextClassLoader.set(contextClassLoader);
+      }
+   }
+   
+   /**
+    * Unsets the thread's context classloader to the original classloader. 
+    * We'll do this to ensure that Arquillian tests may run unaffected,
+    * if the {@link WebLogicJMXLibClassLoader} were to interfere somehow.
+    * 
+    * The truststore path and password is also reset to the original,
+    * to ensure that Arquillian tests at the client, that use these properties,
+    * will run without interference.
+    * 
+    * This method is preferably invoked as soon as possible.
+    */
+   private void revertToInitialState()
+   {
+      if(trustStorePath.get() != null && trustStorePassword.get() != null)
+      {
+         System.setProperty("javax.net.ssl.trustStore", trustStorePath.get());
+         System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword.get());
+         trustStorePath.set(null);
+         trustStorePassword.set(null);
+      }
+      if(originalContextClassLoader.get() != null)
+      {
+         Thread.currentThread().setContextClassLoader(originalContextClassLoader.get());
+         originalContextClassLoader.set(null);
       }
    }
 

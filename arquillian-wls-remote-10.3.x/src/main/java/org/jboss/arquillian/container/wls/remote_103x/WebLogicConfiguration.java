@@ -17,6 +17,8 @@
 package org.jboss.arquillian.container.wls.remote_103x;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;
@@ -31,29 +33,35 @@ public class WebLogicConfiguration implements ContainerConfiguration
 {
 
    private static final String WL_JMX_CLIENT_JAR_PATH = "server/lib/wljmxclient.jar";
-   private static final String ADMIN_URL_TEMPLATE = "%s://%s:%d";
    private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
    
    /**
-    * Protocol to use to connect to AdminServer, used to construct the adminurl.
-    * Valid ones are t3, http, iiop, iiops.
+    * The administration URL to connect to.
     */
-   private String protocol = "t3";
+   private String adminUrl;
+   
+   /**
+    * Protocol to use to connect to AdminServer.
+    * This is optional. It can be derived from the adminUrl. 
+    */
+   private String adminProtocol;
 
    /**
-    * The listen address of the admin server, that is used to construct the adminurl.
+    * The listen address of the admin server.
+    * This is optional. It can be derived from the adminUrl.
     */
-   private String adminListenAddress = "localhost";
+   private String adminListenAddress;
 
    /**
-    * The port of the admin server, that is used to construct the adminurl.
+    * The port of the admin server.
+    * This is optional. It can be derived from the adminUrl.
     */
-   private int adminListenPort = 7001;
+   private int adminListenPort;
    
    /**
     * The name of the Administrator user.
     */
-   private String adminUserName = "weblogic";
+   private String adminUserName;
    
    /**
     * The password of the Administrator user.
@@ -71,11 +79,8 @@ public class WebLogicConfiguration implements ContainerConfiguration
     * The name of the target for the deployment.
     * This can be the name of the Admin Server i.e. "AdminServer",
     * the name of an individual Managed Server or the name of a Cluster (not yet supported).  
-    * 
-    * The default is "AdminServer", but this is not recommended
-    * for simulating a production environment during integration testing. 
     */
-   private String target = "AdminServer";
+   private String target;
    
    /**
     * The location of weblogic.jar (optional)
@@ -88,20 +93,47 @@ public class WebLogicConfiguration implements ContainerConfiguration
    private String jmxLibPath;
    
    /**
-    * The administration URL to connect to. (optional)
+    * The protocol to use, when connecting to the WebLogic Domain Runtime MBean Server. (optional)
     */
-   private String adminUrl;
+   private String jmxProtocol;
+   
+   /**
+    * The host where the WebLogic Domain Runtime MBean Server resides. (optional)
+    */
+   private String jmxHost;
+   
+   /**
+    * The port that the WebLogic Domain Runtime MBean Server listens on. (optional)
+    */
+   private int jmxPort;
+   
+   /**
+    * Use the Demo Truststore, to connect to a WebLogic Server that uses Demo Identity and Trust stores.
+    */
+   private boolean useDemoTrust = false;
+
+   /**
+    * Use a custom Truststore, to connect to a WebLogic Server that uses a Custom Trust store.
+    */
+   private boolean useCustomTrust = false;
+
+   /**
+    * Use a the Truststore of the running JRE, to connect to a WebLogic Server that uses the Java Standard Trust store.
+    */
+   private boolean useJavaStandardTrust = false;
+   
+   private String javaHome;
+   
+   private String trustStoreLocation;
+   
+   private String trustStorePassword;
    
    public void validate() throws ConfigurationException
    {
       // Verify the mandatory properties
       Validate.directoryExists(wlsHome,
-            "The wlsHome directory could not be located. Verify the property in arquillian.xml");
-      Validate.notNullOrEmpty(protocol, "The protocol is empty. Verify the property in arquillian.xml");
-      Validate.notNullOrEmpty(adminListenAddress,
-            "The adminListenAddress is empty. Verify the property in arquillian.xml");
-      Validate.isInRange(adminListenPort, 0, 65535,
-            "The adminListenPort is invalid. Verify the property in arquillian.xml");
+            "The wlsHome directory resolved to " + wlsHome + " and could not be located. Verify the property in arquillian.xml");
+      Validate.notNullOrEmpty(adminUrl, "The adminUrl is empty. Verify the property in arquillian.xml");
       Validate.notNullOrEmpty(adminUserName,
             "The username provided to weblogic.Deployer is empty. Verify the credentials in arquillian.xml");
       Validate.notNullOrEmpty(adminPassword,
@@ -109,7 +141,27 @@ public class WebLogicConfiguration implements ContainerConfiguration
       Validate
             .notNullOrEmpty(target, "The target for the deployment is empty. Verify the properties in arquillian.xml");
 
-      // Once validated, set the admin URL, jmxLibPath and weblogicJarPath if not already set.
+      // Once validated, set the properties that can be derived, if not already set.
+      try
+      {
+         URI adminURI = new URI(adminUrl);
+         adminProtocol = adminURI.getScheme();
+         adminListenAddress = adminURI.getHost();
+         adminListenPort = adminURI.getPort();
+         Validate.notNullOrEmpty(adminProtocol, "The adminProtocol is empty. Verify the adminUrl and adminProtocol properties in arquillian.xml");
+         Validate.isInList(adminProtocol, new String[]
+               {"t3", "t3s", "http", "https", "iiop", "iiops"},
+               "The adminProtocol is invalid. It must be either t3, t3s, http, https, iiop or iiops.");
+         Validate.notNullOrEmpty(adminListenAddress,
+               "The adminListenAddress is empty. Verify the adminUrl and adminListenAddress properties in arquillian.xml");
+         Validate.isInRange(adminListenPort, 0, 65535,
+               "The adminListenPort is invalid. Verify the adminUrl and adminListenPort properties in arquillian.xml");
+      }
+      catch (URISyntaxException uriEx)
+      {
+         throw new IllegalArgumentException("Failed to parse the adminUrl property - " + adminUrl + " as a URI.",uriEx);
+      }
+      
       if (jmxLibPath == null || jmxLibPath.equals(""))
       {
          this.jmxLibPath = this.wlsHome.endsWith(File.separator) ? wlsHome.concat(WL_JMX_CLIENT_JAR_PATH) : wlsHome
@@ -120,31 +172,68 @@ public class WebLogicConfiguration implements ContainerConfiguration
          this.weblogicJarPath = this.wlsHome.endsWith(File.separator) ? wlsHome.concat(WEBLOGIC_JAR_PATH) : wlsHome
                .concat(File.separator).concat(WEBLOGIC_JAR_PATH);
       }
-      if (adminUrl == null || adminUrl.equals(""))
+      if((jmxProtocol == null || jmxProtocol.equals("")) && (jmxHost == null || jmxHost.equals("")))
       {
-         adminUrl = String.format(ADMIN_URL_TEMPLATE, this.protocol, this.adminListenAddress, this.adminListenPort);
+         jmxProtocol = adminProtocol;
+         jmxHost = adminListenAddress;
+         jmxPort = adminListenPort;
+      }
+      if (useDemoTrust)
+      {
+         trustStoreLocation = wlsHome.endsWith(File.separator) ? wlsHome.concat("server/lib/DemoTrust.jks") : wlsHome
+               .concat(File.separator).concat("server/lib/DemoTrust.jks");
+         Validate.isValidFile(trustStoreLocation, "The DemoTrust.jks file was resolved to " + trustStoreLocation
+               + " and could not be located. Verify the wlsHome and useDemoTrust properties in arquillian.xml");
+      }
+      if(useCustomTrust)
+      {
+         Validate.isValidFile(trustStoreLocation, "The trustStoreLocation file was resolved to " + trustStoreLocation
+               + " and could not be located. Verify the useCustomTrust and trustStoreLocation properties in arquillian.xml");
+      }
+      if(useJavaStandardTrust)
+      {
+         trustStoreLocation = System.getProperty("java.home") + File.separator + "lib" + File.separator + "security"
+               + File.separator + "cacerts";
+         Validate.isValidFile(trustStoreLocation, "The trustStoreLocation file was resolved to " + trustStoreLocation
+               + " and could not be located. Verify that the cacerts file is present in the JRE installation.");
       }
       
-      //Validate these optional properties
+      //Validate these derived properties
       Validate.isValidFile(jmxLibPath,
             "The wljmxclient.jar could not be located. Verify the wlsHome and jmxLibPath properties in arquillian.xml");
       Validate
             .isValidFile(weblogicJarPath,
                   "The weblogic.jar could not be located. Verify the wlsHome and weblogicJarPath properties in arquillian.xml");
       Validate
-            .notNullOrEmpty(
-                  adminUrl,
-                  "The adminUrl is empty. Verify the adminListenAddress, adminListenPort, protocol and adminUrl properties in arquillian.xml");
+            .notNullOrEmpty(jmxProtocol,
+                  "The jmxProtocol is empty. Verify the adminUrl, adminProtocol and jmxProtocol properties in arquillian.xml");
+      Validate.isInList(jmxProtocol, new String[]
+            {"t3", "t3s", "http", "https", "iiop", "iiops"},
+            "The jmxProtocol is invalid. It must be either t3, t3s, http, https, iiop or iiops.");
+      Validate.notNullOrEmpty(jmxHost,
+            "The jmxHost is empty. Verify the adminUrl, adminListenAddress and jmxHost properties in arquillian.xml");
+      Validate.isInRange(jmxPort, 0, 65535,
+            "The jmxPort is invalid. Verify the adminUrl, adminListenPort and jmxPort properties in arquillian.xml");
    }
 
-   public String getProtocol()
+   public String getAdminUrl()
    {
-      return protocol;
+      return adminUrl;
    }
 
-   public void setProtocol(String protocol)
+   public void setAdminUrl(String adminUrl)
    {
-      this.protocol = protocol;
+      this.adminUrl = adminUrl;
+   }
+
+   public String getAdminProtocol()
+   {
+      return adminProtocol;
+   }
+
+   public void setAdminProtocol(String adminProtocol)
+   {
+      this.adminProtocol = adminProtocol;
    }
 
    public String getAdminListenAddress()
@@ -226,15 +315,95 @@ public class WebLogicConfiguration implements ContainerConfiguration
    {
       this.jmxLibPath = jmxLibPath;
    }
-
-   public String getAdminUrl()
+   
+   public String getJmxProtocol()
    {
-      return adminUrl;
+      return jmxProtocol;
    }
 
-   public void setAdminUrl(String adminUrl)
+   public void setJmxProtocol(String jmxProtocol)
    {
-      this.adminUrl = adminUrl;
+      this.jmxProtocol = jmxProtocol;
    }
 
+   public String getJmxHost()
+   {
+      return jmxHost;
+   }
+
+   public void setJmxHost(String jmxHost)
+   {
+      this.jmxHost = jmxHost;
+   }
+
+   public int getJmxPort()
+   {
+      return jmxPort;
+   }
+
+   public void setJmxPort(int jmxPort)
+   {
+      this.jmxPort = jmxPort;
+   }
+
+   public boolean isUseDemoTrust()
+   {
+      return useDemoTrust;
+   }
+
+   public void setUseDemoTrust(boolean useDemoTrust)
+   {
+      this.useDemoTrust = useDemoTrust;
+   }
+
+   public boolean isUseCustomTrust()
+   {
+      return useCustomTrust;
+   }
+
+   public void setUseCustomTrust(boolean useCustomTrust)
+   {
+      this.useCustomTrust = useCustomTrust;
+   }
+
+   public boolean isUseJavaStandardTrust()
+   {
+      return useJavaStandardTrust;
+   }
+
+   public void setUseJavaStandardTrust(boolean useJavaStandardTrust)
+   {
+      this.useJavaStandardTrust = useJavaStandardTrust;
+   }
+
+   public String getJavaHome()
+   {
+      return javaHome;
+   }
+
+   public void setJavaHome(String javaHome)
+   {
+      this.javaHome = javaHome;
+   }
+
+   public String getTrustStoreLocation()
+   {
+      return trustStoreLocation;
+   }
+
+   public void setTrustStoreLocation(String trustStoreLocation)
+   {
+      this.trustStoreLocation = trustStoreLocation;
+   }
+
+   public String getTrustStorePassword()
+   {
+      return trustStorePassword;
+   }
+
+   public void setTrustStorePassword(String trustStorePassword)
+   {
+      this.trustStorePassword = trustStorePassword;
+   }
+   
 }

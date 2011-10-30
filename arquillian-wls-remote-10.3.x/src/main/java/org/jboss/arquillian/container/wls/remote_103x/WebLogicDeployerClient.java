@@ -47,10 +47,12 @@ public class WebLogicDeployerClient
    
    private Process deployer;
    private WebLogicConfiguration configuration;
+   private StringBuilder buffer;
 
    public WebLogicDeployerClient(WebLogicConfiguration configuration)
    {
       this.configuration = configuration;
+      this.buffer = new StringBuilder();
    }
 
    /**
@@ -76,7 +78,11 @@ public class WebLogicDeployerClient
             .setAdminPassword(configuration.getAdminPassword())
             .setDeploymentName(deploymentName)
             .setDeploymentArchivePath(deploymentArchive.getAbsolutePath())
-            .setTargets(configuration.getTarget());
+            .setTargets(configuration.getTarget())
+            .setUseDemoTrust(configuration.isUseDemoTrust())
+            .setUseCustomTrust(configuration.isUseCustomTrust())
+            .setCustomTrustStore(configuration.getTrustStoreLocation())
+            .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to deploy the test artifact.");
       forkWebLogicDeployer(builder.buildDeployCommand());
@@ -98,7 +104,11 @@ public class WebLogicDeployerClient
             .setAdminUserName(configuration.getAdminUserName())
             .setAdminPassword(configuration.getAdminPassword())
             .setDeploymentName(deploymentName)
-            .setTargets(configuration.getTarget());
+            .setTargets(configuration.getTarget())
+            .setUseDemoTrust(configuration.isUseDemoTrust())
+            .setUseCustomTrust(configuration.isUseCustomTrust())
+            .setCustomTrustStore(configuration.getTrustStoreLocation())
+            .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to undeploy the test artifact.");
       forkWebLogicDeployer(builder.buildUndeployCommand());
@@ -123,10 +133,8 @@ public class WebLogicDeployerClient
          }
          else
          {
-            logger.log(
-                  Level.WARNING,
-                  "weblogic.Deployer terminated with exit code {0}. There was possibly an error in deploying the application.",
-                  exitValue);
+            logger.log(Level.WARNING, "weblogic.Deployer terminated abnormally with exit code {0}", exitValue);
+            logger.log(Level.INFO, "The output of the weblogic.Deployer process was: {0}", buffer.toString());
          }
       }
       catch (InterruptedException interruptEx)
@@ -163,6 +171,9 @@ public class WebLogicDeployerClient
             while((line = reader.readLine()) != null)
             {
                logger.log(Level.FINE, line);
+               // Store the output anyway, so that it may be logged later,
+               // in the same Arquillian test run, if weblogic.Deployer terminates abruptly.
+               buffer.append(line);
             }
          }
          catch (IOException e)

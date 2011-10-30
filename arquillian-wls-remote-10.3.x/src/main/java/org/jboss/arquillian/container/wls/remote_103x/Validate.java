@@ -146,4 +146,27 @@ public final class Validate {
 
     }
 
+   /**
+    * Checks if the value is an allowed value
+    * @param value The value
+    * @param validValues The array of valid values
+    * @param message The exception message.
+    */
+   public static void isInList(String value, String[] validValues, String message)
+   {
+      boolean found = false;
+      for (String validValue : validValues)
+      {
+         if(value.equals(validValue))
+         {
+            found = true;
+            break;
+         }
+      }
+      if(!found)
+      {
+         throw new IllegalArgumentException(message);
+      }
+   }
+
 }

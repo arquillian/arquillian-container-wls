@@ -16,6 +16,7 @@
  */
 package org.jboss.arquillian.container.wls.remote_103x;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,11 @@ public class CommandBuilder
    private String deploymentName;
    private String targets;
    private String deploymentArchivePath;
+   private boolean useDemoTrust;
+   private boolean useCustomTrust;
+   private String customTrustStore;
+   private boolean useJavaStandardTrust;
+   private String trustStorePassword;
 
    public CommandBuilder setWeblogicJarPath(String weblogicJarPath)
    {
@@ -77,6 +83,37 @@ public class CommandBuilder
       this.deploymentArchivePath = deploymentArchivePath;
       return this;
    }
+
+   public CommandBuilder setUseDemoTrust(boolean useDemoTrust)
+   {
+      this.useDemoTrust = useDemoTrust;
+      return this;
+   }
+   
+   public CommandBuilder setUseCustomTrust(boolean useCustomTrust)
+   {
+      this.useCustomTrust = useCustomTrust;
+      return this;
+   }
+   
+   public CommandBuilder setUseJavaStandardTrust(boolean useJavaStandardTrust)
+   {
+      this.useJavaStandardTrust = useJavaStandardTrust;
+      return this;
+   }
+   
+   public CommandBuilder setCustomTrustStore(String customTrustStore)
+   {
+      this.customTrustStore = customTrustStore;
+      return this;
+   }
+
+   public CommandBuilder setTrustStorePassword(String trustStorePassword)
+   {
+      this.trustStorePassword = trustStorePassword;
+      return this;
+   }
+
    
    /**
     * Constructs the commandline to be used for launching weblogic.Deployer
@@ -88,9 +125,33 @@ public class CommandBuilder
    public List<String> buildDeployCommand()
    {
       List<String> cmd = new ArrayList<String>();
-      cmd.add("java");
+      // Use the same Java Home as the one used by Arquillian to launch weblogic.Deployer.
+      // This will avoid confusion over the cacerts file if used as the SSL Trust Store.
+      cmd.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
       cmd.add("-classpath");
       cmd.add(weblogicJarPath);
+      if(useDemoTrust)
+      {
+         cmd.add("-Dweblogic.security.TrustKeyStore=DemoTrust");
+      }
+      if(useCustomTrust)
+      {
+         cmd.add("-Dweblogic.security.TrustKeyStore=CustomTrust");
+         cmd.add("-Dweblogic.security.CustomTrustKeyStoreFileName="+customTrustStore);
+         cmd.add("-Dweblogic.security.TrustKeystoreType=jks");
+         if(trustStorePassword != null && !trustStorePassword.equals(""))
+         {
+            cmd.add("-Dweblogic.security.CustomTrustKeyStorePassPhrase="+trustStorePassword);
+         }
+      }
+      if(useJavaStandardTrust)
+      {
+         cmd.add("-Dweblogic.security.TrustKeyStore=JavaStandardTrust");
+         if(trustStorePassword != null && !trustStorePassword.equals(""))
+         {
+            cmd.add("-Dweblogic.security.JavaStandardTrustKeyStorePassPhrase="+trustStorePassword);
+         }
+      }
       cmd.add("weblogic.Deployer");
       cmd.add("-adminurl");
       cmd.add(adminUrl);
@@ -106,6 +167,7 @@ public class CommandBuilder
       cmd.add("-targets");
       cmd.add(targets);
       cmd.add("-upload");
+      cmd.add("-debug");
       return cmd;
    }
    
@@ -119,9 +181,33 @@ public class CommandBuilder
    public List<String> buildUndeployCommand()
    {
       List<String> cmd = new ArrayList<String>();
-      cmd.add("java");
+      // Use the same Java Home as the one used by Arquillian to launch weblogic.Deployer.
+      // This will avoid confusion over the cacerts file if used as the SSL Trust Store.
+      cmd.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
       cmd.add("-classpath");
       cmd.add(weblogicJarPath);
+      if(useDemoTrust)
+      {
+         cmd.add("-Dweblogic.security.TrustKeyStore=DemoTrust");
+      }
+      if(useCustomTrust)
+      {
+         cmd.add("-Dweblogic.security.TrustKeyStore=CustomTrust");
+         cmd.add("-Dweblogic.security.CustomTrustKeyStoreFileName="+customTrustStore);
+         cmd.add("-Dweblogic.security.TrustKeystoreType=jks");
+         if(trustStorePassword != null && !trustStorePassword.equals(""))
+         {
+            cmd.add("-Dweblogic.security.CustomTrustKeyStorePassPhrase="+trustStorePassword);
+         }
+      }
+      if(useJavaStandardTrust)
+      {
+         cmd.add("-Dweblogic.security.TrustKeyStore=JavaStandardTrust");
+         if(trustStorePassword != null && !trustStorePassword.equals(""))
+         {
+            cmd.add("-Dweblogic.security.JavaStandardTrustKeyStorePassPhrase="+trustStorePassword);
+         }
+      }
       cmd.add("weblogic.Deployer");
       cmd.add("-adminurl");
       cmd.add(adminUrl);
@@ -134,6 +220,7 @@ public class CommandBuilder
       cmd.add(deploymentName);
       cmd.add("-targets");
       cmd.add(targets);
+      cmd.add("-debug");
       return cmd;
    }
 
