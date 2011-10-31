@@ -172,8 +172,22 @@ public class WebLogicJMXClient
          ObjectName[] wlServerRuntimes = getWLServerRuntimes();
          for (ObjectName wlServerRuntime : wlServerRuntimes)
          {
+            // Get the name of the server - admin or managed server.
             String serverName = (String) connection.getAttribute(wlServerRuntime, "Name");
-            if (serverName.equals(configuration.getTarget()))
+            // Also get the cluster associated with the server
+            ObjectName cluster = (ObjectName) connection.getAttribute(wlServerRuntime, "ClusterRuntime");
+            String clusterName = null;
+            if(cluster != null)
+            {
+               clusterName = (String) connection.getAttribute(cluster, "Name");
+            }
+            // Only one server in a cluster is chosen as the SUT.
+            // We'll choose the current server for generating te HTTPContext
+            // if the server or it's cluster, is the deployment target.
+            // Once the server has been chosen as a SUT/AUT, other servers in the cluster are ignored
+            // from the point of view of an SUT/AUT.
+            String deploymentTarget = configuration.getTarget();
+            if (serverName.equals(deploymentTarget) || (clusterName != null && clusterName.equals(deploymentTarget)))
             {
                String serverState = (String) connection.getAttribute(wlServerRuntime, "State");
                if(!serverState.equals(RUNNING))
@@ -184,6 +198,7 @@ public class WebLogicJMXClient
                String httpUrlAsString = (String) connection.invoke(wlServerRuntime, "getURL", new Object[]{"http"}, new String[]{"java.lang.String"});
                URL serverHttpUrl = new URL(httpUrlAsString);
                httpContext = new HTTPContext(serverHttpUrl.getHost(), serverHttpUrl.getPort());
+               break;
             }
          }
       }
@@ -212,8 +227,22 @@ public class WebLogicJMXClient
       ObjectName[] wlServerRuntimes = getWLServerRuntimes();
       for (ObjectName wlServerRuntime: wlServerRuntimes)
       {
+         // Get the name of the server - admin or managed server.
          String serverName = (String) connection.getAttribute(wlServerRuntime, "Name");
-         if (serverName.equals(configuration.getTarget()))
+         // Also get the cluster associated with the server
+         ObjectName cluster = (ObjectName) connection.getAttribute(wlServerRuntime, "ClusterRuntime");
+         String clusterName = null;
+         if(cluster != null)
+         {
+            clusterName = (String) connection.getAttribute(cluster, "Name");
+         }
+         // Only one server in a cluster is chosen as the SUT.
+         // We'll choose the current server for generating te HTTPContext
+         // if the server or it's cluster, is the deployment target.
+         // Once the server has been chosen as a SUT/AUT, other servers in the cluster are ignored
+         // from the point of view of an SUT/AUT.
+         String deploymentTarget = configuration.getTarget();
+         if (serverName.equals(deploymentTarget) || (clusterName != null && clusterName.equals(deploymentTarget)))
          {
             ObjectName[] applicationRuntimes = (ObjectName[]) connection.getAttribute(wlServerRuntime, "ApplicationRuntimes");
             boolean foundAppInfo = false;
@@ -244,6 +273,7 @@ public class WebLogicJMXClient
             {
                throw new DeploymentException("Failed to find the deployed application."); 
             }
+            break;
          }
       }
    }
