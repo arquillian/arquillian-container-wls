@@ -10,6 +10,11 @@
     <artifactId>arquillian-wls-remote-10.3.x</artifactId>
     <name>WebLogic 10.3.x container integration</name>
     <description>WebLogic 10.3.x container integration for Arquillian</description>
+    <properties>
+        <servlet.api.version>2.5.0.GA</servlet.api.version>
+        <ejb.api.version>3.0.0.GA</ejb.api.version>
+        <cdi.api.version>1.0-SP1</cdi.api.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
@@ -44,19 +49,19 @@
         <dependency>
             <groupId>org.jboss.javaee</groupId>
             <artifactId>jboss-servlet-api</artifactId>
-            <version>2.5.0.GA</version>
+            <version>${servlet.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.javaee</groupId>
             <artifactId>jboss-ejb-api</artifactId>
-            <version>3.0.0.GA</version>
+            <version>${ejb.api.version}</version>
         </dependency>
         
         <!-- CDI support -->
         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
-            <version>1.0-SP1</version>
+            <version>${cdi.api.version}</version>
         </dependency>
         
         <!-- testing -->
