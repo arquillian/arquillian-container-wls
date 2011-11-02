@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,6 +57,198 @@ import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
  */
 public class WebLogicJMXClient
 {
+
+   /**
+    * A utility class that encapsulates the logic for creation of a {@link HTTPContext} instance.
+    *  
+    * @author Vineet Reynolds
+    *
+    */
+   private class HTTPContextBuilder
+   {
+      /**
+       * The context that is created. This will be returned to the client, once it is completely built.
+       */
+      private HTTPContext httpContext;
+      
+      /**
+       * The deployment for which the context must be built.
+       */
+      private String deploymentName;
+      
+      /**
+       * The set of Server Runtime MBeans to use for preparing the context.
+       * This will be one in the case of a deployment against a single managed server,
+       * and multiple for a deployment against a cluster.
+       */
+      private ObjectName[] wlServerRuntimes;
+      
+      public HTTPContextBuilder(String deploymentName)
+      {
+         this.deploymentName = deploymentName;
+      }
+
+      public HTTPContext createContext() throws Exception
+      {
+         // First, get the deployment in the domain configuration
+         // that matches the deployment made by Arquillian.
+         ObjectName appDeployment = findMatchingDeployment(deploymentName);
+         if(appDeployment == null)
+         {
+            throw new DeploymentException("The specified deployment could not be found in the MBean Server.\n"
+                  + "The deployment must have failed. Verify the output of the weblogic.Deployer process.");
+         }
+         // Get the targets for the deployment. For now, there will be a single target
+         // This will be either a managed server or a cluster.
+         ObjectName[] targets = (ObjectName[]) connection.getAttribute(appDeployment, "Targets");
+         for (ObjectName target : targets)
+         {
+            String targetType = (String) connection.getAttribute(target, "Type");
+            String targetName = (String) connection.getAttribute(target, "Name");
+            if (targetName.equals(configuration.getTarget()))
+            {
+               if (targetType.equals("Server"))
+               {
+                  // Get the Server Runtime MBean, that will be used to create the context.
+                  wlServerRuntimes = findRunningWLServerRuntimes(targetName);
+                  buildHTTPContext();
+               }
+               else if (targetType.equals("Cluster"))
+               {
+                  // Get all the Server Runtime MBeans for the servers in the cluster,
+                  // that will be used to create the context.
+                  String[] clusterMemberNames = findMembersOfCluster(target);
+                  wlServerRuntimes = findRunningWLServerRuntimes(clusterMemberNames);
+                  buildHTTPContext();
+               }
+               break;
+            }
+         }
+         if(httpContext == null)
+         {
+            throw new DeploymentException("An unexpected condition was encountered. The HTTPContext could not be created.");
+         }
+         else
+         {
+            return httpContext;
+         }
+      }
+
+      /**
+       * Creates the {@link HTTPContext} instance, with the required preconditions in place.
+       * 
+       * @throws Exception When an exception is encountered during creation of the context.
+       */
+      private void buildHTTPContext() throws Exception
+      {
+         // If there are no running servers, we'll abort as the test cannot be executed.
+         if (wlServerRuntimes.length < 1)
+         {
+            throw new DeploymentException("None of the targets are in the RUNNING state.");
+         }
+         else
+         {
+            // For now, we'll use the first server to populate the context.
+            // This may change in a future Arquillian release,
+            // to allow different strategies for testing a clustered deployment. 
+            ObjectName wlServerRuntime = wlServerRuntimes[0];
+            String httpUrlAsString = (String) connection.invoke(wlServerRuntime, "getURL", 
+                  new Object[] {"http"}, new String[] {"java.lang.String"});
+            URL serverHttpUrl = new URL(httpUrlAsString);
+            httpContext = new HTTPContext(serverHttpUrl.getHost(), serverHttpUrl.getPort());
+            ObjectName[] servletRuntimes = findServletRuntimes(wlServerRuntime, deploymentName);
+            for (ObjectName servletRuntime : servletRuntimes)
+            {
+               String servletName = (String) connection.getAttribute(servletRuntime, "ServletName");
+               String servletContextRoot = (String) connection.getAttribute(servletRuntime, "ContextPath");
+               httpContext.add(new Servlet(servletName, servletContextRoot));
+            }
+         }
+      }
+      
+      /**
+       * Retrieves the names of cluster members, so that their Runtime MBeans can be fetched from the
+       * Domain Runtime MBean Service.
+       * 
+       * @param cluster The cluster whose member names are to be fetched
+       * @return An array of server names whose membership is in the cluster
+       * @throws Exception When a failure is encountered when browsing the Domain Configuration MBean Server hierarchy.
+       */
+      private String[] findMembersOfCluster(ObjectName cluster) throws Exception
+      {
+         ObjectName[] servers = (ObjectName[]) connection.getAttribute(cluster, "Servers");
+         List<String> clusterServers = new ArrayList<String>();
+         for (ObjectName server : servers)
+         {
+            String serverName = (String) connection.getAttribute(server, "Name");
+            clusterServers.add(serverName);
+         }
+         String[] clusterServerNames = clusterServers.toArray(new String[0]);
+         return clusterServerNames;
+      }
+
+      /**
+       * Returns a set of Runtime MBean instances for the provided WebLogic Server names.
+       * This is eventually used to create the HTTPContext instance with the runtime listen address and port,
+       * as only running WebLogic Server instances are considered for creation of the HTTPContext.
+       * 
+       * @param runtimeNames The array of WebLogic Server instances for which the Runtime MBeans must be returned
+       * @return An array of {@link ObjectName} instances representing running WebLogic Server instances
+       * @throws Exception When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+       */
+      private ObjectName[] findRunningWLServerRuntimes(String... runtimeNames) throws Exception
+      {
+         List<String> runtimeNamesList = Arrays.asList(runtimeNames);
+         List<ObjectName> wlServerRuntimeList = new ArrayList<ObjectName>();
+         ObjectName[] wlServerRuntimes = (ObjectName[]) connection.getAttribute(domainRuntimeService, "ServerRuntimes");
+         for (ObjectName wlServerRuntime : wlServerRuntimes)
+         {
+            String runtimeName = (String) connection.getAttribute(wlServerRuntime, "Name");
+            String runtimeState = (String) connection.getAttribute(wlServerRuntime, "State");
+            if(runtimeNamesList.contains(runtimeName) && runtimeState.equals(RUNNING))
+            {
+               wlServerRuntimeList.add(wlServerRuntime);
+            }
+         }
+         return wlServerRuntimeList.toArray(new ObjectName[0]);
+      }
+      
+      /**
+       * Retrieves an array of Servlet Runtime MBeans for a deployment against a WebLogic Server instance.
+       * This is eventually used to populate the HTTPContext instance with all servlets in the deployment.
+       * 
+       * @param wlServerRuntime The WebLogic Server runtime instance which houses the deployment
+       * @param deploymentName The deployment for which the Servlet Runtime MBeans must be retrieved
+       * @return An array of {@link ObjectName} representing Servlet Runtime MBeans for the deployment
+       * @throws Exception When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+       */
+      private ObjectName[] findServletRuntimes(ObjectName wlServerRuntime, String deploymentName) throws Exception
+      {
+         ObjectName[] applicationRuntimes = (ObjectName[]) connection.getAttribute(wlServerRuntime, "ApplicationRuntimes");
+         for(ObjectName applicationRuntime: applicationRuntimes)
+         {
+            String applicationName = (String) connection.getAttribute(applicationRuntime, "Name");
+            if(applicationName.equals(deploymentName))
+            {
+               ObjectName[] componentRuntimes = (ObjectName[]) connection.getAttribute(applicationRuntime, "ComponentRuntimes");
+               for(ObjectName componentRuntime : componentRuntimes)
+               {
+                  String componentType = (String) connection.getAttribute(componentRuntime, "Type");
+                  if (componentType.toString().equals("WebAppComponentRuntime"))
+                  {
+                     ObjectName[] servletRuntimes = (ObjectName[]) connection.getAttribute(componentRuntime, "Servlets");
+                     return servletRuntimes;
+                  }
+               }
+            }
+         }
+         throw new DeploymentException(
+               "The deployment details were not found in the MBean Server. Possible causes include:\n"
+                     + "1. The deployment failed. Review the admin server and the target's log files.\n"
+                     + "2. The deployment succeeded partially. The deployment must be the Active state. Instead, it might be in the 'New' state.\n"
+                     + "   Verify that the the admin server can connect to the target(s), and that no firewall rules are blocking the traffic on the admin channel.");
+      }
+   }
 
    private static final Logger logger = Logger.getLogger(WebLogicJMXClient.class.getName());
    
@@ -103,19 +298,19 @@ public class WebLogicJMXClient
          // Now, create a connection to the Domain Runtime MBean Server.
          createConnection();
 
-         ProtocolMetaData metadata = new ProtocolMetaData();
-         HTTPContext context = getTargetContextInfo();
          try
          {
-            populateContext(deploymentName, context);
+            ProtocolMetaData metadata = new ProtocolMetaData();
+            HTTPContextBuilder builder = new HTTPContextBuilder(deploymentName);
+            HTTPContext httpContext = builder.createContext();
+            HTTPContext context = httpContext;
+            metadata.addContext(context);
+            return metadata;
          }
          catch (Exception ex)
          {
             throw new DeploymentException("Failed to populate the HTTPContext with the deployment details", ex);
          }
-
-         metadata.addContext(context);
-         return metadata;
       }
       finally
       {
@@ -142,11 +337,14 @@ public class WebLogicJMXClient
          // Now, create a connection to the Domain Runtime MBean Server.
          createConnection();
          
-         verifyUndeploymentStatus(deploymentName);
-      }
-      catch (Exception ex)
-      {
-         throw new DeploymentException("Failed to obtain the status of the deployment.", ex);
+         try
+         {
+            verifyUndeploymentStatus(deploymentName);
+         }
+         catch (Exception ex)
+         {
+            throw new DeploymentException("Failed to obtain the status of the deployment.", ex);
+         }
       }
       finally
       {
@@ -158,127 +356,6 @@ public class WebLogicJMXClient
    }
 
    /**
-    * Creates a new {@link HTTPContext} object with the details of the target server.
-    * Also verifies that the target server is running.
-    * 
-    * @return The created {@link HTTPContext}
-    * @throws DeploymentException When the {@link HTTPContext} could not be created.
-    */
-   private HTTPContext getTargetContextInfo() throws DeploymentException
-   {
-      HTTPContext httpContext = null;
-      try
-      {
-         ObjectName[] wlServerRuntimes = getWLServerRuntimes();
-         for (ObjectName wlServerRuntime : wlServerRuntimes)
-         {
-            // Get the name of the server - admin or managed server.
-            String serverName = (String) connection.getAttribute(wlServerRuntime, "Name");
-            // Also get the cluster associated with the server
-            ObjectName cluster = (ObjectName) connection.getAttribute(wlServerRuntime, "ClusterRuntime");
-            String clusterName = null;
-            if(cluster != null)
-            {
-               clusterName = (String) connection.getAttribute(cluster, "Name");
-            }
-            // Only one server in a cluster is chosen as the SUT.
-            // We'll choose the current server for generating te HTTPContext
-            // if the server or it's cluster, is the deployment target.
-            // Once the server has been chosen as a SUT/AUT, other servers in the cluster are ignored
-            // from the point of view of an SUT/AUT.
-            String deploymentTarget = configuration.getTarget();
-            if (serverName.equals(deploymentTarget) || (clusterName != null && clusterName.equals(deploymentTarget)))
-            {
-               String serverState = (String) connection.getAttribute(wlServerRuntime, "State");
-               if(!serverState.equals(RUNNING))
-               {
-                  throw new DeploymentException("The designated target server is not in the RUNNING state. Cannot proceed to execute the tests.");
-               }
-               
-               String httpUrlAsString = (String) connection.invoke(wlServerRuntime, "getURL", new Object[]{"http"}, new String[]{"java.lang.String"});
-               URL serverHttpUrl = new URL(httpUrlAsString);
-               httpContext = new HTTPContext(serverHttpUrl.getHost(), serverHttpUrl.getPort());
-               break;
-            }
-         }
-      }
-      catch (Exception ex)
-      {
-         throw new DeploymentException("Failed to create the HTTPContext for the deployment", ex);
-      }
-      if(httpContext ==null)
-      {
-         throw new DeploymentException("Failed to obtain a HTTPContext for the deployment. Possible causes include:" +
-         		"1. The target specified in arquillian.xml is not a valid WebLogic Server deployment target." +
-         		"2. The non-SSL listen port is not enabled for the target.");
-      }
-      return httpContext;
-   }
-   
-   /**
-    * Populates the {@link HTTPContext} object with details of the servlets associated with the deployment.
-    * 
-    * @param deploymentName The name of the deployed application
-    * @param context A {@link HTTPContext} object that already contains details of the target server.
-    * @throws Exception When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
-    */
-   private void populateContext(String deploymentName, HTTPContext context) throws Exception
-   {
-      ObjectName[] wlServerRuntimes = getWLServerRuntimes();
-      for (ObjectName wlServerRuntime: wlServerRuntimes)
-      {
-         // Get the name of the server - admin or managed server.
-         String serverName = (String) connection.getAttribute(wlServerRuntime, "Name");
-         // Also get the cluster associated with the server
-         ObjectName cluster = (ObjectName) connection.getAttribute(wlServerRuntime, "ClusterRuntime");
-         String clusterName = null;
-         if(cluster != null)
-         {
-            clusterName = (String) connection.getAttribute(cluster, "Name");
-         }
-         // Only one server in a cluster is chosen as the SUT.
-         // We'll choose the current server for generating te HTTPContext
-         // if the server or it's cluster, is the deployment target.
-         // Once the server has been chosen as a SUT/AUT, other servers in the cluster are ignored
-         // from the point of view of an SUT/AUT.
-         String deploymentTarget = configuration.getTarget();
-         if (serverName.equals(deploymentTarget) || (clusterName != null && clusterName.equals(deploymentTarget)))
-         {
-            ObjectName[] applicationRuntimes = (ObjectName[]) connection.getAttribute(wlServerRuntime, "ApplicationRuntimes");
-            boolean foundAppInfo = false;
-            for(ObjectName applicationRuntime: applicationRuntimes)
-            {
-               String applicationName = (String) connection.getAttribute(applicationRuntime, "Name");
-               if(applicationName.equals(deploymentName))
-               {
-                  foundAppInfo = true;
-                  ObjectName[] componentRuntimes = (ObjectName[]) connection.getAttribute(applicationRuntime, "ComponentRuntimes");
-                  for(ObjectName componentRuntime : componentRuntimes)
-                  {
-                     String componentType = (String) connection.getAttribute(componentRuntime, "Type");
-                     if (componentType.toString().equals("WebAppComponentRuntime"))
-                     {
-                        ObjectName[] servletRuntimes = (ObjectName[]) connection.getAttribute(componentRuntime, "Servlets");
-                        for(ObjectName servletRuntime: servletRuntimes)
-                        {
-                           String servletName = (String) connection.getAttribute(servletRuntime, "ServletName");
-                           String servletContextRoot = (String) connection.getAttribute(servletRuntime, "ContextPath");
-                           context.add(new Servlet(servletName, servletContextRoot));
-                        }
-                     }
-                  }
-               }
-            }
-            if(foundAppInfo == false)
-            {
-               throw new DeploymentException("Failed to find the deployed application."); 
-            }
-            break;
-         }
-      }
-   }
-   
-   /**
     * Verifies that the application has been undeployed.
     * 
     * @param deploymentName The name of the application that was undeployed. 
@@ -286,36 +363,51 @@ public class WebLogicJMXClient
     */
    private void verifyUndeploymentStatus(String deploymentName) throws Exception
    {
-      ObjectName[] wlServerRuntimes = getWLServerRuntimes();
-      for (ObjectName wlServerRuntime: wlServerRuntimes)
+      ObjectName deployment = findMatchingDeployment(deploymentName);
+      if (deployment != null)
       {
-         String serverName = (String) connection.getAttribute(wlServerRuntime, "Name");
-         if (serverName.equals(configuration.getTarget()))
-         {
-            ObjectName[] applicationRuntimes = (ObjectName[]) connection.getAttribute(wlServerRuntime, "ApplicationRuntimes");
-            boolean foundAppInfo = false;
-            for(ObjectName applicationRuntime: applicationRuntimes)
-            {
-               String applicationName = (String) connection.getAttribute(applicationRuntime, "Name");
-               if(applicationName.equals(deploymentName))
-               {
-                  foundAppInfo = true;
-                  break;
-               }
-            }
-            if(foundAppInfo == true)
-            {
-               throw new DeploymentException("Failed to undeploy the deployed application."); 
-            }
-         }
+         throw new DeploymentException("Failed to undeploy the deployed application.");
       }
    }
    
-   private ObjectName[] getWLServerRuntimes() throws Exception
+   /**
+    * Retrieves an Application Deployment MBean for a specified deployment.
+    * This may return <code>null</code> if the specified deployment is not found,
+    * so that this method may be used by both the deployment and undeployment routines
+    * to verify if a deployment is available, or not.
+    * 
+    * @param deploymentName The deployment whose MBean must be retrieved
+    * @return An {@link ObjectName} representing the Application Deployment MBean for the deployment.
+    * This returns <code>null</code> if a deployment is not found.
+    * 
+    * @throws Exception When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+    */
+   private ObjectName findMatchingDeployment(String deploymentName) throws Exception
    {
-      return (ObjectName[]) connection.getAttribute(domainRuntimeService, "ServerRuntimes");
+      ObjectName[] appDeployments = findAllAppDeployments();
+      for (ObjectName appDeployment : appDeployments)
+      {
+         String appDeploymentName = (String) connection.getAttribute(appDeployment, "Name");
+         if(appDeploymentName.equals(deploymentName))
+         {
+            return appDeployment;
+         }
+      }
+      return null;
    }
-
+   
+   /**
+    * Obtains all the deployments in a WebLogic domain
+    * @return An array of {@link ObjectName} corresponding to all deployments in a WebLogic domain.
+    * @throws Exception When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+    */
+   private ObjectName[] findAllAppDeployments() throws Exception
+   {
+      ObjectName domainConfig = (ObjectName) connection.getAttribute(domainRuntimeService, "DomainConfiguration");
+      ObjectName[] appDeployments = (ObjectName[]) connection.getAttribute(domainConfig, "AppDeployments");
+      return appDeployments;
+   }
+   
    /**
     * Sets the thread's context classloader to a an instance of {@link WebLogicJMXLibClassLoader},
     * that has the wljmxclient.jar from WL_HOME as a codesource.
@@ -348,7 +440,7 @@ public class WebLogicJMXClient
    }
    
    /**
-    * Initialize connection to the Domain Runtime MBean Server
+    * Initializes the connection to the Domain Runtime MBean Server
     * 
     * @throws DeploymentException When a connection to the Domain Runtime MBean Server could not be established.
     */

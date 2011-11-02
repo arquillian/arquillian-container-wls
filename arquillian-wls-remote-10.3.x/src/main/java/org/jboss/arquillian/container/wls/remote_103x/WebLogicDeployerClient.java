@@ -134,7 +134,7 @@ public class WebLogicDeployerClient
          else
          {
             logger.log(Level.WARNING, "weblogic.Deployer terminated abnormally with exit code {0}", exitValue);
-            logger.log(Level.INFO, "The output of the weblogic.Deployer process was: {0}", buffer.toString());
+            logger.log(Level.INFO, "The output of the weblogic.Deployer process was:\n {0}", buffer.toString());
          }
       }
       catch (InterruptedException interruptEx)
@@ -173,7 +173,9 @@ public class WebLogicDeployerClient
                logger.log(Level.FINE, line);
                // Store the output anyway, so that it may be logged later,
                // in the same Arquillian test run, if weblogic.Deployer terminates abruptly.
+               // Used for developer convenience, as failures may be abrupt and we do not want anyone to rerun tests.
                buffer.append(line);
+               buffer.append('\n');
             }
          }
          catch (IOException e)
