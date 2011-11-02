@@ -34,6 +34,7 @@
         <maven.compiler.target>1.5</maven.compiler.target>
         <version.arquillian_core>1.0.0.Final-SNAPSHOT</version.arquillian_core>
         <version.weld_servlet>1.1.2.Final</version.weld_servlet>
+        <version.surefire.plugin>2.9</version.surefire.plugin>
     </properties>
 
     <!-- Dependency Management -->
