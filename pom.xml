@@ -76,6 +76,6 @@
         </plugins>
     </build>
     <modules>
-        <module>arquillian-wls-remote-10.3.x</module>
+        <module>wls-remote-10.3</module>
     </modules>
 </project>
