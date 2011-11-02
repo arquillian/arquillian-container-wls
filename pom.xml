@@ -29,6 +29,7 @@
 
     <!-- Properties -->
     <properties>
+        <version.release.plugin>2.1</version.release.plugin>
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
         <version.arquillian_core>1.0.0.Final-SNAPSHOT</version.arquillian_core>
@@ -61,6 +62,18 @@
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <pushChanges>false</pushChanges>
+                    <localCheckout>true</localCheckout>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <modules>
         <module>arquillian-wls-remote-10.3.x</module>
     </modules>
