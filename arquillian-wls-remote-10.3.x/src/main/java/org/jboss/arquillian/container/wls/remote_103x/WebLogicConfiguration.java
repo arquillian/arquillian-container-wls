@@ -178,6 +178,23 @@ public class WebLogicConfiguration implements ContainerConfiguration
          jmxHost = adminListenAddress;
          jmxPort = adminListenPort;
       }
+      
+      Boolean[] trustTypes = new Boolean[]
+      {useDemoTrust, useCustomTrust, useJavaStandardTrust};
+      int specifiedTrustType = 0;
+      for (int ctr = 0; ctr < trustTypes.length; ctr++)
+      {
+         if (trustTypes[ctr])
+         {
+            specifiedTrustType++;
+         }
+      }
+      if (specifiedTrustType > 1)
+      {
+         throw new IllegalArgumentException(
+               "Only one of useDemoTrust, useCustomTrust and useJavaStandardTrust must be specified as true. Verify these properties in arquillian.xml ");
+      }
+      
       if (useDemoTrust)
       {
          trustStoreLocation = wlsHome.endsWith(File.separator) ? wlsHome.concat("server/lib/DemoTrust.jks") : wlsHome
