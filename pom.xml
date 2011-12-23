@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
-        <version>6-beta-2</version>
+        <version>8</version>
         <relativePath />
     </parent>
 
@@ -29,9 +29,9 @@
     <!-- Properties -->
     <properties>
         <version.release.plugin>2.1</version.release.plugin>
-        <maven.compiler.source>1.5</maven.compiler.source>
-        <maven.compiler.target>1.5</maven.compiler.target>
-        <version.arquillian_core>1.0.0.CR5</version.arquillian_core>
+        <maven.compiler.argument.source>1.5</maven.compiler.argument.source>
+        <maven.compiler.argument.target>1.5</maven.compiler.argument.target>
+        <version.arquillian_core>1.0.0.CR7</version.arquillian_core>
         <version.weld_servlet>1.1.2.Final</version.weld_servlet>
         <version.surefire.plugin>2.9</version.surefire.plugin>
     </properties>
