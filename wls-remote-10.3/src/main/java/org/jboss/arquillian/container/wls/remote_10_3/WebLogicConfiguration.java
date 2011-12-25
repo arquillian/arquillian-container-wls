@@ -128,6 +128,8 @@ public class WebLogicConfiguration implements ContainerConfiguration
    
    private String trustStorePassword;
    
+   private boolean ignoreHostNameVerification;
+   
    public void validate() throws ConfigurationException
    {
       // Verify the mandatory properties
@@ -421,6 +423,16 @@ public class WebLogicConfiguration implements ContainerConfiguration
    public void setTrustStorePassword(String trustStorePassword)
    {
       this.trustStorePassword = trustStorePassword;
+   }
+
+   public boolean isIgnoreHostNameVerification()
+   {
+      return ignoreHostNameVerification;
+   }
+
+   public void setIgnoreHostNameVerification(boolean ignoreHostNameVerification)
+   {
+      this.ignoreHostNameVerification = ignoreHostNameVerification;
    }
    
 }

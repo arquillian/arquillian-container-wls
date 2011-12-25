@@ -82,7 +82,8 @@ public class WebLogicDeployerClient
             .setUseDemoTrust(configuration.isUseDemoTrust())
             .setUseCustomTrust(configuration.isUseCustomTrust())
             .setCustomTrustStore(configuration.getTrustStoreLocation())
-            .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust());
+            .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust())
+            .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to deploy the test artifact.");
       forkWebLogicDeployer(builder.buildDeployCommand());
@@ -108,7 +109,8 @@ public class WebLogicDeployerClient
             .setUseDemoTrust(configuration.isUseDemoTrust())
             .setUseCustomTrust(configuration.isUseCustomTrust())
             .setCustomTrustStore(configuration.getTrustStoreLocation())
-            .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust());
+            .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust())
+            .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to undeploy the test artifact.");
       forkWebLogicDeployer(builder.buildUndeployCommand());
