@@ -72,7 +72,7 @@ public class WebLogicDeployerClient
    public void deploy(String deploymentName, File deploymentArchive) throws DeploymentException
    {
       CommandBuilder builder = new CommandBuilder()
-            .setWeblogicJarPath(configuration.getWeblogicJarPath())
+            .setClassPath(configuration.getClassPath())
             .setAdminUrl(configuration.getAdminUrl())
             .setAdminUserName(configuration.getAdminUserName())
             .setAdminPassword(configuration.getAdminPassword())
@@ -83,7 +83,8 @@ public class WebLogicDeployerClient
             .setUseCustomTrust(configuration.isUseCustomTrust())
             .setCustomTrustStore(configuration.getTrustStoreLocation())
             .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust())
-            .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification());
+            .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification())
+            .setHostnameVerifierClass(configuration.getHostnameVerifierClass());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to deploy the test artifact.");
       forkWebLogicDeployer(builder.buildDeployCommand());
@@ -100,7 +101,7 @@ public class WebLogicDeployerClient
    public void undeploy(String deploymentName) throws DeploymentException
    {
       CommandBuilder builder = new CommandBuilder()
-            .setWeblogicJarPath(configuration.getWeblogicJarPath())
+            .setClassPath(configuration.getClassPath())
             .setAdminUrl(configuration.getAdminUrl())
             .setAdminUserName(configuration.getAdminUserName())
             .setAdminPassword(configuration.getAdminPassword())
@@ -110,7 +111,8 @@ public class WebLogicDeployerClient
             .setUseCustomTrust(configuration.isUseCustomTrust())
             .setCustomTrustStore(configuration.getTrustStoreLocation())
             .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust())
-            .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification());
+            .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification())
+            .setHostnameVerifierClass(configuration.getHostnameVerifierClass());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to undeploy the test artifact.");
       forkWebLogicDeployer(builder.buildUndeployCommand());

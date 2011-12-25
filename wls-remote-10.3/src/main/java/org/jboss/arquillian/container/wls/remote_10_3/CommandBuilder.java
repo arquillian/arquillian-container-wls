@@ -29,7 +29,7 @@ import java.util.List;
 public class CommandBuilder
 {
 
-   private String weblogicJarPath;
+   private String classPath;
    private String adminUrl;
    private String adminUserName;
    private String adminPassword;
@@ -42,10 +42,11 @@ public class CommandBuilder
    private boolean useJavaStandardTrust;
    private String trustStorePassword;
    private boolean ignoreHostNameVerification;
+   private String hostnameVerifierClass;
 
-   public CommandBuilder setWeblogicJarPath(String weblogicJarPath)
+   public CommandBuilder setClassPath(String classPath)
    {
-      this.weblogicJarPath = weblogicJarPath;
+      this.classPath = classPath;
       return this;
    }
 
@@ -121,6 +122,11 @@ public class CommandBuilder
       return this;
    }
 
+   public CommandBuilder setHostnameVerifierClass(String hostnameVerifierClass)
+   {
+      this.hostnameVerifierClass = hostnameVerifierClass;
+      return this;
+   }
    
    /**
     * Constructs the commandline to be used for launching weblogic.Deployer
@@ -136,7 +142,7 @@ public class CommandBuilder
       // This will avoid confusion over the cacerts file if used as the SSL Trust Store.
       cmd.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
       cmd.add("-classpath");
-      cmd.add(weblogicJarPath);
+      cmd.add(classPath);
       if(useDemoTrust)
       {
          cmd.add("-Dweblogic.security.TrustKeyStore=DemoTrust");
@@ -162,6 +168,10 @@ public class CommandBuilder
       if(ignoreHostNameVerification)
       {
          cmd.add("-Dweblogic.security.SSL.ignoreHostnameVerification=true");
+      }
+      if(hostnameVerifierClass != null && !hostnameVerifierClass.equals(""))
+      {
+         cmd.add("-Dweblogic.security.SSL.hostnameVerifier=" + hostnameVerifierClass);
       }
       cmd.add("weblogic.Deployer");
       cmd.add("-adminurl");
@@ -196,7 +206,7 @@ public class CommandBuilder
       // This will avoid confusion over the cacerts file if used as the SSL Trust Store.
       cmd.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
       cmd.add("-classpath");
-      cmd.add(weblogicJarPath);
+      cmd.add(classPath);
       if(useDemoTrust)
       {
          cmd.add("-Dweblogic.security.TrustKeyStore=DemoTrust");
@@ -222,6 +232,10 @@ public class CommandBuilder
       if(ignoreHostNameVerification)
       {
          cmd.add("-Dweblogic.security.SSL.ignoreHostnameVerification=true");
+      }
+      if(hostnameVerifierClass != null && !hostnameVerifierClass.equals(""))
+      {
+         cmd.add("-Dweblogic.security.SSL.hostnameVerifier=" + hostnameVerifierClass);
       }
       cmd.add("weblogic.Deployer");
       cmd.add("-adminurl");
