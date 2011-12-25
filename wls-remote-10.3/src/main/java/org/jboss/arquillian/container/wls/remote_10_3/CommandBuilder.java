@@ -41,6 +41,7 @@ public class CommandBuilder
    private String customTrustStore;
    private boolean useJavaStandardTrust;
    private String trustStorePassword;
+   private boolean ignoreHostNameVerification;
 
    public CommandBuilder setWeblogicJarPath(String weblogicJarPath)
    {
@@ -113,6 +114,12 @@ public class CommandBuilder
       this.trustStorePassword = trustStorePassword;
       return this;
    }
+   
+   public CommandBuilder setIgnoreHostNameVerification(boolean ignoreHostNameVerification)
+   {
+      this.ignoreHostNameVerification = ignoreHostNameVerification;
+      return this;
+   }
 
    
    /**
@@ -151,6 +158,10 @@ public class CommandBuilder
          {
             cmd.add("-Dweblogic.security.JavaStandardTrustKeyStorePassPhrase="+trustStorePassword);
          }
+      }
+      if(ignoreHostNameVerification)
+      {
+         cmd.add("-Dweblogic.security.SSL.ignoreHostnameVerification=true");
       }
       cmd.add("weblogic.Deployer");
       cmd.add("-adminurl");
@@ -207,6 +218,10 @@ public class CommandBuilder
          {
             cmd.add("-Dweblogic.security.JavaStandardTrustKeyStorePassPhrase="+trustStorePassword);
          }
+      }
+      if(ignoreHostNameVerification)
+      {
+         cmd.add("-Dweblogic.security.SSL.ignoreHostnameVerification=true");
       }
       cmd.add("weblogic.Deployer");
       cmd.add("-adminurl");
