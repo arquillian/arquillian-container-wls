@@ -130,6 +130,17 @@ public class WebLogicConfiguration implements ContainerConfiguration
    
    private boolean ignoreHostNameVerification;
    
+   /**
+    * The fully qualified class name of the hostname verifier class
+    */
+   private String hostnameVerifierClass;
+   
+   /**
+    * The classpath entries that will be added to the classpath used by weblogic.Deployer.
+    * The location of the hostname verifier class can be provided via this property. 
+    */
+   private String classPath;
+   
    public void validate() throws ConfigurationException
    {
       // Verify the mandatory properties
@@ -215,6 +226,11 @@ public class WebLogicConfiguration implements ContainerConfiguration
                + File.separator + "cacerts";
          Validate.isValidFile(trustStoreLocation, "The trustStoreLocation file was resolved to " + trustStoreLocation
                + " and could not be located. Verify that the cacerts file is present in the JRE installation.");
+      }
+      if(hostnameVerifierClass != null && !hostnameVerifierClass.equals(""))
+      {
+         Validate.isNotNullOrEmpty(classPath);
+         classPath = weblogicJarPath + File.pathSeparator + classPath;
       }
       
       //Validate these derived properties
@@ -434,5 +450,25 @@ public class WebLogicConfiguration implements ContainerConfiguration
    {
       this.ignoreHostNameVerification = ignoreHostNameVerification;
    }
-   
+
+   public String getHostnameVerifierClass()
+   {
+      return hostnameVerifierClass;
+   }
+
+   public void setHostnameVerifierClass(String hostnameVerifierClass)
+   {
+      this.hostnameVerifierClass = hostnameVerifierClass;
+   }
+
+   public String getClassPath()
+   {
+      return classPath;
+   }
+
+   public void setClassPath(String classPath)
+   {
+      this.classPath = classPath;
+   }
+
 }
