@@ -34,6 +34,7 @@
         <version.arquillian_core>1.0.0.CR7</version.arquillian_core>
         <version.weld_servlet>1.1.2.Final</version.weld_servlet>
         <version.surefire.plugin>2.9</version.surefire.plugin>
+        <version.jboss.javaee-6_api>1.0.0.Final</version.jboss.javaee-6_api>
     </properties>
 
     <!-- Dependency Management -->
@@ -52,6 +53,13 @@
                 <version>${version.arquillian_core}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${version.jboss.javaee-6_api}</version>
+                <type>pom</type>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.jboss.weld.servlet</groupId>
@@ -76,5 +84,6 @@
     </build>
     <modules>
         <module>wls-remote-10.3</module>
+        <module>wls-jsr88-12c</module>
     </modules>
 </project>
