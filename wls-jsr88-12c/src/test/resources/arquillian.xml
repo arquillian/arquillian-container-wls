@@ -13,7 +13,7 @@
     <container qualifier="weblogic" default="true">
         <configuration>
             <property name="adminUser">weblogic</property>
-            <property name="adminPassword">Hamburger12.</property>
+            <property name="adminPassword">your-password</property>
         </configuration>
     </container>
 
