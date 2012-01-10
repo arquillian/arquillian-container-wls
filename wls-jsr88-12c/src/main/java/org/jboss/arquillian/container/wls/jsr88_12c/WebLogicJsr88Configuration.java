@@ -21,9 +21,7 @@
  */
 package org.jboss.arquillian.container.wls.jsr88_12c;
 
-import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;
-import org.jboss.arquillian.container.spi.client.deployment.Validate;
 
 public class WebLogicJsr88Configuration extends Jsr88Configuration implements ContainerConfiguration {
 
@@ -42,13 +40,4 @@ public class WebLogicJsr88Configuration extends Jsr88Configuration implements Co
 		setTarget(DEFAULT_TARGET);
 	}	
 	
-    /**
-     * Validates if current configuration is valid, that is if all required
-     * properties are set and have correct values
-     */
-    public void validate() throws ConfigurationException {
-		Validate.notNull(getAdminUser(), "adminUser property must be specified in your arquillian.xml");
-		Validate.notNull(getAdminPassword(), "adminPassword property must be specified in your arquillian.xml");
-    }
-
 }

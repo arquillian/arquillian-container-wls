@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.wls.jsr88_12c.WebLogicJsr88Configuration;
 import org.jboss.shrinkwrap.api.Archive;

@@ -21,6 +21,7 @@
  */
 package org.jboss.arquillian.container.wls.jsr88_12c.clientutils;
 
+@SuppressWarnings("serial")
 public class WeblogicClientException extends RuntimeException {
 
     /**

@@ -30,14 +30,12 @@ import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.wls.jsr88_12c.Jsr88Configuration;
 import org.jboss.shrinkwrap.api.Archive;
@@ -106,7 +104,7 @@ public class Jsr88ClientService {
 	      targetModuleIds = progress.getResultTargetModuleIDs();		      
 
 	      ProgressObject startProgress = getDeploymentManager().start(targetModuleIds);
-	      waitForCompletion(startProgress);
+	      // waitForCompletion(startProgress);
 	      if ( !waitForCompletion(startProgress) ) {
 	    	  throw new WeblogicClientException("Startinging module; Status: " + startProgress.getDeploymentStatus().getState()
 	    			  + " message: " + startProgress.getDeploymentStatus().getMessage() );
@@ -145,9 +143,7 @@ public class Jsr88ClientService {
 		TargetModuleID moduleMatch = null;
 		try {
 			availableModuleIDs = getDeploymentManager().getAvailableModules(deploymentType, deploymentTargets);			
-		} catch (IllegalStateException e) {
-			throw new WeblogicClientException( e.getMessage() );
-		} catch (TargetException e) {
+		} catch (Exception e) {
 			throw new WeblogicClientException( e.getMessage() );
 		}
 		for ( TargetModuleID candidate : availableModuleIDs) {

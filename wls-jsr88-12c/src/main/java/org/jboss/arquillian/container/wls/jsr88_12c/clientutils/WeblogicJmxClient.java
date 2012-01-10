@@ -47,7 +47,7 @@ public class WeblogicJmxClient {
    private MBeanServerConnection connection;
    private JMXConnector connector = null;
    private ObjectName service;
-   
+   private final String WEB_APPLICATION = "WebAppComponentRuntime"; 
 
    // Initializing the object name for DomainRuntimeServiceMBean
    public WeblogicJmxClient() {
@@ -110,10 +110,6 @@ public class WeblogicJmxClient {
 	   HTTPContext httpContext = null;
 	   boolean applicationMathced = false;	  
 
-	  // TODO remove
-	  //List<String> serverNameList = new ArrayList<String>();
-	  //serverNameList.add("AdminServer");
-
 	  List<ObjectName> serverRuntimeList = getServerRuntimes(serverNameList);
 	  for (ObjectName serverRuntime : serverRuntimeList) {
 
@@ -125,7 +121,7 @@ public class WeblogicJmxClient {
 
 		 ObjectName[] appRuntimes = (ObjectName[]) connection.getAttribute(serverRuntime, "ApplicationRuntimes");
 
-         for (ObjectName appRuntime :appRuntimes) {
+         for (ObjectName appRuntime : appRuntimes) {
         	String name = (String)connection.getAttribute(appRuntime, "Name");
 
         	if (applicationName.equals(name)) {
@@ -134,7 +130,7 @@ public class WeblogicJmxClient {
 	            ObjectName[] componentRuntimes = (ObjectName[]) connection.getAttribute(appRuntime, "ComponentRuntimes");
 	            for (ObjectName componentRuntime : componentRuntimes) {
 	               String componentType = (String) connection.getAttribute(componentRuntime, "Type");
-	               if ( "WebAppComponentRuntime".equals(componentType.toString()) ){
+	               if ( WEB_APPLICATION.equals(componentType.toString()) ){
 	                  ObjectName[] servletRuntimes = (ObjectName[]) connection.getAttribute(componentRuntime, "Servlets");
 	                  for ( ObjectName servletRuntime : servletRuntimes ) {
 	                	  String servletName = (String)connection.getAttribute(servletRuntime, "Name");

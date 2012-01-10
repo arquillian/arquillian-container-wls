@@ -12,7 +12,7 @@
 
     <container qualifier="weblogic" default="true">
         <configuration>
-            <property name="adminUser">weblogic</property>
+            <property name="adminUser">your-user</property>
             <property name="adminPassword">your-password</property>
         </configuration>
     </container>
