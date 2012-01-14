@@ -227,18 +227,23 @@ public class WebLogicConfiguration implements ContainerConfiguration
          Validate.isValidFile(trustStoreLocation, "The trustStoreLocation file was resolved to " + trustStoreLocation
                + " and could not be located. Verify that the cacerts file is present in the JRE installation.");
       }
-      if(hostnameVerifierClass != null && !hostnameVerifierClass.equals(""))
+      
+      // Set the classpath for weblogic.Deployer
+      Validate
+      .isValidFile(weblogicJarPath,
+            "The weblogic.jar could not be located. Verify the wlsHome and weblogicJarPath properties in arquillian.xml");
+      if(classPath != null && !classPath.equals(""))
       {
-         Validate.isNotNullOrEmpty(classPath);
          classPath = weblogicJarPath + File.pathSeparator + classPath;
+      }
+      else
+      {
+         classPath = weblogicJarPath;
       }
       
       //Validate these derived properties
       Validate.isValidFile(jmxLibPath,
             "The wljmxclient.jar could not be located. Verify the wlsHome and jmxLibPath properties in arquillian.xml");
-      Validate
-            .isValidFile(weblogicJarPath,
-                  "The weblogic.jar could not be located. Verify the wlsHome and weblogicJarPath properties in arquillian.xml");
       Validate
             .notNullOrEmpty(jmxProtocol,
                   "The jmxProtocol is empty. Verify the adminUrl, adminProtocol and jmxProtocol properties in arquillian.xml");
