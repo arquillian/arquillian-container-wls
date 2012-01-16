@@ -24,10 +24,10 @@ import java.util.logging.Logger;
 
 /**
  * A {@link ClassLoader} that is used to load classes
- * from <code>WL_HOME/server/lib/wljmxclient.jar</code>.
+ * from <code>WL_HOME/server/lib/weblogic.jar</code>.
  * 
  * Classloading is delegated to the parent first, before
- * attempting to load from the wljmxclient.jar file.
+ * attempting to load from the weblogic.jar file.
  * 
  * @author Vineet Reynolds
  *

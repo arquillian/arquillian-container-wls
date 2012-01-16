@@ -36,6 +36,8 @@ public class WebLogicContainer implements DeployableContainer<WebLogicConfigurat
 {
    
    WebLogicConfiguration configuration;
+   private WebLogicDeployerClient deployerClient;
+   private WebLogicJMXClient jmxClient;
 
    public Class<WebLogicConfiguration> getConfigurationClass()
    {
@@ -49,12 +51,13 @@ public class WebLogicContainer implements DeployableContainer<WebLogicConfigurat
 
    public void start() throws LifecycleException
    {
-      //no-op
+      deployerClient = new WebLogicDeployerClient(configuration);
+      jmxClient = new WebLogicJMXClient(configuration);
    }
 
    public void stop() throws LifecycleException
    {
-      //no-op
+      jmxClient.close();
    }
 
    public ProtocolDescription getDefaultProtocol()
@@ -70,13 +73,8 @@ public class WebLogicContainer implements DeployableContainer<WebLogicConfigurat
       String deploymentName = getDeploymentName(archive);
       File deploymentArchive = ShrinkWrapUtil.toFile(archive);
       
-      // Deploy the application.
-      WebLogicDeployerClient deployerClient = new WebLogicDeployerClient(configuration);
       deployerClient.deploy(deploymentName, deploymentArchive);
-      
-      // Fetch the details from the Domain Runtime MBean Server.
-      WebLogicJMXClient weblogicClient = new WebLogicJMXClient(configuration);
-      ProtocolMetaData metadata = weblogicClient.deploy(deploymentName);
+      ProtocolMetaData metadata = jmxClient.deploy(deploymentName);
       return metadata;
    }
 
@@ -84,12 +82,10 @@ public class WebLogicContainer implements DeployableContainer<WebLogicConfigurat
    {
       // Undeploy the application
       String deploymentName = getDeploymentName(archive);
-      WebLogicDeployerClient deployerClient = new WebLogicDeployerClient(configuration);
       deployerClient.undeploy(deploymentName);
       
       // Verify the undeployment from the Domain Runtime MBean Server.
-      WebLogicJMXClient weblogicClient = new WebLogicJMXClient(configuration);
-      weblogicClient.undeploy(deploymentName);
+      jmxClient.undeploy(deploymentName);
    }
 
    public void deploy(Descriptor descriptor) throws DeploymentException
