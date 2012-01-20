@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.wls.remote_10_3;
+package org.jboss.arquillian.container.wls;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,7 +31,7 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
  * @author <a href="mailto:aslak@redhat.com">Aslak Knutsen</a>
  * @version $Revision: $
  */
-final class ShrinkWrapUtil
+public final class ShrinkWrapUtil
 {
    private ShrinkWrapUtil() { }
 

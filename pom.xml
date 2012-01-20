@@ -75,6 +75,8 @@
         </plugins>
     </build>
     <modules>
+        <module>wls-common</module>
         <module>wls-remote-10.3</module>
+        <module>wls-remote-12.1</module>
     </modules>
 </project>

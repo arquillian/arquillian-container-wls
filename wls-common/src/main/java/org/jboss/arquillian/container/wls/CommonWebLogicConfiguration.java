@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.wls.remote_10_3;
+package org.jboss.arquillian.container.wls;
 
 import java.io.File;
 import java.net.URI;
@@ -24,12 +24,12 @@ import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;
 
 /**
- * The Arquillian properties for the WebLogic 10.3.x container.
+ * The Arquillian properties that are common across WebLogic containers.
  * 
  * @author Vineet Reynolds
  *
  */
-public class WebLogicConfiguration implements ContainerConfiguration
+public class CommonWebLogicConfiguration implements ContainerConfiguration
 {
 
    private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
@@ -69,7 +69,7 @@ public class WebLogicConfiguration implements ContainerConfiguration
    
    /**
     * The location of the local WebLogic Server installation.
-    * The parent directory of this location is usually named wlserver_10.3.
+    * The parent directory of this location is usually named wlserver_x.y.
     * The directory must also contain the 'common' and 'server' subdirectories.
     */
    private String wlsHome;

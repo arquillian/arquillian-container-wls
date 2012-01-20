@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.wls.remote_10_3;
+package org.jboss.arquillian.container.wls;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +41,7 @@ import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
+import org.jboss.arquillian.container.wls.CommonWebLogicConfiguration;
 
 /**
  * A JMX client that connects to the Domain Runtime MBean Server
@@ -259,7 +260,7 @@ public class WebLogicJMXClient
    
    private static final ThreadLocal<String> trustStorePassword = new ThreadLocal<String>();
    
-   private WebLogicConfiguration configuration;
+   private CommonWebLogicConfiguration configuration;
    
    private MBeanServerConnection connection;
 
@@ -269,7 +270,7 @@ public class WebLogicJMXClient
 
    private ClassLoader jmxLibraryClassLoader;
    
-   public WebLogicJMXClient(WebLogicConfiguration configuration) throws LifecycleException
+   public WebLogicJMXClient(CommonWebLogicConfiguration configuration) throws LifecycleException
    {
       this.configuration = configuration;
       try
