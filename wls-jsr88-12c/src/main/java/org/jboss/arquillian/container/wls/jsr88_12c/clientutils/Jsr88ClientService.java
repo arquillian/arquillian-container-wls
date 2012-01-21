@@ -45,7 +45,9 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 
 public class Jsr88ClientService {
 
-	private boolean progressFailed = false; 
+	private CompletionStatus completionStatus;
+	private ProgressHandler progressHandler;
+
 	protected DeploymentManager deploymentManager;
 	protected TargetModuleID[] targetModuleIds;
 	protected Jsr88Configuration configuration;
@@ -54,6 +56,8 @@ public class Jsr88ClientService {
 
 
 	public Jsr88ClientService(Jsr88Configuration configuration){
+    	completionStatus = new CompletionStatus();
+    	progressHandler =  new ProgressHandler( completionStatus );
 		this.configuration = configuration;
 	}
 
@@ -269,64 +273,86 @@ public class Jsr88ClientService {
 
    
    /**
-    * Wait for the completion of an long running action initiated by 
-    * the JSR-88
+    * Wait for the completion of an long running action initiated by the JSR-88
     * 
     * @param ProgressObject - ProgressObject provided by theDeploymentManager 
     * @return true/false	- true if the call was successful; false if failed 
     */	
-    protected boolean waitForCompletion(ProgressObject po) {
+    protected boolean waitForCompletion(ProgressObject progressObj) {
 
-		ProgressHandler progressHandler = new ProgressHandler(); 		
-		progressHandler.start();
-		po.addProgressListener(progressHandler);
+    	completionStatus.reset();
 
-		while (progressHandler.getCompletionState() == null) {
-			try { 
-				progressHandler.join();
-			} catch (InterruptedException ie) { 
-				if (!progressHandler.isAlive()) break;
-			} 
-		}
+    	progressObj.addProgressListener(progressHandler);
+    	completionStatus.waitForCompleted();
+    	progressObj.removeProgressListener(progressHandler);
 
-		StateType s = progressHandler.getCompletionState(); 
-		progressFailed = (s == null || s.getValue() == StateType.FAILED.getValue());
-		po.removeProgressListener(progressHandler);
-
-		return !progressFailed;
+    	if ( completionStatus.getDeploymentStatus() == null ) {
+    		// the deployment has failed
+    		return false;
+    	}
+    	return completionStatus.getDeploymentStatus().isCompleted();
 	}	
 	
 
-    
-    class ProgressHandler extends Thread implements ProgressListener { 
-		boolean progressDone = false;
-		StateType finalState = null;
+    /**
+     * The object of type CompletionStatus is synchronized to make it sure 
+     * the access of the object is Thread safe. 
+     */	    
+    class CompletionStatus {
 
-		public void run() {
-			while( !progressDone ){ 
-				// Release the processor for other threads;   		
-				Thread.yield();
-			}
+    	private boolean completed = false;
+    	DeploymentStatus finalStatus = null;				
+    	
+        public synchronized void reset() {
+            // Reset the completed status.
+            completed = false;
+        	finalStatus = null;				
+        }
+
+		public DeploymentStatus getDeploymentStatus() {
+            return finalStatus;
+        }
+
+		public synchronized void setStatus(DeploymentStatus status) {
+            // Reset state
+            completed = true;
+	    	finalStatus = status;				
+            // Notify: status has changed
+            notifyAll();
+        }
+
+        public synchronized void waitForCompleted() {
+            // Wait until the action is completed
+            while ( !completed ) {
+                try {
+                	wait();
+                } catch (InterruptedException e) {}
+            }
+        }    	
+    }
+    
+    class ProgressHandler implements ProgressListener { 
+
+    	private CompletionStatus statusObject = null;
+
+		ProgressHandler (CompletionStatus statusObject) {
+			this.statusObject = statusObject;
 		}
-	
+		
 		public void handleProgressEvent(ProgressEvent event){ 
 
 			if ( !event.getDeploymentStatus().isRunning() ) {
-/*   		
+/*    		
   				log.info( "Deployment status: " 
-	    				+ event.getTargetModuleID().getModuleID() + " / " 
-	    				+ event.getTargetModuleID().getTarget().getName() 
+	    			+ event.getTargetModuleID().getModuleID() 
+	    			+ " / " + event.getTargetModuleID().getTarget().getName() 
     				+ " / " + event.getDeploymentStatus().getState()
     				+ " / " + event.getDeploymentStatus().getMessage());
 */
-				progressDone = true; 
-				finalState = event.getDeploymentStatus().getState();
+				statusObject.setStatus(event.getDeploymentStatus());				
 			}
 		}
-	
-		public StateType getCompletionState() { 
-			return finalState;
-		}
-	}
+
+    }
 
 }
