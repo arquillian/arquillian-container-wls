@@ -304,15 +304,14 @@ public class Jsr88ClientService {
 
 		public void run() {
 			while( !progressDone ){ 
-				// Release the processor for other threads;
-				Thread.currentThread().yield();
+				// Release the processor for other threads;   		
+				Thread.yield();
 			}
 		}
 	
 		public void handleProgressEvent(ProgressEvent event){ 
 
-			DeploymentStatus deploymentState = event.getDeploymentStatus();
-			if (deploymentState.getState().getValue() != StateType.RUNNING.getValue()) {
+			if ( !event.getDeploymentStatus().isRunning() ) {
 /*   		
   				log.info( "Deployment status: " 
 	    				+ event.getTargetModuleID().getModuleID() + " / " 
@@ -321,7 +320,7 @@ public class Jsr88ClientService {
     				+ " / " + event.getDeploymentStatus().getMessage());
 */
 				progressDone = true; 
-				finalState = deploymentState.getState();
+				finalState = event.getDeploymentStatus().getState();
 			}
 		}
 	
