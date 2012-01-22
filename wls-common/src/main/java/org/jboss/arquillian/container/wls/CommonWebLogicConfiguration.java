@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.wls.remote_10_3;
+package org.jboss.arquillian.container.wls;
 
 import java.io.File;
 import java.net.URI;
@@ -24,15 +24,14 @@ import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;
 
 /**
- * The Arquillian properties for the WebLogic 10.3.x container.
+ * The Arquillian properties that are common across WebLogic containers.
  * 
  * @author Vineet Reynolds
  *
  */
-public class WebLogicConfiguration implements ContainerConfiguration
+public class CommonWebLogicConfiguration implements ContainerConfiguration
 {
 
-   private static final String WL_JMX_CLIENT_JAR_PATH = "server/lib/wljmxclient.jar";
    private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
    
    /**
@@ -70,7 +69,7 @@ public class WebLogicConfiguration implements ContainerConfiguration
    
    /**
     * The location of the local WebLogic Server installation.
-    * The parent directory of this location is usually named wlserver_10.3.
+    * The parent directory of this location is usually named wlserver_x.y.
     * The directory must also contain the 'common' and 'server' subdirectories.
     */
    private String wlsHome;
@@ -86,11 +85,6 @@ public class WebLogicConfiguration implements ContainerConfiguration
     * The location of weblogic.jar (optional)
     */
    private String weblogicJarPath;
-   
-   /**
-    * The location of the wljmxclient.jar (optional)
-    */
-   private String jmxLibPath;
    
    /**
     * The protocol to use, when connecting to the WebLogic Domain Runtime MBean Server. (optional)
@@ -175,11 +169,6 @@ public class WebLogicConfiguration implements ContainerConfiguration
          throw new IllegalArgumentException("Failed to parse the adminUrl property - " + adminUrl + " as a URI.",uriEx);
       }
       
-      if (jmxLibPath == null || jmxLibPath.equals(""))
-      {
-         this.jmxLibPath = this.wlsHome.endsWith(File.separator) ? wlsHome.concat(WL_JMX_CLIENT_JAR_PATH) : wlsHome
-               .concat(File.separator).concat(WL_JMX_CLIENT_JAR_PATH);
-      }
       if (weblogicJarPath == null || weblogicJarPath.equals(""))
       {
          this.weblogicJarPath = this.wlsHome.endsWith(File.separator) ? wlsHome.concat(WEBLOGIC_JAR_PATH) : wlsHome
@@ -242,8 +231,6 @@ public class WebLogicConfiguration implements ContainerConfiguration
       }
       
       //Validate these derived properties
-      Validate.isValidFile(jmxLibPath,
-            "The wljmxclient.jar could not be located. Verify the wlsHome and jmxLibPath properties in arquillian.xml");
       Validate
             .notNullOrEmpty(jmxProtocol,
                   "The jmxProtocol is empty. Verify the adminUrl, adminProtocol and jmxProtocol properties in arquillian.xml");
@@ -346,16 +333,6 @@ public class WebLogicConfiguration implements ContainerConfiguration
       this.weblogicJarPath = weblogicJarPath;
    }
 
-   public String getJmxLibPath()
-   {
-      return jmxLibPath;
-   }
-
-   public void setJmxLibPath(String jmxLibPath)
-   {
-      this.jmxLibPath = jmxLibPath;
-   }
-   
    public String getJmxProtocol()
    {
       return jmxProtocol;

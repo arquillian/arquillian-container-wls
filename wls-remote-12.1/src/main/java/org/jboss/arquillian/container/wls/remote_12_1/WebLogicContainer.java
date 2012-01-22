@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.wls.remote_10_3;
+package org.jboss.arquillian.container.wls.remote_12_1;
 
 import java.io.File;
 
@@ -30,7 +30,7 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
 /**
- * WebLogic 10.3.x container
+ * WebLogic 12.1.x container
  * 
  * @author Vineet Reynolds
  *
@@ -65,10 +65,7 @@ public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConf
 
    public ProtocolDescription getDefaultProtocol()
    {
-      // WLS 10.3.x supports Servlet Spec 2.5 officially.
-      // We'll not concern ourselves with patchsets that may
-      // support Servlet 3.0.
-      return new ProtocolDescription("Servlet 2.5");
+      return new ProtocolDescription("Servlet 3.0");
    }
 
    public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException

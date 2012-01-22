@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.wls.remote_10_3;
+package org.jboss.arquillian.container.wls;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
+import org.jboss.arquillian.container.wls.CommonWebLogicConfiguration;
 
 /**
  * Utility class that uses Weblogic.Deployer to conduct deployments and undeployments.
@@ -46,10 +47,10 @@ public class WebLogicDeployerClient
    private static final Logger logger = Logger.getLogger(WebLogicDeployerClient.class.getName());
    
    private Process deployer;
-   private WebLogicConfiguration configuration;
+   private CommonWebLogicConfiguration configuration;
    private StringBuilder buffer;
 
-   public WebLogicDeployerClient(WebLogicConfiguration configuration)
+   public WebLogicDeployerClient(CommonWebLogicConfiguration configuration)
    {
       this.configuration = configuration;
       this.buffer = new StringBuilder();
