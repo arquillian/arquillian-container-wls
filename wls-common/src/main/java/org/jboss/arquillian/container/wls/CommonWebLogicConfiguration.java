@@ -34,86 +34,34 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
 
    private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
    
-   /**
-    * The administration URL to connect to.
-    */
    private String adminUrl;
    
-   /**
-    * Protocol to use to connect to AdminServer.
-    * This is optional. It can be derived from the adminUrl. 
-    */
    private String adminProtocol;
 
-   /**
-    * The listen address of the admin server.
-    * This is optional. It can be derived from the adminUrl.
-    */
    private String adminListenAddress;
 
-   /**
-    * The port of the admin server.
-    * This is optional. It can be derived from the adminUrl.
-    */
    private int adminListenPort;
    
-   /**
-    * The name of the Administrator user.
-    */
    private String adminUserName;
    
-   /**
-    * The password of the Administrator user.
-    */
    private String adminPassword;
    
-   /**
-    * The location of the local WebLogic Server installation.
-    * The parent directory of this location is usually named wlserver_x.y.
-    * The directory must also contain the 'common' and 'server' subdirectories.
-    */
    private String wlsHome;
    
-   /**
-    * The name of the target for the deployment.
-    * This can be the name of the Admin Server i.e. "AdminServer",
-    * the name of an individual Managed Server or the name of a Cluster (not yet supported).  
-    */
    private String target;
    
-   /**
-    * The location of weblogic.jar (optional)
-    */
    private String weblogicJarPath;
    
-   /**
-    * The protocol to use, when connecting to the WebLogic Domain Runtime MBean Server. (optional)
-    */
    private String jmxProtocol;
    
-   /**
-    * The host where the WebLogic Domain Runtime MBean Server resides. (optional)
-    */
    private String jmxHost;
    
-   /**
-    * The port that the WebLogic Domain Runtime MBean Server listens on. (optional)
-    */
    private int jmxPort;
    
-   /**
-    * Use the Demo Truststore, to connect to a WebLogic Server that uses Demo Identity and Trust stores.
-    */
    private boolean useDemoTrust = false;
 
-   /**
-    * Use a custom Truststore, to connect to a WebLogic Server that uses a Custom Trust store.
-    */
    private boolean useCustomTrust = false;
 
-   /**
-    * Use a the Truststore of the running JRE, to connect to a WebLogic Server that uses the Java Standard Trust store.
-    */
    private boolean useJavaStandardTrust = false;
    
    private String trustStoreLocation;
@@ -122,15 +70,8 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    
    private boolean ignoreHostNameVerification;
    
-   /**
-    * The fully qualified class name of the hostname verifier class
-    */
    private String hostnameVerifierClass;
    
-   /**
-    * The classpath entries that will be added to the classpath used by weblogic.Deployer.
-    * The location of the hostname verifier class can be provided via this property. 
-    */
    private String classPath;
    
    public void validate() throws ConfigurationException
@@ -246,6 +187,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return adminUrl;
    }
 
+   /**
+    * @param adminUrl The administration URL to connect to.
+    */
    public void setAdminUrl(String adminUrl)
    {
       this.adminUrl = adminUrl;
@@ -256,6 +200,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return adminProtocol;
    }
 
+    /**
+     * @param adminProtocol Protocol to use to connect to AdminServer. This is optional. It can be derived from the adminUrl.
+     */
    public void setAdminProtocol(String adminProtocol)
    {
       this.adminProtocol = adminProtocol;
@@ -266,6 +213,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return adminListenAddress;
    }
 
+    /**
+     * @param adminListenAddress The listen address of the admin server. This is optional. It can be derived from the adminUrl.
+     */
    public void setAdminListenAddress(String adminListenAddress)
    {
       this.adminListenAddress = adminListenAddress;
@@ -276,6 +226,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return adminListenPort;
    }
 
+    /**
+     * @param adminListenPort The port of the admin server. This is optional. It can be derived from the adminUrl.
+     */
    public void setAdminListenPort(int adminListenPort)
    {
       this.adminListenPort = adminListenPort;
@@ -286,6 +239,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return adminUserName;
    }
 
+    /**
+     * @param adminUserName The name of the Administrator user.
+     */
    public void setAdminUserName(String adminUserName)
    {
       this.adminUserName = adminUserName;
@@ -296,6 +252,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return adminPassword;
    }
 
+    /**
+     * @param adminPassword The password of the Administrator user.
+     */
    public void setAdminPassword(String adminPassword)
    {
       this.adminPassword = adminPassword;
@@ -306,6 +265,10 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return wlsHome;
    }
 
+    /**
+     * @param wlsHome The location of the local WebLogic Server installation. The parent directory of this location is usually
+     *        named wlserver_x.y. The directory must also contain the 'common' and 'server' subdirectories.
+     */
    public void setWlsHome(String wlsHome)
    {
       this.wlsHome = wlsHome;
@@ -316,6 +279,10 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return target;
    }
 
+    /**
+     * @param target The name of the target for the deployment. This can be the name of the Admin Server i.e. "AdminServer", the
+     *        name of an individual Managed Server or the name of a Cluster (not yet supported).
+     */
    public void setTarget(String target)
    {
       this.target = target;
@@ -326,6 +293,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return weblogicJarPath;
    }
 
+    /**
+     * @param weblogicJarPath The location of weblogic.jar (optional)
+     */
    public void setWeblogicJarPath(String weblogicJarPath)
    {
       this.weblogicJarPath = weblogicJarPath;
@@ -336,6 +306,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return jmxProtocol;
    }
 
+    /**
+     * @param jmxProtocol The protocol to use, when connecting to the WebLogic Domain Runtime MBean Server. (optional)
+     */
    public void setJmxProtocol(String jmxProtocol)
    {
       this.jmxProtocol = jmxProtocol;
@@ -346,6 +319,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return jmxHost;
    }
 
+    /**
+     * @param jmxHost The host where the WebLogic Domain Runtime MBean Server resides. (optional)
+     */
    public void setJmxHost(String jmxHost)
    {
       this.jmxHost = jmxHost;
@@ -356,6 +332,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return jmxPort;
    }
 
+    /**
+     * @param jmxPort The port that the WebLogic Domain Runtime MBean Server listens on. (optional)
+     */
    public void setJmxPort(int jmxPort)
    {
       this.jmxPort = jmxPort;
@@ -366,6 +345,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return useDemoTrust;
    }
 
+    /**
+     * @param useDemoTrust Use the Demo Truststore, to connect to a WebLogic Server that uses Demo Identity and Trust stores.
+     */
    public void setUseDemoTrust(boolean useDemoTrust)
    {
       this.useDemoTrust = useDemoTrust;
@@ -376,6 +358,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return useCustomTrust;
    }
 
+    /**
+     * @param useCustomTrust Use a custom Truststore, to connect to a WebLogic Server that uses a Custom Trust store.
+     */
    public void setUseCustomTrust(boolean useCustomTrust)
    {
       this.useCustomTrust = useCustomTrust;
@@ -386,6 +371,10 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return useJavaStandardTrust;
    }
 
+    /**
+     * @param useJavaStandardTrust Use a the Truststore of the running JRE, to connect to a WebLogic Server that uses the Java
+     *        Standard Trust store.
+     */
    public void setUseJavaStandardTrust(boolean useJavaStandardTrust)
    {
       this.useJavaStandardTrust = useJavaStandardTrust;
@@ -396,6 +385,10 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return trustStoreLocation;
    }
 
+    /**
+     * @param trustStoreLocation The location of the truststore. This should be specified when using a custom trust store. This
+     *        is computed internally, when using the Java Standard Trust or the Demo Trust store.
+     */
    public void setTrustStoreLocation(String trustStoreLocation)
    {
       this.trustStoreLocation = trustStoreLocation;
@@ -406,6 +399,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return trustStorePassword;
    }
 
+   /**
+    * @param trustStorePassword The password for the trust store.
+    */
    public void setTrustStorePassword(String trustStorePassword)
    {
       this.trustStorePassword = trustStorePassword;
@@ -416,6 +412,10 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return ignoreHostNameVerification;
    }
 
+    /**
+     * @param ignoreHostNameVerification Specifies whether hostname verification should be enabled or disabled for the
+     *        weblogic.Deployer process.
+     */
    public void setIgnoreHostNameVerification(boolean ignoreHostNameVerification)
    {
       this.ignoreHostNameVerification = ignoreHostNameVerification;
@@ -426,6 +426,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return hostnameVerifierClass;
    }
 
+    /**
+     * @param hostnameVerifierClass The fully qualified class name of the hostname verifier class
+     */
    public void setHostnameVerifierClass(String hostnameVerifierClass)
    {
       this.hostnameVerifierClass = hostnameVerifierClass;
@@ -436,6 +439,10 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       return classPath;
    }
 
+    /**
+     * @param classPath The classpath entries that will be added to the classpath used by weblogic.Deployer. The location of the
+     *        hostname verifier class can be provided via this property.
+     */
    public void setClassPath(String classPath)
    {
       this.classPath = classPath;
