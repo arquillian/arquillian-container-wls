@@ -158,7 +158,7 @@ public class WebLogicJMXClient
                   new Object[] {"http"}, new String[] {"java.lang.String"});
             URL serverHttpUrl = new URL(httpUrlAsString);
             httpContext = new HTTPContext(serverHttpUrl.getHost(), serverHttpUrl.getPort());
-            ObjectName[] servletRuntimes = findServletRuntimes(wlServerRuntime, deploymentName);
+            List<ObjectName> servletRuntimes = findServletRuntimes(wlServerRuntime, deploymentName);
             for (ObjectName servletRuntime : servletRuntimes)
             {
                String servletName = (String) connection.getAttribute(servletRuntime, "ServletName");
@@ -216,15 +216,15 @@ public class WebLogicJMXClient
       }
       
       /**
-       * Retrieves an array of Servlet Runtime MBeans for a deployment against a WebLogic Server instance.
+       * Retrieves a list of Servlet Runtime MBeans for a deployment against a WebLogic Server instance.
        * This is eventually used to populate the HTTPContext instance with all servlets in the deployment.
        * 
        * @param wlServerRuntime The WebLogic Server runtime instance which houses the deployment
        * @param deploymentName The deployment for which the Servlet Runtime MBeans must be retrieved
-       * @return An array of {@link ObjectName} representing Servlet Runtime MBeans for the deployment
+       * @return A list of {@link ObjectName} representing Servlet Runtime MBeans for the deployment
        * @throws Exception When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
        */
-      private ObjectName[] findServletRuntimes(ObjectName wlServerRuntime, String deploymentName) throws Exception
+      private List<ObjectName> findServletRuntimes(ObjectName wlServerRuntime, String deploymentName) throws Exception
       {
          ObjectName[] applicationRuntimes = (ObjectName[]) connection.getAttribute(wlServerRuntime, "ApplicationRuntimes");
          for(ObjectName applicationRuntime: applicationRuntimes)
@@ -233,15 +233,16 @@ public class WebLogicJMXClient
             if(applicationName.equals(deploymentName))
             {
                ObjectName[] componentRuntimes = (ObjectName[]) connection.getAttribute(applicationRuntime, "ComponentRuntimes");
+               List<ObjectName> servletRuntimes = new ArrayList<ObjectName>();
                for(ObjectName componentRuntime : componentRuntimes)
                {
                   String componentType = (String) connection.getAttribute(componentRuntime, "Type");
                   if (componentType.toString().equals("WebAppComponentRuntime"))
                   {
-                     ObjectName[] servletRuntimes = (ObjectName[]) connection.getAttribute(componentRuntime, "Servlets");
-                     return servletRuntimes;
+                     servletRuntimes.addAll(Arrays.asList((ObjectName[]) connection.getAttribute(componentRuntime, "Servlets")));
                   }
                }
+               return servletRuntimes;
             }
          }
          throw new DeploymentException(
