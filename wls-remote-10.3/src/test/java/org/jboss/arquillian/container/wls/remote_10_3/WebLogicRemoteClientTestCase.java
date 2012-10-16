@@ -27,7 +27,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
-import org.jboss.shrinkwrap.descriptor.api.spec.servlet.web.WebAppDescriptor;
+import org.jboss.shrinkwrap.descriptor.api.webapp30.WebAppDescriptor;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,14 +64,15 @@ public class WebLogicRemoteClientTestCase
    @Deployment(testable = false)
    public static WebArchive createDeployment()
    {
-      return ShrinkWrap
-            .create(WebArchive.class, "test.war")
-            .addClass(MyServlet.class)
-            .setWebXML(
-                  new StringAsset(Descriptors.create(WebAppDescriptor.class)
-                        .version("2.5")
-                        .servlet(MyServlet.class, "/Test")
-                        .exportAsString()));
+        Class<MyServlet> servletClass = MyServlet.class;
+        return ShrinkWrap
+                .create(WebArchive.class, "test.war")
+                .addClass(servletClass)
+                .setWebXML(
+                        new StringAsset(Descriptors.create(WebAppDescriptor.class).version("2.5").createServlet()
+                                .servletName(servletClass.getSimpleName()).servletClass(servletClass.getCanonicalName()).up()
+                                .createServletMapping().servletName(servletClass.getSimpleName()).urlPattern("/Test").up()
+                                .exportAsString()));
    }
 
    // -------------------------------------------------------------------------------------||
