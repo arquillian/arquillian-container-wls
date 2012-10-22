@@ -31,8 +31,8 @@ import java.net.URLConnection;
 import java.util.logging.Logger;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.container.test.api.Testable;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -49,16 +49,17 @@ import org.junit.runner.RunWith;
  * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
-public class WebLogicDeployMultipleWarTest {
-    private static final Logger log = Logger.getLogger(WebLogicDeployMultipleWarTest.class.getName());
+public class WebLogicDeployEarWithMultipleWarTest {
+    private static final Logger log = Logger.getLogger(WebLogicDeployEarWithMultipleWarTest.class.getName());
 
-    @Deployment
+    @ArquillianResource
+    private URL deploymentUrl;
+    
+    @Deployment(testable=false)
     public static EnterpriseArchive getTestArchive() {
         Class<MyServlet> servletClass = MyServlet.class;
         WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addClasses(MyServlet.class)
-                //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
-                .addClass(WebLogicDeployMultipleWarTest.class)
                 .setWebXML(
                         new StringAsset(Descriptors.create(WebAppDescriptor.class).version("2.5").createServlet()
                                 .servletName(servletClass.getSimpleName()).servletClass(servletClass.getCanonicalName()).up()
@@ -75,7 +76,7 @@ public class WebLogicDeployMultipleWarTest {
                                 .exportAsString()));
         
         EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "foo.ear")
-                .addAsModule(Testable.archiveToTest(war))
+                .addAsModule(war)
                 .addAsModule(anotherWar);
         
         log.info(ear.toString(true));
@@ -84,15 +85,18 @@ public class WebLogicDeployMultipleWarTest {
 
     @Test
     public void assertWarDeployed() throws Exception {
-        final URLConnection response = new URL("http://localhost:7001/test" + MyServlet.URL_PATTERN).openConnection();
+        final URLConnection response = new URL(deploymentUrl, "/test/" + MyServlet.URL_PATTERN).openConnection();
         
         BufferedReader in = new BufferedReader(new InputStreamReader(response.getInputStream()));
         final String result = in.readLine();
         in.close();
 
         assertThat(result, equalTo("hello"));
-        
-        final URLConnection anotherResponse = new URL("http://localhost:7001/another" + MyServlet.URL_PATTERN).openConnection();
+    }
+
+    @Test
+    public void assertSecondWarDeployed() throws Exception {
+        final URLConnection anotherResponse = new URL(deploymentUrl, "/another/" + MyServlet.URL_PATTERN).openConnection();
 
         BufferedReader anotherIn = new BufferedReader(new InputStreamReader(anotherResponse.getInputStream()));
         final String anotherResult = anotherIn.readLine();

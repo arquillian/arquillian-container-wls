@@ -34,7 +34,6 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +49,10 @@ import org.junit.runner.RunWith;
 public class WebLogicDeployWarTest {
     private static final Logger log = Logger.getLogger(WebLogicDeployWarTest.class.getName());
 
-    @Deployment
+    @ArquillianResource
+    private URL deploymentUrl;
+    
+    @Deployment(testable=false)
     public static WebArchive getTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addClasses(MyServlet.class)
@@ -61,7 +63,7 @@ public class WebLogicDeployWarTest {
 
     @Test
     public void assertWarDeployed() throws Exception {
-        final URLConnection response = new URL("http://localhost:7001/test" + MyServlet.URL_PATTERN).openConnection();
+        final URLConnection response = new URL(deploymentUrl, MyServlet.URL_PATTERN).openConnection();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(response.getInputStream()));
         final String result = in.readLine();

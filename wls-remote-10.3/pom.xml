@@ -53,11 +53,13 @@
             <groupId>org.jboss.javaee</groupId>
             <artifactId>jboss-servlet-api</artifactId>
             <version>${servlet.api.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.javaee</groupId>
             <artifactId>jboss-ejb-api</artifactId>
             <version>${ejb.api.version}</version>
+            <scope>provided</scope>
         </dependency>
         
         <!-- CDI support -->
@@ -65,6 +67,7 @@
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
             <version>${cdi.api.version}</version>
+            <scope>provided</scope>
         </dependency>
         
         <!-- testing -->
