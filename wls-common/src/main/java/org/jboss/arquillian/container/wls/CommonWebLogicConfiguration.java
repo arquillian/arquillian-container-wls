@@ -116,8 +116,6 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
     */
    private boolean useJavaStandardTrust = false;
    
-   private String javaHome;
-   
    private String trustStoreLocation;
    
    private String trustStorePassword;
@@ -391,16 +389,6 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    public void setUseJavaStandardTrust(boolean useJavaStandardTrust)
    {
       this.useJavaStandardTrust = useJavaStandardTrust;
-   }
-
-   public String getJavaHome()
-   {
-      return javaHome;
-   }
-
-   public void setJavaHome(String javaHome)
-   {
-      this.javaHome = javaHome;
    }
 
    public String getTrustStoreLocation()
