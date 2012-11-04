@@ -77,6 +77,8 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    
    private String classPath;
    
+   private boolean useURandom;
+   
    public void validate() throws ConfigurationException
    {
       // Verify the mandatory properties
@@ -467,6 +469,21 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    public void setClassPath(String classPath)
    {
       this.classPath = classPath;
+   }
+   
+   public boolean isUseURandom()
+   {
+      return useURandom;
+   }
+
+   /**
+    * 
+    * @param useURandom Enables the use of /dev/urandom as the entropy gathering device for the JVM used to launch
+    *        weblogic.Deployer. To be used in Linux/Unix.
+    */
+   public void setUseURandom(boolean useURandom)
+   {
+      this.useURandom = useURandom;
    }
 
 }

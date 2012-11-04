@@ -26,8 +26,10 @@
             <property name="adminUserName">weblogic</property>
             <property name="adminPassword">welcome1</property>
             <property name="target">AdminServer</property>
-            <property name="wlsHome">C:\Oracle\Middleware\wlserver_12.1</property>
+            <property name="wlsHome">/opt/wls1211/wls1211_dev/wlserver</property>
             <property name="useDemoTrust">true</property>
+            <property name="ignoreHostNameVerification">true</property>
+            <property name="useURandom">true</property>
         </configuration>
     </container>
 

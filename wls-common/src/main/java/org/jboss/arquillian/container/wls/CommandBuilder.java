@@ -43,6 +43,7 @@ public class CommandBuilder
    private String trustStorePassword;
    private boolean ignoreHostNameVerification;
    private String hostnameVerifierClass;
+   private boolean useURandom;
 
    public CommandBuilder setClassPath(String classPath)
    {
@@ -128,7 +129,13 @@ public class CommandBuilder
       return this;
    }
    
-   /**
+   public CommandBuilder setUseURandom(boolean useURandom)
+   {
+      this.useURandom = useURandom;
+      return this;
+   }
+
+  /**
     * Constructs the commandline to be used for launching weblogic.Deployer
     * to deploy an app.
     * 
@@ -172,6 +179,10 @@ public class CommandBuilder
       if(hostnameVerifierClass != null && !hostnameVerifierClass.equals(""))
       {
          cmd.add("-Dweblogic.security.SSL.hostnameVerifier=" + hostnameVerifierClass);
+      }
+      if(useURandom)
+      {
+          cmd.add("-Djava.security.egd=file:/dev/./urandom");
       }
       cmd.add("weblogic.Deployer");
       cmd.add("-adminurl");
@@ -236,6 +247,10 @@ public class CommandBuilder
       if(hostnameVerifierClass != null && !hostnameVerifierClass.equals(""))
       {
          cmd.add("-Dweblogic.security.SSL.hostnameVerifier=" + hostnameVerifierClass);
+      }
+      if(useURandom)
+      {
+          cmd.add("-Djava.security.egd=file:/dev/./urandom");
       }
       cmd.add("weblogic.Deployer");
       cmd.add("-adminurl");

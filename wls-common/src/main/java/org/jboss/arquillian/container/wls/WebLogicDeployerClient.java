@@ -53,7 +53,6 @@ public class WebLogicDeployerClient
    public WebLogicDeployerClient(CommonWebLogicConfiguration configuration)
    {
       this.configuration = configuration;
-      this.buffer = new StringBuilder();
    }
 
    /**
@@ -85,7 +84,8 @@ public class WebLogicDeployerClient
             .setCustomTrustStore(configuration.getTrustStoreLocation())
             .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust())
             .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification())
-            .setHostnameVerifierClass(configuration.getHostnameVerifierClass());
+            .setHostnameVerifierClass(configuration.getHostnameVerifierClass())
+            .setUseURandom(configuration.isUseURandom());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to deploy the test artifact.");
       forkWebLogicDeployer(builder.buildDeployCommand());
@@ -113,7 +113,8 @@ public class WebLogicDeployerClient
             .setCustomTrustStore(configuration.getTrustStoreLocation())
             .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust())
             .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification())
-            .setHostnameVerifierClass(configuration.getHostnameVerifierClass());
+            .setHostnameVerifierClass(configuration.getHostnameVerifierClass())
+            .setUseURandom(configuration.isUseURandom());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to undeploy the test artifact.");
       forkWebLogicDeployer(builder.buildUndeployCommand());
@@ -123,6 +124,7 @@ public class WebLogicDeployerClient
    {
       try
       {
+         buffer = new StringBuilder();
          ProcessBuilder builder = new ProcessBuilder(deployerCmd);
          builder.redirectErrorStream(true);
          deployer = builder.start();
