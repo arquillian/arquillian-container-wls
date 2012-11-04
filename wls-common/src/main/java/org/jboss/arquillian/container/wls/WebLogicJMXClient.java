@@ -286,6 +286,7 @@ public class WebLogicJMXClient
       
       // Store the initial state pre-invocation.
       stashInitialState();
+      setupState();
       // Now, create a connection to the Domain Runtime MBean Server.
       initWebLogicJMXLibClassLoader();
       createConnection();
@@ -441,7 +442,7 @@ public class WebLogicJMXClient
     */
    private void initWebLogicJMXLibClassLoader()
    {
-      File wlHome =  new File(configuration.getWeblogicJarPath());
+      File wlHome =  new File(configuration.getJmxClientJarPath());
       try
       {
          URL[] urls = { wlHome.toURI().toURL() };

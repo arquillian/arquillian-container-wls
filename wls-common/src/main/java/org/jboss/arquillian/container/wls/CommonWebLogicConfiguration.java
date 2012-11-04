@@ -33,6 +33,7 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
 {
 
    private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
+   private static final String JMX_CLIENT_JAR_PATH = "server/lib/wljmxclient.jar";
    
    private String adminUrl;
    
@@ -51,6 +52,8 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    private String target;
    
    private String weblogicJarPath;
+   
+   private String jmxClientJarPath;
    
    private String jmxProtocol;
    
@@ -112,6 +115,11 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       {
          this.weblogicJarPath = this.wlsHome.endsWith(File.separator) ? wlsHome.concat(WEBLOGIC_JAR_PATH) : wlsHome
                .concat(File.separator).concat(WEBLOGIC_JAR_PATH);
+      }
+      if (jmxClientJarPath == null || jmxClientJarPath.equals(""))
+      {
+         this.jmxClientJarPath = this.wlsHome.endsWith(File.separator) ? wlsHome.concat(JMX_CLIENT_JAR_PATH) : wlsHome
+               .concat(File.separator).concat(JMX_CLIENT_JAR_PATH);
       }
       if((jmxProtocol == null || jmxProtocol.equals("")) && (jmxHost == null || jmxHost.equals("")))
       {
@@ -299,6 +307,19 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    public void setWeblogicJarPath(String weblogicJarPath)
    {
       this.weblogicJarPath = weblogicJarPath;
+   }
+   
+   public String getJmxClientJarPath()
+   {
+      return jmxClientJarPath;
+   }
+
+    /**
+     * @param jmxClientJarPath The location of wljmxclient.jar or an equivalent library. (optional)
+     */
+   public void setJmxClientJarPath(String jmxClientJarPath)
+   {
+      this.jmxClientJarPath = jmxClientJarPath;
    }
 
    public String getJmxProtocol()
