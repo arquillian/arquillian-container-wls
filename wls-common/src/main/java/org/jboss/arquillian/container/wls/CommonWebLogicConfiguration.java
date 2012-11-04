@@ -19,6 +19,8 @@ package org.jboss.arquillian.container.wls;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;
@@ -31,7 +33,7 @@ import org.jboss.arquillian.container.spi.client.container.ContainerConfiguratio
  */
 public class CommonWebLogicConfiguration implements ContainerConfiguration
 {
-
+   private static final Logger logger = Logger.getLogger(CommonWebLogicConfiguration.class.getName());
    private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
    private static final String JMX_CLIENT_JAR_PATH = "server/lib/wljmxclient.jar";
    
@@ -48,6 +50,8 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    private String adminPassword;
    
    private String wlsHome;
+   
+   private String wlHome = System.getenv("WL_HOME");
    
    private String target;
    
@@ -82,8 +86,15 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    public void validate() throws ConfigurationException
    {
       // Verify the mandatory properties
-      Validate.directoryExists(wlsHome,
+      if(wlsHome != null && wlsHome.length() > 0)
+      {
+         Validate.directoryExists(wlsHome,
             "The wlsHome directory resolved to " + wlsHome + " and could not be located. Verify the property in arquillian.xml");
+         logger.log(Level.WARNING, "The wlsHome property is deprecated. Use the wlHome property instead.");
+         wlHome = wlsHome;
+      }
+      Validate.directoryExists(wlHome,
+              "The wlHome directory resolved to " + wlHome + " and could not be located. Verify the property in arquillian.xml");
       Validate.notNullOrEmpty(adminUrl, "The adminUrl is empty. Verify the property in arquillian.xml");
       Validate.notNullOrEmpty(adminUserName,
             "The username provided to weblogic.Deployer is empty. Verify the credentials in arquillian.xml");
@@ -115,12 +126,12 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       
       if (weblogicJarPath == null || weblogicJarPath.equals(""))
       {
-         this.weblogicJarPath = this.wlsHome.endsWith(File.separator) ? wlsHome.concat(WEBLOGIC_JAR_PATH) : wlsHome
+         this.weblogicJarPath = this.wlHome.endsWith(File.separator) ? wlHome.concat(WEBLOGIC_JAR_PATH) : wlHome
                .concat(File.separator).concat(WEBLOGIC_JAR_PATH);
       }
       if (jmxClientJarPath == null || jmxClientJarPath.equals(""))
       {
-         this.jmxClientJarPath = this.wlsHome.endsWith(File.separator) ? wlsHome.concat(JMX_CLIENT_JAR_PATH) : wlsHome
+         this.jmxClientJarPath = this.wlHome.endsWith(File.separator) ? wlHome.concat(JMX_CLIENT_JAR_PATH) : wlHome
                .concat(File.separator).concat(JMX_CLIENT_JAR_PATH);
       }
       if((jmxProtocol == null || jmxProtocol.equals("")) && (jmxHost == null || jmxHost.equals("")))
@@ -148,7 +159,7 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       
       if (useDemoTrust)
       {
-         trustStoreLocation = wlsHome.endsWith(File.separator) ? wlsHome.concat("server/lib/DemoTrust.jks") : wlsHome
+         trustStoreLocation = wlHome.endsWith(File.separator) ? wlHome.concat("server/lib/DemoTrust.jks") : wlHome
                .concat(File.separator).concat("server/lib/DemoTrust.jks");
          Validate.isValidFile(trustStoreLocation, "The DemoTrust.jks file was resolved to " + trustStoreLocation
                + " and could not be located. Verify the wlsHome and useDemoTrust properties in arquillian.xml");
@@ -276,12 +287,30 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    }
 
     /**
+     * @deprecated Use the wlHome property.
+     * 
      * @param wlsHome The location of the local WebLogic Server installation. The parent directory of this location is usually
      *        named wlserver_x.y. The directory must also contain the 'common' and 'server' subdirectories.
      */
    public void setWlsHome(String wlsHome)
    {
       this.wlsHome = wlsHome;
+   }
+   
+   public String getWlHome()
+   {
+      return wlHome;
+   }
+
+    /**
+     * 
+     * @param wlHome The location of the local WebLogic Server installation. The parent directory of this location is usually
+     *        named wlserver_x.y. The directory must also contain the 'common' and 'server' subdirectories. Defaults to the
+     *        value of the WL_HOME environment variable.
+     */
+   public void setWlHome(String wlHome)
+   {
+      this.wlHome = wlHome;
    }
 
    public String getTarget()

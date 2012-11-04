@@ -13,7 +13,7 @@
     <container qualifier="wls" default="true">
         <configuration>
             <property name="middlewareHome">/opt/wls1211/wls1211_dev</property>
-            <property name="wlsHome">/opt/wls1211/wls1211_dev/wlserver</property>
+            <property name="wlHome">/opt/wls1211/wls1211_dev/wlserver</property>
             <property name="domainDirectory">/opt/wls1211/wls1211_domains/base_domain</property>
             <property name="adminUrl">t3://localhost:7001</property>
             <property name="adminUserName">weblogic</property>
@@ -25,7 +25,7 @@
     <container qualifier="wls-ssl-demotrust">
         <configuration>
             <property name="middlewareHome">/opt/wls1211/wls1211_dev</property>
-            <property name="wlsHome">/opt/wls1211/wls1211_dev/wlserver</property>
+            <property name="wlHome">/opt/wls1211/wls1211_dev/wlserver</property>
             <property name="domainDirectory">/opt/wls1211/wls1211_domains/base_domain</property>
             <property name="adminUrl">t3s://localhost:7002</property>
             <property name="adminUserName">weblogic</property>
