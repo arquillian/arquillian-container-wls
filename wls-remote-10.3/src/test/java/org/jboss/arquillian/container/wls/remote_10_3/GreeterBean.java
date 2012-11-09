@@ -32,7 +32,7 @@ import javax.ejb.Stateless;
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 @Stateless(name="GreeterBean", mappedName="Greeter")
-public class GreeterBean implements Serializable, Greeter
+public class GreeterBean implements Serializable, Greeter, GreeterRemote
 {
    private static final long serialVersionUID = 6410949671035595273L;
 

@@ -16,16 +16,12 @@
  */
 package org.jboss.arquillian.container.wls.remote_12_1;
 
-import java.io.File;
-
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
-import org.jboss.arquillian.container.wls.ShrinkWrapUtil;
-import org.jboss.arquillian.container.wls.WebLogicDeployerClient;
-import org.jboss.arquillian.container.wls.WebLogicJMXClient;
+import org.jboss.arquillian.container.wls.RemoteContainer;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
@@ -38,9 +34,8 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConfiguration>
 {
    
-   WebLogicRemoteConfiguration configuration;
-   private WebLogicDeployerClient deployerClient;
-   private WebLogicJMXClient jmxClient;
+   private WebLogicRemoteConfiguration configuration;
+   private RemoteContainer remoteContainer;
 
    public Class<WebLogicRemoteConfiguration> getConfigurationClass()
    {
@@ -50,17 +45,17 @@ public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConf
    public void setup(WebLogicRemoteConfiguration configuration)
    {
       this.configuration = configuration;
+      this.remoteContainer = new RemoteContainer(this.configuration);
    }
 
    public void start() throws LifecycleException
    {
-      deployerClient = new WebLogicDeployerClient(configuration);
-      jmxClient = new WebLogicJMXClient(configuration);
-   }
+       remoteContainer.start();
+}
 
    public void stop() throws LifecycleException
    {
-      jmxClient.close();
+      remoteContainer.stop();
    }
 
    public ProtocolDescription getDefaultProtocol()
@@ -70,22 +65,12 @@ public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConf
 
    public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException
    {
-      String deploymentName = getDeploymentName(archive);
-      File deploymentArchive = ShrinkWrapUtil.toFile(archive);
-      
-      deployerClient.deploy(deploymentName, deploymentArchive);
-      ProtocolMetaData metadata = jmxClient.deploy(deploymentName);
-      return metadata;
+       return remoteContainer.deploy(archive);
    }
 
    public void undeploy(Archive<?> archive) throws DeploymentException
    {
-      // Undeploy the application
-      String deploymentName = getDeploymentName(archive);
-      deployerClient.undeploy(deploymentName);
-      
-      // Verify the undeployment from the Domain Runtime MBean Server.
-      jmxClient.undeploy(deploymentName);
+      remoteContainer.undeploy(archive);
    }
 
    public void deploy(Descriptor descriptor) throws DeploymentException
@@ -96,17 +81,6 @@ public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConf
    public void undeploy(Descriptor descriptor) throws DeploymentException
    {
       throw new UnsupportedOperationException("Not yet implemented");
-   }
-
-   private String getDeploymentName(Archive<?> archive)
-   {
-      String archiveFilename = archive.getName();
-      int indexOfDot = archiveFilename.indexOf(".");
-      if(indexOfDot != -1)
-      {
-         return archiveFilename.substring(0, indexOfDot);
-      }
-      return archiveFilename;
    }
 
 }

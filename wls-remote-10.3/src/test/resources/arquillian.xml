@@ -14,9 +14,9 @@
         <configuration>
             <property name="adminUrl">t3://localhost:7001</property>
             <property name="adminUserName">weblogic</property>
-            <property name="adminPassword">weblogic$1</property>
+            <property name="adminPassword">welcome1</property>
             <property name="target">AdminServer</property>
-            <property name="wlsHome">C:\Oracle\Middleware\wlserver_10.3</property>
+            <property name="wlsHome">/opt/wls1036/wls1036_dev/wlserver</property>
         </configuration>
     </container>
     

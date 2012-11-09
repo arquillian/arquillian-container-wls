@@ -20,10 +20,6 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.logging.Logger;
 
 import javax.annotation.Resource;
@@ -78,12 +74,6 @@ public class WebLogicInjectionTestCase
    
    @Test
    public void shouldBeAbleToInjectEjb() throws Exception {
-      final URLConnection response = new URL("http://localhost:7001/test/Greeter").openConnection();
-
-      BufferedReader in = new BufferedReader(new InputStreamReader(response.getInputStream()));
-      final String result = in.readLine();
-
-      assertThat(result, equalTo("Hello"));
       assertThat(injectedResource, equalTo("Hello World from an env-entry"));
       assertThat(transaction, notNullValue());
       assertThat(greeter, notNullValue());
