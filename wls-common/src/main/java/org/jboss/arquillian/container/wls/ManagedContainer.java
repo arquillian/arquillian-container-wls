@@ -28,6 +28,7 @@ public class ManagedContainer extends RemoteContainer {
 
     private CommonManagedWebLogicConfiguration configuration;
     private WebLogicServerControl serverControl;
+    private boolean connectedToRunningServer = false;
 
     public ManagedContainer(CommonManagedWebLogicConfiguration configuration) {
         super(configuration);
@@ -43,6 +44,7 @@ public class ManagedContainer extends RemoteContainer {
         serverControl = new WebLogicServerControl((CommonManagedWebLogicConfiguration) configuration);
         if (serverControl.isServerRunning()) {
             if (configuration.isAllowConnectingToRunningServer()) {
+                connectedToRunningServer = true;
                 super.start();
             } else {
                 throw new LifecycleException("The server is already running! "
@@ -66,7 +68,9 @@ public class ManagedContainer extends RemoteContainer {
         try {
             super.stop();
         } finally {
-            serverControl.stopServer();
+            if (!connectedToRunningServer) {
+                serverControl.stopServer();
+            }
         }
     }
 
