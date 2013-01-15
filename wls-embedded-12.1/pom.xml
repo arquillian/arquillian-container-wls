@@ -9,6 +9,7 @@
     </parent>
     <artifactId>arquillian-wls-embedded-12.1</artifactId>
     <name>Arquillian Container WebLogic Embedded 12.1</name>
+    <description>The container adapter for embedded WebLogic Server 12.1. Uses the Embeddable EJB API.</description>
     <properties>
         <version.javaee-6_api>6.0</version.javaee-6_api>
     </properties>

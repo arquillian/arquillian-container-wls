@@ -8,6 +8,7 @@
     </parent>
     <artifactId>arquillian-wls-remote-10.3</artifactId>
     <name>Arquillian Container WebLogic Remote 10.3</name>
+    <description>The remote container adapter for WebLogic Server 10.3.x</description>
     <properties>
         <servlet.api.version>2.5.0.GA</servlet.api.version>
         <ejb.api.version>3.0.0.GA</ejb.api.version>

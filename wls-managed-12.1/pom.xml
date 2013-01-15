@@ -9,6 +9,7 @@
     </parent>
     <artifactId>arquillian-wls-managed-12.1</artifactId>
     <name>Arquillian Container WebLogic Managed 12.1</name>
+    <description>The managed container adapter for WebLogic Server 12.1 (12c)</description>
     <properties>
         <version.jboss.javaee-6_api>1.0.0.Final</version.jboss.javaee-6_api>
     </properties>

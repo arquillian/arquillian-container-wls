@@ -8,6 +8,7 @@
     </parent>
     <artifactId>arquillian-wls-remote-12.1</artifactId>
     <name>Arquillian Container WebLogic Remote 12.1</name>
+    <description>The remote container adapter for WebLogic Server 12.1 (12c)</description>
     <properties>
         <version.jboss.javaee-6_api>1.0.0.Final</version.jboss.javaee-6_api>
         <cdi.api.version>1.0-SP1</cdi.api.version>
