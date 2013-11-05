@@ -25,12 +25,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import javax.management.*;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -41,7 +38,6 @@ import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
-import org.jboss.arquillian.container.wls.CommonWebLogicConfiguration;
 
 /**
  * A JMX client that connects to the Domain Runtime MBean Server
@@ -294,15 +290,73 @@ public class WebLogicJMXClient
       revertToInitialState();
    }
 
-   /**
+  private void doDeploy(String deploymentName, File deploymentArchive) throws DeploymentException {
+    try {
+      ObjectName domainRuntime = null;
+      domainRuntime = (ObjectName) connection.getAttribute(domainRuntimeService, "DomainRuntime");
+      ObjectName deploymentManager = (ObjectName) connection.getAttribute( domainRuntime, "DeploymentManager");
+
+      ObjectName deploymentProgressObject = (ObjectName) connection.invoke( deploymentManager,
+                                                                            "deploy",
+                                                                            new Object[] {deploymentName, deploymentArchive.getAbsolutePath(), null},
+                                                                            new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
+      processDeploymentProgress( deploymentName, deploymentManager, deploymentProgressObject);
+    } catch (DeploymentException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new DeploymentException( e.getMessage(), e );
+    }
+  }
+
+  private void processDeploymentProgress(String appName,
+                                         ObjectName deploymentManager,
+                                         ObjectName deploymentProgressObject ) throws Exception {
+    if ( deploymentProgressObject != null ) {
+
+        try {
+          String state = waitForDeployToComplete(deploymentProgressObject, 200 );
+          if ( state.equals( "STATE_FAILED" ) ) {
+            String[] targets = (String []) connection.getAttribute( deploymentProgressObject, "FailedTargets");
+            RuntimeException[] exceptions = ( RuntimeException[]) connection.invoke( deploymentProgressObject,
+                                                                                     "getExceptions",
+                                                                                     new Object[] {targets[0]},
+                                                                                     new String[] {String.class.getName() });
+            throw new DeploymentException( "Deployment Failed on server: " + exceptions[0].getMessage(), exceptions[0] );
+          }
+        } finally {
+          connection.invoke(deploymentManager,
+                            "removeDeploymentProgressObject",
+                            new Object[] { appName },
+                            new String[] { "java.lang.String" });
+        }
+    }
+  }
+
+  private String waitForDeployToComplete(ObjectName progressObj, int timeToWaitInSecs) throws Exception {
+    for (int i = 0; i < timeToWaitInSecs; i++) {
+      String state = ( String ) connection.getAttribute( progressObj, "State" );
+      if ("STATE_COMPLETED".equals(state) || "STATE_FAILED".equals(state))
+        return state;
+      try {
+        Thread.currentThread().sleep(1000);
+      } catch (InterruptedException ex) {
+        //ignore
+      }
+    }
+    return "unkown";
+  }
+
+  /**
     * Verifies and obtains details of the deployment.
     * 
     * @param deploymentName The name of the deployment
     * @return A {@link ProtocolMetaData} object containing details of the deployment. 
     * @throws DeploymentException When there is a failure obtaining details of the deployment from the Domain Runtime MBean server.
     */
-   public ProtocolMetaData deploy(String deploymentName) throws DeploymentException
+   public ProtocolMetaData deploy(String deploymentName, File deploymentArchive) throws DeploymentException
    {
+     doDeploy(deploymentName, deploymentArchive);
+
       try
       {
          // Store the initial state pre-invocation.
@@ -311,7 +365,8 @@ public class WebLogicJMXClient
 
          try
          {
-            ProtocolMetaData metadata = new ProtocolMetaData();
+
+           ProtocolMetaData metadata = new ProtocolMetaData();
             HTTPContextBuilder builder = new HTTPContextBuilder(deploymentName);
             HTTPContext httpContext = builder.createContext();
             HTTPContext context = httpContext;
@@ -329,7 +384,7 @@ public class WebLogicJMXClient
          revertToInitialState();
       }
    }
-   
+
    /**
     * Verifies that the application was undeployed.
     * We do not want a subsequent deployment with the same name to fail. 
@@ -339,26 +394,29 @@ public class WebLogicJMXClient
     */
    public void undeploy(String deploymentName) throws DeploymentException
    {
-      try
-      {
-         // Store the initial state pre-invocation.
-         stashInitialState();
-         setupState();
-         
-         try
-         {
-            verifyUndeploymentStatus(deploymentName);
-         }
-         catch (Exception ex)
-         {
-            throw new DeploymentException("Failed to obtain the status of the deployment.", ex);
-         }
-      }
-      finally
-      {
-         // Reset the state.
-         revertToInitialState();
-      }
+     try {
+       ObjectName domainRuntime = null;
+       domainRuntime = (ObjectName) connection.getAttribute(domainRuntimeService, "DomainRuntime");
+       ObjectName deploymentManager = (ObjectName) connection.getAttribute( domainRuntime, "DeploymentManager");
+       ObjectName appDeploymentRuntime = (ObjectName) connection.invoke(deploymentManager,
+                                                                        "lookupAppDeploymentRuntime",
+                                                                        new Object[]{deploymentName},
+                                                                        new String[]{String.class.getName()});
+       ObjectName deploymentProgressObject = (ObjectName) connection.invoke( appDeploymentRuntime,
+                                                                             "undeploy",
+                                                                             new Object[] {},
+                                                                             new String[] {});
+       processDeploymentProgress( deploymentName, deploymentManager, deploymentProgressObject);
+     } catch (DeploymentException e) {
+       throw e;
+     } catch (Exception e) {
+       throw new DeploymentException( e.getMessage(), e );
+     }
+     finally
+     {
+        // Reset the state.
+        revertToInitialState();
+     }
    }
    
    public void close() throws LifecycleException

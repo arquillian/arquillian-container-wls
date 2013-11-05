@@ -70,8 +70,8 @@ public class RemoteContainer {
         String deploymentName = getDeploymentName(archive);
         File deploymentArchive = ShrinkWrapUtil.toFile(archive);
 
-        deployerClient.deploy(deploymentName, deploymentArchive);
-        ProtocolMetaData metadata = jmxClient.deploy(deploymentName);
+//        deployerClient.deploy(deploymentName, deploymentArchive);
+        ProtocolMetaData metadata = jmxClient.deploy(deploymentName, deploymentArchive);
         return metadata;
     }
 
@@ -85,7 +85,7 @@ public class RemoteContainer {
     public void undeploy(Archive<?> archive) throws DeploymentException {
         // Undeploy the application
         String deploymentName = getDeploymentName(archive);
-        deployerClient.undeploy(deploymentName);
+//        deployerClient.undeploy(deploymentName);
 
         // Verify the undeployment from the Domain Runtime MBean Server.
         jmxClient.undeploy(deploymentName);

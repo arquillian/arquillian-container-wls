@@ -181,40 +181,52 @@ public class WebLogicServerControl {
                     builder.environment().put("JAVA_OPTIONS", configuration.getJvmOptions());
                 }
                 builder.redirectErrorStream(true);
-                process = builder.start();
-                Thread consoleConsumer = new Thread(new ConsoleConsumer(process, configuration.isOutputToConsole()));
-                consoleConsumer.setDaemon(true);
-                consoleConsumer.start();
-                final int timeout = configuration.getTimeout();
-                long start = System.currentTimeMillis() / 1000;
-                long now = start;
-                boolean serverAvailable = false;
-                while ((now - start) < timeout && serverAvailable == false) {
-                    serverAvailable = isServerRunning();
-                    if (!serverAvailable) {
-                        if (processHasDied(process)) {
-                            break;
-                        }
-                        try {
-                            Thread.sleep(1000L);
-                        } catch (InterruptedException interruptedEx) {
-                            logger.log(Level.INFO, "Container startup interrupted");
-                            throw interruptedEx;
-                        }
-                        now = System.currentTimeMillis() / 1000;
-                    }
-                }
-                if (!serverAvailable) {
+                process = startServer( builder );
+                for ( int i = 0; i < 5 && ! isServerRunning(); i++ ){
+                  if (processHasDied(process)) {
                     process.destroy();
-                    throw new TimeoutException(String.format("The startup script could not complete in %d seconds.",
-                            configuration.getTimeout()));
+                    process = startServer( builder );
+                  }
                 }
+                if ( ! isServerRunning()) {
+                  process.destroy();
+                  throw new TimeoutException(String.format("The startup script could not complete in %d seconds.",
+                                                           configuration.getTimeout()));
+                }
+
                 logger.log(Level.INFO, "Started WebLogic Server.");
                 return;
             } catch (Exception ex) {
                 throw new LifecycleException("Container startup failed.", ex);
             }
         }
+
+      private Process startServer(ProcessBuilder processBuilder ) throws InterruptedException, IOException {
+        Process process = processBuilder.start();
+        Thread consoleConsumer = new Thread(new ConsoleConsumer(process, configuration.isOutputToConsole()));
+        consoleConsumer.setDaemon(true);
+        consoleConsumer.start();
+        final int timeout = configuration.getTimeout();
+        long start = System.currentTimeMillis() / 1000;
+        long now = start;
+        boolean serverAvailable = false;
+        while ((now - start) < timeout && serverAvailable == false) {
+          serverAvailable = isServerRunning();
+          if (!serverAvailable) {
+            if (processHasDied(process)) {
+              break;
+            }
+            try {
+              Thread.sleep(1000L);
+            } catch (InterruptedException interruptedEx) {
+              logger.log(Level.INFO, "Container startup interrupted");
+              throw interruptedEx;
+            }
+            now = System.currentTimeMillis() / 1000;
+          }
+        }
+        return process;
+      }
 
         @Override
         protected String getScript() {
