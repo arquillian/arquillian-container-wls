@@ -31,7 +31,7 @@
         <version.release.plugin>2.1</version.release.plugin>
         <maven.compiler.argument.source>1.5</maven.compiler.argument.source>
         <maven.compiler.argument.target>1.5</maven.compiler.argument.target>
-        <version.arquillian_core>1.0.2.Final</version.arquillian_core>
+        <version.arquillian_core>1.0.3.Final</version.arquillian_core>
         <version.weld_servlet>1.1.2.Final</version.weld_servlet>
         <version.surefire.plugin>2.9</version.surefire.plugin>
     </properties>
