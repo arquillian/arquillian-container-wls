@@ -346,7 +346,7 @@ public class WebLogicJMXClient
       if ("STATE_COMPLETED".equals(state) || "STATE_FAILED".equals(state))
         return state;
       try {
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
       } catch (InterruptedException ex) {
         //ignore
       }
