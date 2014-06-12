@@ -32,7 +32,6 @@ import org.jboss.shrinkwrap.api.Archive;
 public class RemoteContainer {
 
     private WebLogicJMXClient jmxClient;
-    private WebLogicDeployerClient deployerClient;
     private CommonWebLogicConfiguration configuration;
 
     public RemoteContainer(CommonWebLogicConfiguration configuration) {
@@ -45,7 +44,6 @@ public class RemoteContainer {
      * @throws LifecycleException When a connection cannot be created to the MBean Server.
      */
     public void start() throws LifecycleException {
-        deployerClient = new WebLogicDeployerClient(configuration);
         jmxClient = new WebLogicJMXClient(configuration);
     }
 
@@ -70,7 +68,6 @@ public class RemoteContainer {
         String deploymentName = getDeploymentName(archive);
         File deploymentArchive = ShrinkWrapUtil.toFile(archive);
 
-        deployerClient.deploy(deploymentName, deploymentArchive);
         ProtocolMetaData metadata = jmxClient.deploy(deploymentName, deploymentArchive);
         return metadata;
     }
@@ -85,7 +82,6 @@ public class RemoteContainer {
     public void undeploy(Archive<?> archive) throws DeploymentException {
         // Undeploy the application
         String deploymentName = getDeploymentName(archive);
-        deployerClient.undeploy(deploymentName);
 
         // Verify the undeployment from the Domain Runtime MBean Server.
         jmxClient.undeploy(deploymentName);

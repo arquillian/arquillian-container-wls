@@ -49,7 +49,7 @@ public class RemoteContainer {
      * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException When a connection cannot be created to the MBean Server.
      */
     public void start() throws LifecycleException {
-        jmxClient = new WebLogicJMXClient(configuration, true);
+        jmxClient = new WebLogicJMXClient(configuration);
     }
 
     /**
