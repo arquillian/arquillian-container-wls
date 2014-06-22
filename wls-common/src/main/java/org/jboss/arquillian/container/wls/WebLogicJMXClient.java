@@ -271,7 +271,7 @@ public class WebLogicJMXClient
 
    public WebLogicJMXClient(CommonWebLogicConfiguration configuration) throws LifecycleException
    {
-      this(configuration, false);
+      this(configuration, true);
    }
 
    public WebLogicJMXClient(CommonWebLogicConfiguration configuration, boolean performDeployment) throws LifecycleException
