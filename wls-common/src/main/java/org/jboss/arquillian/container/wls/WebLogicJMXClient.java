@@ -267,17 +267,9 @@ public class WebLogicJMXClient
 
    private ClassLoader jmxLibraryClassLoader;
 
-   private boolean performDeployment;
-
    public WebLogicJMXClient(CommonWebLogicConfiguration configuration) throws LifecycleException
    {
-      this(configuration, true);
-   }
-
-   public WebLogicJMXClient(CommonWebLogicConfiguration configuration, boolean performDeployment) throws LifecycleException
-   {
       this.configuration = configuration;
-      this.performDeployment = performDeployment;
       try
       {
          this.domainRuntimeService = new ObjectName("com.bea:Name=DomainRuntimeService,Type=weblogic.management.mbeanservers.domainruntime.DomainRuntimeServiceMBean");
@@ -363,10 +355,7 @@ public class WebLogicJMXClient
     */
    public ProtocolMetaData deploy(String deploymentName, File deploymentArchive) throws DeploymentException
    {
-      if(performDeployment)
-      {
-         doDeploy(deploymentName, deploymentArchive);
-      }
+      doDeploy(deploymentName, deploymentArchive);
 
       try
       {
@@ -411,14 +400,8 @@ public class WebLogicJMXClient
          stashInitialState();
          setupState();
 
-         if(performDeployment)
-         {
-            invokeUndeployOperation(deploymentName);
-         }
-         else
-         {
-            verifyUndeployment(deploymentName);
-         }
+         invokeUndeployOperation(deploymentName);
+        
       }
       finally
       {
@@ -426,18 +409,6 @@ public class WebLogicJMXClient
          revertToInitialState();
       }
    }
-
-    private void verifyUndeployment(String deploymentName) throws DeploymentException
-    {
-       try
-       {
-          verifyUndeploymentStatus(deploymentName);
-       }
-       catch (Exception ex)
-       {
-          throw new DeploymentException("Failed to obtain the status of the deployment.", ex);
-       }
-    }
 
     private void invokeUndeployOperation(String deploymentName) throws DeploymentException {
         try {
@@ -471,21 +442,6 @@ public class WebLogicJMXClient
       closeConnection();
       
       revertToInitialState();
-   }
-
-   /**
-    * Verifies that the application has been undeployed.
-    * 
-    * @param deploymentName The name of the application that was undeployed. 
-    * @throws Exception When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
-    */
-   private void verifyUndeploymentStatus(String deploymentName) throws Exception
-   {
-      ObjectName deployment = findMatchingDeployment(deploymentName);
-      if (deployment != null)
-      {
-         throw new DeploymentException("Failed to undeploy the deployed application.");
-      }
    }
    
    /**
