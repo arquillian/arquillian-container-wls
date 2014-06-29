@@ -21,7 +21,7 @@ import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
-import org.jboss.arquillian.container.wls.jmx.RemoteContainer;
+import org.jboss.arquillian.container.wls.jmx.FullJMXRemoteContainer;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
@@ -29,58 +29,48 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
  * WebLogic 12.1.2 container
  * 
  * @author Vineet Reynolds
- *
+ * 
  */
-public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConfiguration>
-{
-   
-   private WebLogicRemoteConfiguration configuration;
-   private RemoteContainer remoteContainer;
+public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConfiguration> {
 
-   public Class<WebLogicRemoteConfiguration> getConfigurationClass()
-   {
-      return WebLogicRemoteConfiguration.class;
-   }
+    private WebLogicRemoteConfiguration configuration;
+    private FullJMXRemoteContainer remoteContainer;
 
-   public void setup(WebLogicRemoteConfiguration configuration)
-   {
-      this.configuration = configuration;
-      this.remoteContainer = new RemoteContainer(this.configuration);
-   }
+    public Class<WebLogicRemoteConfiguration> getConfigurationClass() {
+        return WebLogicRemoteConfiguration.class;
+    }
 
-   public void start() throws LifecycleException
-   {
-       remoteContainer.start();
-}
+    public void setup(WebLogicRemoteConfiguration configuration) {
+        this.configuration = configuration;
+        this.remoteContainer = new FullJMXRemoteContainer(this.configuration);
+    }
 
-   public void stop() throws LifecycleException
-   {
-      remoteContainer.stop();
-   }
+    public void start() throws LifecycleException {
+        remoteContainer.start();
+    }
 
-   public ProtocolDescription getDefaultProtocol()
-   {
-      return new ProtocolDescription("Servlet 3.0");
-   }
+    public void stop() throws LifecycleException {
+        remoteContainer.stop();
+    }
 
-   public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException
-   {
-       return remoteContainer.deploy(archive);
-   }
+    public ProtocolDescription getDefaultProtocol() {
+        return new ProtocolDescription("Servlet 3.0");
+    }
 
-   public void undeploy(Archive<?> archive) throws DeploymentException
-   {
-      remoteContainer.undeploy(archive);
-   }
+    public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
+        return remoteContainer.deploy(archive);
+    }
 
-   public void deploy(Descriptor descriptor) throws DeploymentException
-   {
-      throw new UnsupportedOperationException("Not yet implemented");
-   }
+    public void undeploy(Archive<?> archive) throws DeploymentException {
+        remoteContainer.undeploy(archive);
+    }
 
-   public void undeploy(Descriptor descriptor) throws DeploymentException
-   {
-      throw new UnsupportedOperationException("Not yet implemented");
-   }
+    public void deploy(Descriptor descriptor) throws DeploymentException {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    public void undeploy(Descriptor descriptor) throws DeploymentException {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
 }

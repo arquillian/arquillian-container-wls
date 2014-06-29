@@ -21,7 +21,7 @@ import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
-import org.jboss.arquillian.container.wls.jmx.ManagedContainer;
+import org.jboss.arquillian.container.wls.jmx.FullJMXRemoteContainer;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
@@ -34,7 +34,7 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 public class WebLogicContainer implements DeployableContainer<WebLogicManagedConfiguration> {
 
     private WebLogicManagedConfiguration configuration;
-    private ManagedContainer managedContainer;
+    private FullJMXRemoteContainer managedContainer;
 
     @Override
     public Class<WebLogicManagedConfiguration> getConfigurationClass() {
@@ -44,7 +44,7 @@ public class WebLogicContainer implements DeployableContainer<WebLogicManagedCon
     @Override
     public void setup(WebLogicManagedConfiguration configuration) {
         this.configuration = configuration;
-        this.managedContainer = new ManagedContainer(this.configuration);
+        this.managedContainer = new FullJMXRemoteContainer(this.configuration);
     }
 
     @Override
