@@ -22,19 +22,20 @@ import org.jboss.arquillian.container.wls.WebLogicServerControl;
 
 /**
  * A utility class for performing operations relevant to a WebLogic container managed by Arquillian.
+ * <p>
  * Relies completely on the JMX client to perform deployments. WLS 12.1.2 containers and higher are encouraged to use
- * this class.
+ * this class. Will NOT work on WLS 12.1.1 and earlier.
  * 
  * @author Vineet Reynolds
  *
  */
-public class ManagedContainer extends RemoteContainer {
+public class FullJMXManagedContainer extends FullJMXRemoteContainer {
 
     private CommonManagedWebLogicConfiguration configuration;
     private WebLogicServerControl serverControl;
     private boolean connectedToRunningServer = false;
 
-    public ManagedContainer(CommonManagedWebLogicConfiguration configuration) {
+    public FullJMXManagedContainer(CommonManagedWebLogicConfiguration configuration) {
         super(configuration);
         this.configuration = configuration;
     }
