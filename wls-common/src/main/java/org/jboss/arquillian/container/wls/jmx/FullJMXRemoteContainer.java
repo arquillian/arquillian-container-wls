@@ -14,84 +14,68 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.wls;
-
-import java.io.File;
+package org.jboss.arquillian.container.wls.jmx;
 
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
+import org.jboss.arquillian.container.wls.CommonWebLogicConfiguration;
+import org.jboss.arquillian.container.wls.ShrinkWrapUtil;
+import org.jboss.arquillian.container.wls.WebLogicJMXClient;
 import org.jboss.shrinkwrap.api.Archive;
 
 /**
  * A utility class for performing operations relevant to a remote WebLogic container used by Arquillian.
- * 
  * <p>
- * This uses a combination of the Deployer utility and JMX. The Deployer utility is used for the actual deployment
- * and undeployment, while JMX is used for verification.
- * 
- * <p>
- * This implementation is not 100% stable and is known to fail occasionally. 
+ * Relies completely on the JMX client to perform deployments. WLS 12.1.2 containers and higher are encouraged to use
+ * this class.  Will NOT work on WLS 12.1.1 and earlier.
  * 
  * @author Vineet Reynolds
  *
  */
-public class RemoteContainer {
+public class FullJMXRemoteContainer {
 
     private WebLogicJMXClient jmxClient;
-    private WebLogicDeployerClient deployerClient;
     private CommonWebLogicConfiguration configuration;
 
-    public RemoteContainer(CommonWebLogicConfiguration configuration) {
+    public FullJMXRemoteContainer(CommonWebLogicConfiguration configuration) {
         this.configuration = configuration;
     }
 
     /**
      * Starts a JMX client to read container metadata from the Domain Runtime MBean Server.
      * 
-     * @throws LifecycleException When a connection cannot be created to the MBean Server.
+     * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException When a connection cannot be created to the MBean Server.
      */
     public void start() throws LifecycleException {
-        deployerClient = new WebLogicDeployerClient(configuration);
         jmxClient = new WebLogicJMXClient(configuration);
     }
 
     /**
-     * Wraps the operation of forking a weblogic.Deployer process to deploy an application.
-     * 
+     * Wraps the operation of calling the Domain Runtime MBean Server via JMX to deploy an application
+     *
      * @param archive The ShrinkWrap archive to deploy
      * @return The metadata for the deployed application
-     * @throws DeploymentException When forking of weblogic.Deployer fails, or when interaction with the forked process fails,
-     *         or when details of the deployment cannot be obtained from the Domain Runtime MBean Server.
+     * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException 
      */
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
-        String deploymentName = getDeploymentName(archive);
-        File deploymentArchive = ShrinkWrapUtil.toFile(archive);
-
-        deployerClient.deploy(deploymentName, deploymentArchive);
-        return jmxClient.verifyDeployment(deploymentName);
+        return jmxClient.deploy(getDeploymentName(archive), ShrinkWrapUtil.toFile(archive));
     }
 
     /**
-     * Wraps the operation of forking a weblogic.Deployer process to undeploy an application.
-     * 
+     * Wraps the operation of calling the Domain Runtime MBean Server via JMX to undeploy an application
+     *
      * @param archive The ShrinkWrap archive to undeploy
-     * @throws DeploymentException When forking of weblogic.Deployer fails, or when interaction with the forked process fails,
-     *         or when undeployment cannot be confirmed.
+     * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException
      */
     public void undeploy(Archive<?> archive) throws DeploymentException {
-        // Undeploy the application
-        String deploymentName = getDeploymentName(archive);
-        deployerClient.undeploy(deploymentName);
-
-        // Verify the undeployment from the Domain Runtime MBean Server.
-        jmxClient.verifyUndeployment(deploymentName);
+        jmxClient.undeploy(getDeploymentName(archive));
     }
     
     /**
      * Stops the JMX client.
-     * 
-     * @throws LifecycleException When there is failure in closing the JMX connection.
+     *
+     * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException When there is failure in closing the JMX connection.
      */
     public void stop() throws LifecycleException {
         jmxClient.close();
