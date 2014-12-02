@@ -171,9 +171,9 @@ public class WebLogicServerControl {
         @Override
         public void execute() throws LifecycleException {
             Process process = null;
+          List<String> command = getCommand();
+          ProcessBuilder builder = new ProcessBuilder(command);
             try {
-                List<String> command = getCommand();
-                ProcessBuilder builder = new ProcessBuilder(command);
                 builder.directory(new File(configuration.getDomainDirectory()));
                 builder.environment().put("MW_HOME", configuration.getMiddlewareHome());
                 String jvmOptions = configuration.getJvmOptions();
@@ -181,10 +181,8 @@ public class WebLogicServerControl {
                     builder.environment().put("JAVA_OPTIONS", configuration.getJvmOptions());
                 }
                 builder.redirectErrorStream(true);
-                process = builder.start();
-                Thread consoleConsumer = new Thread(new ConsoleConsumer(process, configuration.isOutputToConsole()));
-                consoleConsumer.setDaemon(true);
-                consoleConsumer.start();
+
+                process = createProcess( builder );
                 final int timeout = configuration.getTimeout();
                 long start = System.currentTimeMillis() / 1000;
                 long now = start;
@@ -193,7 +191,8 @@ public class WebLogicServerControl {
                     serverAvailable = isServerRunning();
                     if (!serverAvailable) {
                         if (processHasDied(process)) {
-                            break;
+                          process.destroy();
+                          process = createProcess( builder );
                         }
                         try {
                             Thread.sleep(1000L);
@@ -214,6 +213,15 @@ public class WebLogicServerControl {
             } catch (Exception ex) {
                 throw new LifecycleException("Container startup failed.", ex);
             }
+        }
+
+        private Process createProcess(ProcessBuilder builder) throws IOException {
+          Process process = builder.start();
+          Thread consoleConsumer = new Thread(new ConsoleConsumer(process, configuration.isOutputToConsole()));
+          consoleConsumer.setDaemon(true);
+          consoleConsumer.start();
+
+          return process;
         }
 
         @Override
