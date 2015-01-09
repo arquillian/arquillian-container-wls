@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.net.URL;
 
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
@@ -106,22 +107,40 @@ public final class ShrinkWrapUtil
     */
    public static File toFile(final Archive<?> archive)
    {
+      return toFile(archive, false);
+   }
+
+   /**
+    * Creates a tmp folder and exports the file. Returns the URL for that file location.
+    *
+    * @param archive Archive to export
+    * @param exploded Specifies, whether to explode the archive after creation
+    * @return
+    */
+   public static File toFile(final Archive<?> archive, final boolean exploded)
+   {
       // create a random named temp file, then delete and use it as a directory
       try
       {
          File root = File.createTempFile("arquillian", archive.getName());
          root.delete();
          root.mkdirs();
-         
+
          File deployment = new File(root, archive.getName());
          deployment.deleteOnExit();
-         archive.as(ZipExporter.class).exportTo(deployment, true);
-         return deployment;
+
+         if (exploded)
+         {
+            return archive.as(ExplodedExporter.class).exportExploded(root, archive.getName());
+         } else
+         {
+            archive.as(ZipExporter.class).exportTo(deployment, true);
+            return deployment;
+         }
       }
-      catch (Exception e) 
+      catch (Exception e)
       {
          throw new RuntimeException("Could not export deployment to temp", e);
       }
    }
-   
 }
