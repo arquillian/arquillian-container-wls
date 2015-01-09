@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
-        <version>8</version>
+        <version>16</version>
         <relativePath />
     </parent>
 
@@ -28,7 +28,6 @@
 
     <!-- Properties -->
     <properties>
-        <version.release.plugin>2.1</version.release.plugin>
         <maven.compiler.argument.source>1.5</maven.compiler.argument.source>
         <maven.compiler.argument.target>1.5</maven.compiler.argument.target>
         <version.arquillian_core>1.0.3.Final</version.arquillian_core>
