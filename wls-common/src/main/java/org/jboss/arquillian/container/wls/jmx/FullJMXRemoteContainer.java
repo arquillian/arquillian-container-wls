@@ -24,6 +24,8 @@ import org.jboss.arquillian.container.wls.ShrinkWrapUtil;
 import org.jboss.arquillian.container.wls.WebLogicJMXClient;
 import org.jboss.shrinkwrap.api.Archive;
 
+import java.io.File;
+
 /**
  * A utility class for performing operations relevant to a remote WebLogic container used by Arquillian.
  * <p>
@@ -59,7 +61,7 @@ public class FullJMXRemoteContainer {
      * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException 
      */
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
-        return jmxClient.deploy(getDeploymentName(archive), ShrinkWrapUtil.toFile(archive));
+        return jmxClient.deploy(getDeploymentName(archive), ShrinkWrapUtil.toFile(archive, configuration.isDeployExplodedArchive()));
     }
 
     /**

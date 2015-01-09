@@ -66,7 +66,7 @@ public class RemoteContainer {
      */
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
         String deploymentName = getDeploymentName(archive);
-        File deploymentArchive = ShrinkWrapUtil.toFile(archive);
+        File deploymentArchive = ShrinkWrapUtil.toFile(archive, configuration.isDeployExplodedArchive());
 
         deployerClient.deploy(deploymentName, deploymentArchive);
         return jmxClient.verifyDeployment(deploymentName);

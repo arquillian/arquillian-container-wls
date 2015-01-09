@@ -83,6 +83,8 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    
    private boolean useURandom;
    
+   private boolean deployExplodedArchive;
+
    public void validate() throws ConfigurationException
    {
       // Verify the mandatory properties
@@ -515,4 +517,14 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
       this.useURandom = useURandom;
    }
 
+   public boolean isDeployExplodedArchive() {
+      return deployExplodedArchive;
+   }
+
+    /**
+     * @param deployExplodedArchive Specifies whether to deploy explode WAR before deploying, or not (default = false).
+     */
+   public void setDeployExplodedArchive(boolean deployExplodedArchive) {
+       this.deployExplodedArchive = deployExplodedArchive;
+   }
 }
