@@ -14,7 +14,7 @@
     <!-- Artifact Configuration -->
     <groupId>org.jboss.arquillian.container</groupId>
     <artifactId>arquillian-parent-wls</artifactId>
-    <version>1.0.0.Final-SNAPSHOT</version>
+    <version>1.0.0.Alpha3</version>
     <packaging>pom</packaging>
     <description>WebLogic Containers integration with the Arquillian project</description>
     <name>Arquillian Container - WebLogic Parent Project</name>
@@ -24,7 +24,8 @@
         <connection>scm:git:git://github.com/arquillian/arquillian-container-weblogic.git</connection>
         <developerConnection>scm:git:git@github.com:arquillian/arquillian-container-weblogic.git</developerConnection>
         <url>https://github.com/arquillian/arquillian-container-weblogic</url>
-    </scm>
+      <tag>1.0.0.Alpha3</tag>
+  </scm>
 
     <!-- Properties -->
     <properties>
