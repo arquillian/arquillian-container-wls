@@ -22,7 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Properties;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -30,50 +30,49 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
-
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
 
 /**
- * A JMX client that connects to the Domain Runtime MBean Server
- * to obtain information about Arquillian deployments, as well as
- * the state of the target server for deployment.
- * 
- * This JMX client relies on Oracle WebLogic's implementation of HTTP and IIOP protocols,
- * while also supporting the T3 protocol (as IIOP).
- * 
+ * A JMX client that connects to the Domain Runtime MBean Server to obtain
+ * information about Arquillian deployments, as well as the state of the target
+ * server for deployment.
+ *
+ * This JMX client relies on Oracle WebLogic's implementation of HTTP and IIOP
+ * protocols, while also supporting the T3 protocol (as IIOP).
+ *
  * Details in this area are covered by the Oracle Fusion Middleware Guide on
- * "Developing Custom Management Utilities With JMX for Oracle WebLogic Server". 
- * 
+ * "Developing Custom Management Utilities With JMX for Oracle WebLogic Server".
+ *
  * @author Vineet Reynolds
  *
  */
 public class WebLogicJMXClient {
-   
-   private static final ThreadLocal<String> trustStorePath = new ThreadLocal<String>();
-   private static final ThreadLocal<String> trustStorePassword = new ThreadLocal<String>();
-   
-   private CommonWebLogicConfiguration configuration;
-   private MBeanServerConnection connection;
-   private JMXConnector connector;
-   private ObjectName domainRuntimeService;
-   private ClassLoader jmxLibraryClassLoader;
+
+    private static final ThreadLocal<String> trustStorePath = new ThreadLocal<String>();
+    private static final ThreadLocal<String> trustStorePassword = new ThreadLocal<String>();
+
+    private CommonWebLogicConfiguration configuration;
+    private MBeanServerConnection connection;
+    private JMXConnector connector;
+    private ObjectName domainRuntimeService;
+    private ClassLoader jmxLibraryClassLoader;
 
     public WebLogicJMXClient(CommonWebLogicConfiguration configuration) throws LifecycleException {
         this.configuration = configuration;
         try {
             this.domainRuntimeService = new ObjectName(
-                "com.bea:Name=DomainRuntimeService,Type=weblogic.management.mbeanservers.domainruntime.DomainRuntimeServiceMBean"
+                    "com.bea:Name=DomainRuntimeService,Type=weblogic.management.mbeanservers.domainruntime.DomainRuntimeServiceMBean"
             );
         } catch (MalformedObjectNameException objectNameEx) {
             // We're pretty much in trouble now. The constructed object will be useless.
             throw new IllegalStateException(objectNameEx);
         }
-        
+
         try {
             setConfiguredTrustStore();
-        
+
             // Now, create a connection to the Domain Runtime MBean Server.
             initWebLogicJMXLibClassLoader();
             createConnection();
@@ -84,28 +83,27 @@ public class WebLogicJMXClient {
 
     /**
      * Deploys an archive and verifies it was indeed deployed correctly.
-     * 
-     * @param deploymentName
-     *            the name of the deployment
-     * @param deploymentArchive
-     *            the archive that is to be deployed
-     * @return A {@link ProtocolMetaData} object containing details of the deployment
-     * @throws DeploymentException
-     *             When there is a failure obtaining details of the deployment from the Domain Runtime MBean server.
+     *
+     * @param deploymentName the name of the deployment
+     * @param deploymentArchive the archive that is to be deployed
+     * @return A {@link ProtocolMetaData} object containing details of the
+     * deployment
+     * @throws DeploymentException When there is a failure obtaining details of
+     * the deployment from the Domain Runtime MBean server.
      */
     public ProtocolMetaData deploy(String deploymentName, File deploymentArchive) throws DeploymentException {
         doDeploy(deploymentName, deploymentArchive);
         return verifyDeployment(deploymentName);
     }
-        
+
     /**
      * Verifies and obtains details of the deployment.
-     * 
-     * @param deploymentName
-     *            The name of the deployment
-     * @return A {@link ProtocolMetaData} object containing details of the deployment.
-     * @throws DeploymentException
-     *             When there is a failure obtaining details of the deployment from the Domain Runtime MBean server.
+     *
+     * @param deploymentName The name of the deployment
+     * @return A {@link ProtocolMetaData} object containing details of the
+     * deployment.
+     * @throws DeploymentException When there is a failure obtaining details of
+     * the deployment from the Domain Runtime MBean server.
      */
     public ProtocolMetaData verifyDeployment(String deploymentName) throws DeploymentException {
         try {
@@ -113,7 +111,7 @@ public class WebLogicJMXClient {
 
             try {
                 return new ProtocolMetaData().addContext(
-                    new HttpContextBuilder(deploymentName, configuration, connection, domainRuntimeService).createContext()
+                        new HttpContextBuilder(deploymentName, configuration, connection, domainRuntimeService).createContext()
                 );
             } catch (Exception ex) {
                 throw new DeploymentException("Failed to populate the HTTPContext with the deployment details", ex);
@@ -123,13 +121,14 @@ public class WebLogicJMXClient {
         }
     }
 
-   /**
-    * Verifies that the application was undeployed.
-    * We do not want a subsequent deployment with the same name to fail. 
-    * 
-    * @param deploymentName The name of the deployment
-    * @throws DeploymentException When there is a failure obtaining details of the deployment from the Domain Runtime MBean server.
-    */
+    /**
+     * Verifies that the application was undeployed. We do not want a subsequent
+     * deployment with the same name to fail.
+     *
+     * @param deploymentName The name of the deployment
+     * @throws DeploymentException When there is a failure obtaining details of
+     * the deployment from the Domain Runtime MBean server.
+     */
     public void undeploy(String deploymentName) throws DeploymentException {
         try {
             setConfiguredTrustStore();
@@ -140,14 +139,13 @@ public class WebLogicJMXClient {
             revertToInitialState();
         }
     }
-    
+
     /**
      * Verifies that the application has been undeployed.
-     * 
-     * @param deploymentName
-     *            The name of the application that was undeployed.
-     * @throws Exception
-     *             When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+     *
+     * @param deploymentName The name of the application that was undeployed.
+     * @throws Exception When a failure is encountered when browsing the Domain
+     * Runtime MBean Server hierarchy.
      */
     public void verifyUndeployment(String deploymentName) throws DeploymentException {
         try {
@@ -156,7 +154,7 @@ public class WebLogicJMXClient {
             ObjectName deployment = null;
             try {
                 deployment = new HttpContextBuilder(deploymentName, configuration, connection, domainRuntimeService)
-                                .findMatchingDeployment(deploymentName);
+                        .findMatchingDeployment(deploymentName);
             } catch (Exception ex) {
                 throw new DeploymentException("Failed to obtain the status of the deployment.", ex);
             }
@@ -169,7 +167,7 @@ public class WebLogicJMXClient {
             revertToInitialState();
         }
     }
-    
+
     public void close() throws LifecycleException {
         try {
             setConfiguredTrustStore();
@@ -184,17 +182,17 @@ public class WebLogicJMXClient {
         try {
             ObjectName domainRuntime = (ObjectName) connection.getAttribute(domainRuntimeService, "DomainRuntime");
             ObjectName deploymentManager = (ObjectName) connection.getAttribute(domainRuntime, "DeploymentManager");
-            
+
             ObjectName appDeploymentRuntime = (ObjectName) connection.invoke(deploymentManager,
                     "lookupAppDeploymentRuntime",
-                    new Object[] { deploymentName }, new String[] { String.class.getName() }
+                    new Object[]{deploymentName}, new String[]{String.class.getName()}
             );
-           
+
             ObjectName deploymentProgressObject = (ObjectName) connection.invoke(appDeploymentRuntime,
                     "undeploy",
                     new Object[]{}, new String[]{}
             );
-            
+
             processDeploymentProgress(deploymentName, deploymentManager, deploymentProgressObject);
         } catch (DeploymentException e) {
             throw e;
@@ -202,18 +200,20 @@ public class WebLogicJMXClient {
             throw new DeploymentException(e.getMessage(), e);
         }
     }
-    
+
     private void doDeploy(String deploymentName, File deploymentArchive) throws DeploymentException {
         try {
+            String serverName = configuration.getTarget();
+            String[] targets = new String[]{serverName};
             ObjectName domainRuntime = (ObjectName) connection.getAttribute(domainRuntimeService, "DomainRuntime");
             ObjectName deploymentManager = (ObjectName) connection.getAttribute(domainRuntime, "DeploymentManager");
 
             ObjectName deploymentProgressObject = (ObjectName) connection.invoke(
-                deploymentManager, "deploy",
-                new Object[] { deploymentName, deploymentArchive.getAbsolutePath(), null },
-                new String[] { String.class.getName(), String.class.getName(), String.class.getName() }
+                    deploymentManager, "deploy",
+                    new Object[]{deploymentName, deploymentArchive.getAbsolutePath(), targets, null, new Properties()},
+                    new String[]{String.class.getName(), String.class.getName(), String[].class.getName(), String.class.getName(), java.util.Properties.class.getName()}
             );
-            
+
             processDeploymentProgress(deploymentName, deploymentManager, deploymentProgressObject);
         } catch (DeploymentException e) {
             throw e;
@@ -228,17 +228,17 @@ public class WebLogicJMXClient {
                 String state = waitForDeployToComplete(deploymentProgressObject, 200);
                 if (state.equals("STATE_FAILED")) {
                     String[] targets = (String[]) connection.getAttribute(deploymentProgressObject, "FailedTargets");
-                    
+
                     RuntimeException[] exceptions = (RuntimeException[]) connection.invoke(
-                        deploymentProgressObject, "getExceptions", new Object[] { targets[0] },
-                        new String[] { String.class.getName() }
+                            deploymentProgressObject, "getExceptions", new Object[]{targets[0]},
+                            new String[]{String.class.getName()}
                     );
-                    
+
                     throw new DeploymentException("Deployment Failed on server: " + exceptions[0].getMessage(), exceptions[0]);
                 }
             } finally {
                 connection.invoke(deploymentManager, "removeDeploymentProgressObject",
-                    new Object[] { appName }, new String[] { "java.lang.String" }
+                        new Object[]{appName}, new String[]{"java.lang.String"}
                 );
             }
         }
@@ -247,51 +247,56 @@ public class WebLogicJMXClient {
     private String waitForDeployToComplete(ObjectName progressObj, int timeToWaitInSecs) throws Exception {
         for (int i = 0; i < timeToWaitInSecs; i++) {
             String state = (String) connection.getAttribute(progressObj, "State");
-            if ("STATE_COMPLETED".equals(state) || "STATE_FAILED".equals(state))
+            if ("STATE_COMPLETED".equals(state) || "STATE_FAILED".equals(state)) {
                 return state;
+            }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 // ignore
             }
         }
-        
+
         return "STATE_UNKNOWN";
     }
-   
+
     /**
-     * Sets the thread's context classloader to an instance of {@link WebLogicJMXLibClassLoader}, that has the weblogic.jar
-     * from WL_HOME as a codesource. The original context classloader of the thread is the parent of the new classloader, and
-     * all classes to be loaded will be delegated to the parent first, and then searched for in weblogic.jar (and associated
-     * archives in the Manifest).
-     * 
-     * We have to set the current thread's context classloader, instead of relying on the
-     * "jmx.remote.protocol.provider.class.loader" key with an associated value of an instance of
-     * {@link WebLogicJMXLibClassLoader} in the environment specified to {@link JMXConnectorFactory}. Classes like
-     * weblogic.jndi.WLInitialContextFactory will be loaded by the thread's context classloader and not by the classloader used
-     * to load the JMX provider.
-     * 
+     * Sets the thread's context classloader to an instance of
+     * {@link WebLogicJMXLibClassLoader}, that has the weblogic.jar from WL_HOME
+     * as a codesource. The original context classloader of the thread is the
+     * parent of the new classloader, and all classes to be loaded will be
+     * delegated to the parent first, and then searched for in weblogic.jar (and
+     * associated archives in the Manifest).
+     *
+     * We have to set the current thread's context classloader, instead of
+     * relying on the "jmx.remote.protocol.provider.class.loader" key with an
+     * associated value of an instance of {@link WebLogicJMXLibClassLoader} in
+     * the environment specified to {@link JMXConnectorFactory}. Classes like
+     * weblogic.jndi.WLInitialContextFactory will be loaded by the thread's
+     * context classloader and not by the classloader used to load the JMX
+     * provider.
+     *
      * This method is preferably invoked as late as possible.
      */
     private void initWebLogicJMXLibClassLoader() {
         File wlHome = new File(configuration.getJmxClientJarPath());
         try {
-            URL[] urls = { wlHome.toURI().toURL() };
+            URL[] urls = {wlHome.toURI().toURL()};
             jmxLibraryClassLoader = new WebLogicJMXLibClassLoader(urls, Thread.currentThread().getContextClassLoader());
             Thread.currentThread().setContextClassLoader(jmxLibraryClassLoader);
         } catch (MalformedURLException urlEx) {
             throw new RuntimeException(
-                "The constructed path to weblogic.jar appears to be invalid. Verify that you have access to this jar and it's dependencies.",
-                urlEx
+                    "The constructed path to weblogic.jar appears to be invalid. Verify that you have access to this jar and it's dependencies.",
+                    urlEx
             );
         }
     }
-   
+
     /**
      * Initializes the connection to the Domain Runtime MBean Server
-     * 
-     * @throws DeploymentException
-     *             When a connection to the Domain Runtime MBean Server could not be established.
+     *
+     * @throws DeploymentException When a connection to the Domain Runtime MBean
+     * Server could not be established.
      */
     private void createConnection() throws LifecycleException {
         if (connection != null) {
@@ -305,22 +310,22 @@ public class WebLogicJMXClient {
 
         try {
             JMXServiceURL serviceURL = new JMXServiceURL(protocol, hostname, portNum, domainRuntimeMBeanServerURL);
-            
+
             Map<String, String> props = new HashMap<String, String>();
             props.put(Context.SECURITY_PRINCIPAL, configuration.getAdminUserName());
             props.put(Context.SECURITY_CREDENTIALS, configuration.getAdminPassword());
             props.put(JMXConnectorFactory.PROTOCOL_PROVIDER_PACKAGES, "weblogic.management.remote");
-            
+
             connector = JMXConnectorFactory.connect(serviceURL, props);
             connection = connector.getMBeanServerConnection();
         } catch (IOException ioEx) {
             throw new LifecycleException("Failed to obtain a connection to the MBean Server.", ioEx);
         }
     }
-   
+
     /**
      * Closes the connection to the Domain Runtime MBean Server.
-     * 
+     *
      * @throws LifecycleException
      */
     private void closeConnection() throws LifecycleException {
@@ -332,15 +337,15 @@ public class WebLogicJMXClient {
             throw new LifecycleException("Failed to close the connection to the MBean Server.", ioEx);
         }
     }
-    
+
     private void setConfiguredTrustStore() {
         stashInitialState();
         setupState();
     }
-    
-   
+
     /**
-     * Stores the current state before attempting to change the classloaders, and the system properties.
+     * Stores the current state before attempting to change the classloaders,
+     * and the system properties.
      */
     private void stashInitialState() {
         if (trustStorePath.get() == null && trustStorePassword.get() == null) {
@@ -348,7 +353,7 @@ public class WebLogicJMXClient {
             trustStorePassword.set(System.getProperty("javax.net.ssl.trustStorePassword"));
         }
     }
-    
+
     private void setupState() {
         if (configuration.isUseDemoTrust() || configuration.isUseCustomTrust() || configuration.isUseJavaStandardTrust()) {
             System.setProperty("javax.net.ssl.trustStore", configuration.getTrustStoreLocation());
@@ -361,14 +366,16 @@ public class WebLogicJMXClient {
             }
         }
     }
-   
+
     /**
-     * Unsets the thread's context classloader to the original classloader. We'll do this to ensure that Arquillian tests may
-     * run unaffected, if the {@link WebLogicJMXLibClassLoader} were to interfere somehow.
-     * 
-     * The truststore path and password is also reset to the original, to ensure that Arquillian tests at the client, that use
-     * these properties, will run without interference.
-     * 
+     * Unsets the thread's context classloader to the original classloader.
+     * We'll do this to ensure that Arquillian tests may run unaffected, if the
+     * {@link WebLogicJMXLibClassLoader} were to interfere somehow.
+     *
+     * The truststore path and password is also reset to the original, to ensure
+     * that Arquillian tests at the client, that use these properties, will run
+     * without interference.
+     *
      * This method is preferably invoked as soon as possible.
      */
     private void revertToInitialState() {
