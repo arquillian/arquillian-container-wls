@@ -85,6 +85,8 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    
    private boolean deployExplodedArchive;
 
+   protected boolean remoteMachine;
+
    public void validate() throws ConfigurationException
    {
       // Verify the mandatory properties
@@ -526,5 +528,16 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
      */
    public void setDeployExplodedArchive(boolean deployExplodedArchive) {
        this.deployExplodedArchive = deployExplodedArchive;
+   }
+
+   /**
+    * Remote machine configuration flag. Specify whether the target server is located on another machine (ie. if the
+    * target server do not share the same file system as the test server).
+    *
+    * @return {@code true} if executing test on a remote machine, {@code false} otherwise.
+    */
+   // Note: getter-only, setter must be implemented in child classes.
+   public boolean isRemoteMachine() {
+      return remoteMachine;
    }
 }

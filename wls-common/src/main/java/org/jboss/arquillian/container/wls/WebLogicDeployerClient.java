@@ -85,7 +85,8 @@ public class WebLogicDeployerClient
             .setUseJavaStandardTrust(configuration.isUseJavaStandardTrust())
             .setIgnoreHostNameVerification(configuration.isIgnoreHostNameVerification())
             .setHostnameVerifierClass(configuration.getHostnameVerifierClass())
-            .setUseURandom(configuration.isUseURandom());
+            .setUseURandom(configuration.isUseURandom())
+            .setRemoteMachine(configuration.isRemoteMachine());
       
       logger.log(Level.INFO, "Starting weblogic.Deployer to deploy the test artifact.");
       forkWebLogicDeployer(builder.buildDeployCommand());
