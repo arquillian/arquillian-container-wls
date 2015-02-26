@@ -44,6 +44,7 @@ public class CommandBuilder
    private boolean ignoreHostNameVerification;
    private String hostnameVerifierClass;
    private boolean useURandom;
+   private boolean remoteMachine;
 
    public CommandBuilder setClassPath(String classPath)
    {
@@ -135,6 +136,11 @@ public class CommandBuilder
       return this;
    }
 
+   public CommandBuilder setRemoteMachine(boolean remoteMachine) {
+      this.remoteMachine = remoteMachine;
+      return this;
+   }
+
   /**
     * Constructs the commandline to be used for launching weblogic.Deployer
     * to deploy an app.
@@ -200,6 +206,9 @@ public class CommandBuilder
       cmd.add(targets);
       cmd.add("-upload");
       cmd.add("-debug");
+      if (remoteMachine) {
+         cmd.add("-remote");
+      }
       return cmd;
    }
    
