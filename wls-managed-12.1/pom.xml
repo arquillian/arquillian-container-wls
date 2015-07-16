@@ -1,0 +1,15 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-parent-wls</artifactId>
+      <version>1.0.0.Final-SNAPSHOT</version>
+      <relativePath>..</relativePath>
+  </parent>
+  <artifactId>arquillian-wls-managed-12.1</artifactId>
+  <distributionManagement>
+    <relocation>
+      <artifactId>arquillian-wls-managed-12.1.x</artifactId>
+    </relocation>
+  </distributionManagement>
+</project>
