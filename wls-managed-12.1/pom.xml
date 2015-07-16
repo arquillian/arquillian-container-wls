@@ -6,9 +6,9 @@
         <version>1.0.0.Final-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-    <artifactId>arquillian-wls-managed-12.1.2</artifactId>
-    <name>Arquillian Container WebLogic Managed 12.1.2</name>
-    <description>The managed container adapter for WebLogic Server 12.1.2 (12c)</description>
+    <artifactId>arquillian-wls-managed-12.1</artifactId>
+    <name>Arquillian WebLogic Managed 12.1.x Container Adapter</name>
+    <description>The managed container adapter for WebLogic Server 12.1.x</description>
     <properties>
         <version.jboss.javaee-6_api>1.0.0.Final</version.jboss.javaee-6_api>
     </properties>

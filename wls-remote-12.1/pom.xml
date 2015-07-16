@@ -6,9 +6,9 @@
         <version>1.0.0.Final-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-    <artifactId>arquillian-wls-remote-12.1.2</artifactId>
-    <name>Arquillian Container WebLogic Remote 12.1.2</name>
-    <description>The remote container adapter for WebLogic Server 12.1.2 (12c)</description>
+    <artifactId>arquillian-wls-remote-12.1.x</artifactId>
+    <name>Arquillian WebLogic Remote 12.1.x Container Adapter</name>
+    <description>The remote container adapter for WebLogic Server 12.1.x</description>
     <properties>
         <version.jboss.javaee-6_api>1.0.0.Final</version.jboss.javaee-6_api>
         <cdi.api.version>1.0-SP1</cdi.api.version>
