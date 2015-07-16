@@ -7,6 +7,7 @@
       <relativePath>..</relativePath>
   </parent>
   <artifactId>arquillian-wls-managed-12.1.2</artifactId>
+  <name>Relocation wls-managed-12.1.2 > 12.1.x</name>
   <distributionManagement>
     <relocation>
       <artifactId>arquillian-wls-managed-12.1.x</artifactId>
