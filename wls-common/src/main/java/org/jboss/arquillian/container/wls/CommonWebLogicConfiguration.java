@@ -85,6 +85,10 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    
    private boolean deployExplodedArchive;
 
+   private boolean restMessageLogging = false;
+
+   private boolean restEntityLogging = false;
+
    public void validate() throws ConfigurationException
    {
       // Verify the mandatory properties
@@ -102,8 +106,7 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
             "The username provided to weblogic.Deployer is empty. Verify the credentials in arquillian.xml");
       Validate.notNullOrEmpty(adminPassword,
             "The password provided to weblogic.Deployer is empty. Verify the credentials in arquillian.xml");
-      Validate
-            .notNullOrEmpty(target, "The target for the deployment is empty. Verify the properties in arquillian.xml");
+      Validate.notNullOrEmpty(target, "The target for the deployment is empty. Verify the properties in arquillian.xml");
 
       // Once validated, set the properties that can be derived, if not already set.
       try
@@ -527,4 +530,26 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration
    public void setDeployExplodedArchive(boolean deployExplodedArchive) {
        this.deployExplodedArchive = deployExplodedArchive;
    }
+
+   /**
+    * @param restMessageLogging The value of the logRESTMessages configuration property.
+    */
+   public void setLogRESTMessages(boolean restMessageLogging) { this.restMessageLogging = restMessageLogging; }
+
+   /**
+    * @return The boolean value of the logRESTMessages configuration property.
+    */
+   public boolean isLogRESTMessages() { return restMessageLogging; }
+
+   /**
+    *
+    * @param restEntityLogging The value of the logRESTEntities configuration property.
+    */
+   public void setLogRESTEntities(boolean restEntityLogging) { this.restEntityLogging = restEntityLogging; }
+
+   /**
+    * @return The value of the logRESTEntities configuration property.
+    */
+   public boolean isLogRESTEntities() { return restEntityLogging; }
+
 }

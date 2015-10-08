@@ -80,8 +80,11 @@
 
         <module>wls-remote-10.3.x</module>
         <module>wls-remote-12.1.x</module>
+        <module>wls-remote-rest</module>
+
         <module>wls-managed-10.3.x</module>
         <module>wls-managed-12.1.x</module>
+        <module>wls-managed-rest</module>
 
         <!-- relocation modules for backward compat -->
         <module>reloc-wls-remote-10.3</module>
@@ -90,6 +93,5 @@
         <module>reloc-wls-managed-10.3</module>
         <module>reloc-wls-managed-12.1</module>
         <module>reloc-wls-managed-12.1.2</module>
-
     </modules>
 </project>

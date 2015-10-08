@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
+import org.jboss.arquillian.container.wls.rest.RESTUtils;
 
 /**
  * The process controller for the managed WebLogic container.
@@ -65,26 +66,26 @@ public class WebLogicServerControl {
     }
 
     /**
-     * Attempts to establish a socket to the admin server's listen address and port to determine whether it is running or not.
+     * Determine whether the target server is running or not.
      * 
-     * @return whether the Admin Server is running or not
+     * @return true if it's running; Otherwise, false
      */
     public boolean isServerRunning() {
-        Socket socket = null;
-        try {
-            socket = new Socket(configuration.getAdminListenAddress(), configuration.getAdminListenPort());
-        } catch (Exception ignored) {
-            return false;
-        } finally {
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-            } catch (IOException ioEx) {
-                throw new RuntimeException("Failed to close socket", ioEx);
-            }
+      boolean isRunning = false;
+
+      try {
+        // Use the REST management API to check if the server is running
+        isRunning = RESTUtils.isServerRunning(configuration, logger);
+      } catch (Exception e) {
+        // If the logger level is set to FINE or more granular, then print the stacktrace
+        if (logger.getLevel().intValue() <= Level.FINE.intValue()) {
+          e.printStackTrace();
+        } else { // Otherwise, just print the message from the exception
+          logger.log(Level.ALL, e.getMessage());
         }
-        return true;
+      }
+
+      return isRunning;
     }
 
     /**
@@ -195,7 +196,7 @@ public class WebLogicServerControl {
                           process = createProcess( builder );
                         }
                         try {
-                            Thread.sleep(1000L);
+                            Thread.sleep(5000L);
                         } catch (InterruptedException interruptedEx) {
                             logger.log(Level.INFO, "Container startup interrupted");
                             throw interruptedEx;
@@ -207,6 +208,8 @@ public class WebLogicServerControl {
                     process.destroy();
                     throw new TimeoutException(String.format("The startup script could not complete in %d seconds.",
                             configuration.getTimeout()));
+                } else {
+                  Thread.sleep(1000L); // Try this to resolve intermittent deployment failures...
                 }
                 logger.log(Level.INFO, "Started WebLogic Server.");
                 return;
@@ -278,7 +281,7 @@ public class WebLogicServerControl {
                     serverAvailable = isServerRunning();
                     if (serverAvailable) {
                         try {
-                            Thread.sleep(1000L);
+                            Thread.sleep(5000L);
                         } catch (InterruptedException interruptedEx) {
                             logger.log(Level.INFO, "Container shutdown interrupted");
                             throw interruptedEx;
