@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
+import org.jboss.arquillian.container.wls.rest.RESTUtils;
 
 /**
  * The process controller for the managed WebLogic container.
@@ -65,26 +66,21 @@ public class WebLogicServerControl {
     }
 
     /**
-     * Attempts to establish a socket to the admin server's listen address and port to determine whether it is running or not.
+     * Determine whether the target server is running or not.
      * 
-     * @return whether the Admin Server is running or not
+     * @return true if it's running; Otherwise, false
      */
     public boolean isServerRunning() {
-        Socket socket = null;
-        try {
-            socket = new Socket(configuration.getAdminListenAddress(), configuration.getAdminListenPort());
-        } catch (Exception ignored) {
-            return false;
-        } finally {
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-            } catch (IOException ioEx) {
-                throw new RuntimeException("Failed to close socket", ioEx);
-            }
-        }
-        return true;
+      boolean isRunning = false;
+
+      try {
+        // Use the REST management API to check if the server is running
+        isRunning = RESTUtils.isServerRunning(configuration, logger);
+      } catch (Exception e) {
+        e.printStackTrace(); // TODO: PJZ: Logging
+      }
+
+      return isRunning;
     }
 
     /**
@@ -207,6 +203,8 @@ public class WebLogicServerControl {
                     process.destroy();
                     throw new TimeoutException(String.format("The startup script could not complete in %d seconds.",
                             configuration.getTimeout()));
+                } else {
+                  Thread.sleep(1000L); // Try this to resolve intermittent deployment failures...
                 }
                 logger.log(Level.INFO, "Started WebLogic Server.");
                 return;
