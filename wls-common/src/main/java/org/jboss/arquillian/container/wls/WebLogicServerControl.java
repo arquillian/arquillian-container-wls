@@ -77,7 +77,12 @@ public class WebLogicServerControl {
         // Use the REST management API to check if the server is running
         isRunning = RESTUtils.isServerRunning(configuration, logger);
       } catch (Exception e) {
-        e.printStackTrace(); // TODO: PJZ: Logging
+        // If the logger level is set to FINE or more granular, then print the stacktrace
+        if (logger.getLevel().intValue() <= Level.FINE.intValue()) {
+          e.printStackTrace();
+        } else { // Otherwise, just print the message from the exception
+          logger.log(Level.ALL, e.getMessage());
+        }
       }
 
       return isRunning;
