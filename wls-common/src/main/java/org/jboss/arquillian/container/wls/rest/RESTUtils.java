@@ -26,6 +26,10 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 
@@ -57,15 +61,20 @@ public class RESTUtils {
   private static final String HEADER_X_REQUESTED_BY_VALUE = "Arquillian WLS Container Adapter";
 
   // JSON response constants
-  private static final String JSON_RESPONSE_BODY = "body";
-  private static final String JSON_RESPONSE_ITEM = "item";
-  private static final String JSON_RESPONSE_STATE = "state";
-  private static final String JSON_RESPONSE_SERVLETS = "servlets";
+  private static final String JSON_RESPONSE_BODY         = "body";
+  private static final String JSON_RESPONSE_ITEM         = "item";
+  private static final String JSON_RESPONSE_STATUS       = "status";
+  private static final String JSON_RESPONSE_STATUS_FAIL  = "failed";
+  private static final String JSON_RESPONSE_ERROR        = "error";
+  private static final String JSON_RESPONSE_ERRORS       = "errors";
+  private static final String JSON_RESPONSE_NAME         = "name";
+  private static final String JSON_RESPONSE_TARGETS      = "targets";
+  private static final String JSON_RESPONSE_STATE        = "state";
+  private static final String JSON_RESPONSE_SERVLETS     = "servlets";
   private static final String JSON_RESPONSE_SERVLET_NAME = "servletName";
   private static final String JSON_RESPONSE_CONTEXT_PATH = "contextPath";
 
   private static final String JSON_RESPONSE_STATE_VALUE_RUNNING = "\"RUNNING\"";
-
 
   /**
    * Create an authenticating REST client for WebLogic Server interactions.
@@ -179,7 +188,7 @@ public class RESTUtils {
       adminUrl = new URL(config.getAdminUrl());
       applicationRestURI = new URI(adminUrl.toURI().toString() + COMMON_APP_URI).normalize();
     } catch (Exception e) {
-      throw new DeploymentException("Deployment failed", e);
+      throw new DeploymentException("Error constructing deployment resource URL.", e);
     }
 
     // Create and configure the REST client
@@ -192,21 +201,37 @@ public class RESTUtils {
     // Post the deployment request
     Response response = requestBuilder.post(Entity.entity(form, form.getMediaType()));
 
-    try {
-      form.close();
-    } catch (IOException e) {
-      // Ignore this
-    }
-
     // Check the response status
     if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
-      throw new DeploymentException(response.toString());
+      if (response.hasEntity()) {
+        JsonObject jsonResponse = response.readEntity(JsonObject.class);
+
+        if (jsonResponse.containsKey(JSON_RESPONSE_ITEM)) {
+          JsonObject jsonItem = jsonResponse.getJsonObject(JSON_RESPONSE_ITEM);
+
+          String responseItemStatus = jsonItem.getString(JSON_RESPONSE_STATUS);
+
+          // If the deployment failed, then throw a deployment exception with the error message from the response
+          if (JSON_RESPONSE_STATUS_FAIL.equals(responseItemStatus)) {
+            // Check the response item's "error" field
+            String exceptionMsg = jsonItem.getString(JSON_RESPONSE_ERROR);
+
+            // Must create the RuntimeException cause to satisfy CDI TCK expectations
+            throw new DeploymentException(exceptionMsg, new RuntimeException(exceptionMsg));
+          }
+        }
+      }
     }
 
-    // Verify that the deployment succeeded by looking up the deployment's resource URI
-    response = restClient.target(response.getLocation()).request(MediaType.APPLICATION_JSON).get();
-    if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-      throw new DeploymentException(response.toString());
+    URI location = response.getLocation();
+    if (location != null) {
+      // Verify that the deployment succeeded by looking up the application's resource URI from the response
+      response = restClient.target(location).request(MediaType.APPLICATION_JSON).get();
+      if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+        throw new DeploymentException(getJSONResponseErrorMessage(response.readEntity(JsonObject.class)));
+      }
+    } else {
+      throw new DeploymentException("Deployment failed! No resource location available from response.");
     }
 
     // Populate the Arquillian result metadata
@@ -231,7 +256,7 @@ public class RESTUtils {
 
       metadata.addContext(httpContext);
     } catch (Exception e) {
-      throw new DeploymentException("Failed to populate the HTTPContext with the deployment details", e);
+      throw new DeploymentException("Failed to populate the ProtocolMetaData with the deployment details.", e);
     }
 
     boolean purgedCompletedProgressObjects = false;
@@ -276,6 +301,77 @@ public class RESTUtils {
     if (response.getStatus() != Response.Status.OK.getStatusCode()) {
       throw new DeploymentException(response.toString());
     }
+  }
+
+
+  private static Map<String, List<String>> getTargetErrors(JsonObject response) {
+    return getTargetErrors(getTargets(response));
+  }
+
+
+  private static Map<String, List<String>> getTargetErrors(List<JsonObject> targets) {
+    Map<String, List<String>> targetErrors = new HashMap<String, List<String>>();
+
+    for (JsonObject target : targets) {
+      JsonArray targetErrorsArray = target.getJsonArray(JSON_RESPONSE_ERRORS);
+
+      List<String> errorMessages = new ArrayList<String>();
+      for (JsonValue targetError : targetErrorsArray) {
+        errorMessages.add(targetError.toString());
+      }
+
+      targetErrors.put(target.getString(JSON_RESPONSE_NAME), errorMessages);
+    }
+
+    return targetErrors;
+  }
+
+
+  private static Map<String, String> getTargetStatuses(List<JsonObject> targets) {
+    Map<String, String> targetStatuses = new HashMap<String, String>();
+
+    for (JsonObject target : targets) {
+      targetStatuses.put(target.getString(JSON_RESPONSE_NAME), target.getString(JSON_RESPONSE_STATUS));
+    }
+
+    return targetStatuses;
+  }
+
+
+  private static List<JsonObject> getTargets(JsonObject response) {
+    List<JsonObject> targetJsonObjects = new ArrayList<JsonObject>();
+
+    JsonObject item = response.getJsonObject(JSON_RESPONSE_ITEM);
+    if (item != null) {
+      JsonArray targets = item.getJsonArray(JSON_RESPONSE_TARGETS);
+      for (JsonValue target : targets) {
+        JsonObject targetJsonObject = (JsonObject) target;
+        targetJsonObjects.add(targetJsonObject);
+      }
+    }
+
+    return targetJsonObjects;
+  }
+
+
+  /**
+   * The deployment error message from the specified JSON response object.
+   *
+   * @param jsonResponse The JSONResponse object, which may have an "error" message.
+   *
+   * @return The "error" message value or null.
+   */
+  private static String getJSONResponseErrorMessage(JsonObject jsonResponse) {
+    String responseErrorMessage = null;
+
+    if (jsonResponse.containsKey(JSON_RESPONSE_ITEM)) {
+      JsonObject item = jsonResponse.getJsonObject(JSON_RESPONSE_ITEM);
+      if (item.containsKey(JSON_RESPONSE_ERROR)) {
+        responseErrorMessage = item.getString(JSON_RESPONSE_ERROR);
+      }
+    }
+
+    return responseErrorMessage;
   }
 
 
