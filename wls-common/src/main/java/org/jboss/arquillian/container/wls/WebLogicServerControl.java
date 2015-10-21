@@ -196,7 +196,7 @@ public class WebLogicServerControl {
                           process = createProcess( builder );
                         }
                         try {
-                            Thread.sleep(1000L);
+                            Thread.sleep(5000L);
                         } catch (InterruptedException interruptedEx) {
                             logger.log(Level.INFO, "Container startup interrupted");
                             throw interruptedEx;
@@ -281,7 +281,7 @@ public class WebLogicServerControl {
                     serverAvailable = isServerRunning();
                     if (serverAvailable) {
                         try {
-                            Thread.sleep(1000L);
+                            Thread.sleep(5000L);
                         } catch (InterruptedException interruptedEx) {
                             logger.log(Level.INFO, "Container shutdown interrupted");
                             throw interruptedEx;
