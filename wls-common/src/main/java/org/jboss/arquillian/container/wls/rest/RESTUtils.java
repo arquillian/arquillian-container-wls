@@ -195,7 +195,7 @@ public class RESTUtils {
     Client restClient = getClient(config, logger);
 
     // Prepare the deployment request
-    Invocation.Builder requestBuilder = restClient.target(applicationRestURI).request();
+    Invocation.Builder requestBuilder = restClient.target(applicationRestURI).request(MediaType.APPLICATION_JSON_TYPE);
     requestBuilder.header(HEADER_X_REQUESTED_BY_NAME, HEADER_X_REQUESTED_BY_VALUE);
 
     // Post the deployment request
@@ -204,20 +204,28 @@ public class RESTUtils {
     // Check the response status
     if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
       if (response.hasEntity()) {
-        JsonObject jsonResponse = response.readEntity(JsonObject.class);
+        // If we get anything but JSON back, there is a problem
+        if (MediaType.APPLICATION_JSON_TYPE != response.getMediaType()) {
+          Response.StatusType status = response.getStatusInfo();
+          throw new DeploymentException("Deployment Failed: " + deploymentArchive.getName() +
+                                        " ; " + status.getStatusCode() + " " + status.getReasonPhrase());
+        } else {
+          // Process the JSON response
+          JsonObject jsonResponse = response.readEntity(JsonObject.class);
 
-        if (jsonResponse.containsKey(JSON_RESPONSE_ITEM)) {
-          JsonObject jsonItem = jsonResponse.getJsonObject(JSON_RESPONSE_ITEM);
+          if (jsonResponse.containsKey(JSON_RESPONSE_ITEM)) {
+            JsonObject jsonItem = jsonResponse.getJsonObject(JSON_RESPONSE_ITEM);
 
-          String responseItemStatus = jsonItem.getString(JSON_RESPONSE_STATUS);
+            String responseItemStatus = jsonItem.getString(JSON_RESPONSE_STATUS);
 
-          // If the deployment failed, then throw a deployment exception with the error message from the response
-          if (JSON_RESPONSE_STATUS_FAIL.equals(responseItemStatus)) {
-            // Check the response item's "error" field
-            String exceptionMsg = jsonItem.getString(JSON_RESPONSE_ERROR);
+            // If the deployment failed, then throw a deployment exception with the error message from the response
+            if (JSON_RESPONSE_STATUS_FAIL.equals(responseItemStatus)) {
+              // Check the response item's "error" field
+              String exceptionMsg = jsonItem.getString(JSON_RESPONSE_ERROR);
 
-            // Must create the RuntimeException cause to satisfy CDI TCK expectations
-            throw new DeploymentException(exceptionMsg, new RuntimeException(exceptionMsg));
+              // Must create the RuntimeException cause to satisfy CDI TCK expectations
+              throw new DeploymentException(exceptionMsg, new RuntimeException(exceptionMsg));
+            }
           }
         }
       }
