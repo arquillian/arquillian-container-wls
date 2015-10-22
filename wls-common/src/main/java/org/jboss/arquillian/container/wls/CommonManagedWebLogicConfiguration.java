@@ -47,10 +47,14 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
 
     @Override
     public void validate() throws ConfigurationException {
-        Validate.directoryExists(middlewareHome, "The middlewareHome resolved to " + middlewareHome
-                + " and could not be located. Verify the property in arquillian.xml");
-        Validate.directoryExists(domainDirectory, "The domainDirectory resolved to " + domainDirectory
-                + " and could not be located. Verify the property in arquillian.xml");
+        Validate.directoryExists(middlewareHome,
+                                 "The middlewareHome resolved to " + middlewareHome +
+                                 " and could not be located. Verify the property in arquillian.xml");
+
+        Validate.directoryExists(domainDirectory,
+                                 "The domainDirectory resolved to " + domainDirectory +
+                                 " and could not be located. Verify the property in arquillian.xml");
+
         if (startServerScript != null && startServerScript.length() > 0) {
             Validate.isValidFile(startServerScript, "The startServerScript resolved to " + startServerScript
                     + " and could not be located. Verify the property in arquillian.xml");

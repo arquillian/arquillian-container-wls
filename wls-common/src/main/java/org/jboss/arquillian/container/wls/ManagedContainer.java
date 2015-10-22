@@ -26,9 +26,9 @@ import org.jboss.arquillian.container.spi.client.container.LifecycleException;
  */
 public class ManagedContainer extends RemoteContainer {
 
-    private CommonManagedWebLogicConfiguration configuration;
+    protected CommonManagedWebLogicConfiguration configuration;
     private WebLogicServerControl serverControl;
-    private boolean connectedToRunningServer = false;
+    protected boolean connectedToRunningServer = false;
 
     public ManagedContainer(CommonManagedWebLogicConfiguration configuration) {
         super(configuration);
