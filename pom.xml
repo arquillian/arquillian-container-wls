@@ -14,7 +14,7 @@
     <!-- Artifact Configuration -->
     <groupId>org.jboss.arquillian.container</groupId>
     <artifactId>arquillian-parent-wls</artifactId>
-    <version>1.0.0.Final-SNAPSHOT</version>
+    <version>1.0.1.Final-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>WebLogic Containers integration with the Arquillian project</description>
     <name>Arquillian Container - WebLogic Parent Project</name>
@@ -76,14 +76,22 @@
     </build>
     <modules>
         <module>wls-common</module>
-        <module>wls-remote-10.3</module>
-        <module>wls-remote-12.1</module>
-        <module>wls-remote-12.1.2</module>
+        <module>wls-embedded-12.1</module>        
+
+        <module>wls-remote-10.3.x</module>
+        <module>wls-remote-12.1.x</module>
         <module>wls-remote-rest</module>
-        <module>wls-managed-10.3</module>
-        <module>wls-managed-12.1</module>
-        <module>wls-managed-12.1.2</module>
+
+        <module>wls-managed-10.3.x</module>
+        <module>wls-managed-12.1.x</module>
         <module>wls-managed-rest</module>
-        <module>wls-embedded-12.1</module>
+
+        <!-- relocation modules for backward compat -->
+        <module>reloc-wls-remote-10.3</module>
+        <module>reloc-wls-remote-12.1</module>
+        <module>reloc-wls-remote-12.1.2</module>
+        <module>reloc-wls-managed-10.3</module>
+        <module>reloc-wls-managed-12.1</module>
+        <module>reloc-wls-managed-12.1.2</module>
     </modules>
 </project>

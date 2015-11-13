@@ -1,0 +1,16 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-parent-wls</artifactId>
+      <version>1.0.1.Final-SNAPSHOT</version>
+      <relativePath>..</relativePath>
+  </parent>
+  <artifactId>arquillian-wls-managed-12.1</artifactId>
+  <name>Relocation wls-managed-12.1 &gt; 12.1.x</name>
+  <distributionManagement>
+    <relocation>
+      <artifactId>arquillian-wls-managed-12.1.x</artifactId>
+    </relocation>
+  </distributionManagement>
+</project>

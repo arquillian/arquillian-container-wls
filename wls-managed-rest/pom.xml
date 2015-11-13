@@ -1,14 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jboss.arquillian.container</groupId>
         <artifactId>arquillian-parent-wls</artifactId>
-        <version>1.0.0.Final-SNAPSHOT</version>
+        <version>1.0.1.Final-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>arquillian-wls-managed-rest</artifactId>
-    <name>Arquillian Container WebLogic Managed REST</name>
+    <name>Arquillian WebLogic Managed REST Container Adapter</name>
     <description>The managed container adapter for WebLogic Server (12c+)</description>
     <properties>
         <version.jboss.javaee-6_api>1.0.0.Final</version.jboss.javaee-6_api>
