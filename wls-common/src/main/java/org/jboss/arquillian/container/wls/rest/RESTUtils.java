@@ -205,7 +205,7 @@ public class RESTUtils {
     if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
       if (response.hasEntity()) {
         // If we get anything but JSON back, there is a problem
-        if (MediaType.APPLICATION_JSON_TYPE != response.getMediaType()) {
+        if (!MediaType.APPLICATION_JSON.equals(response.getMediaType().toString())) {
           Response.StatusType status = response.getStatusInfo();
           throw new DeploymentException("Deployment Failed: " + deploymentArchive.getName() +
                                         " ; " + status.getStatusCode() + " " + status.getReasonPhrase());
