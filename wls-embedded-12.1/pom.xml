@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.jboss.arquillian.container</groupId>
         <artifactId>arquillian-parent-wls</artifactId>
-        <version>1.0.1.Final</version>
+        <version>1.0.2.Final-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <artifactId>arquillian-wls-embedded-12.1</artifactId>
