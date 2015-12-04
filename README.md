@@ -1,1 +1,0 @@
-Arquillian Containers for WebLogic
