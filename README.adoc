@@ -1,1 +1,64 @@
 == Arquillian Containers for WebLogic
+
+
+===  Arquillian WebLogic Managed REST Container Adapter
+This adapter manages the WebLogic Server instance lifecycle, and uses the WebLogic Server REST Management API for application deployments.
+
+
+.Dependencies
+This adapter is based on JAX-RS, and has been tested with Jersey 2
+
+[options="header"]
+|=======================
+|GroupId |ArtifactId |Version
+|org.glassfish.jersey.core |jersey-common                |2.18
+|org.glassfish.jersey.core |jersey-client                |2.18
+|org.glassfish.jersey.core |jersey-media-json-processing |2.18
+|org.glassfish.jersey.core |jersey-media-multipart       |2.18
+|=======================
+
+
+.Configuration Properties
+[options="header"]
+|=======================
+|Property Name |Value Description |Example
+|middlewareHome   |The middleware home directory (e.g., $MW_HOME)                 |/Oracle_home
+|wlHome           |The WebLogic home directory (e.g., $WL_HOME)                   |/Oracle_home/wlserver
+|domainDirectory  |The directory of the domain to which the target server belongs |/mydomain
+|adminUrl         |The WebLogic Server administration HTTP URL                    |http://localhost:7001
+|adminUserName    |The WebLogic Server administrator username                     | 
+|adminPassword    |The WebLogic Server administrator password                     | 
+|target           |The deployment target WebLogic Server server name              |AdminServer
+|logRESTMessages  |(Optional) true, log REST HTTP messages; false, disables logging of these, unless logRESTEntities is true |
+|logRESTEntities  |(Optional) true, log REST entities (and the associated HTTP messages); false, do not log REST entities    |
+|=======================
+
+===  Arquillian WebLogic Remote REST Container Adapter
+This adapter interacts with a running WebLogic Server instance (local or remote), and uses the WebLogic Server REST Management API for application deployments.
+
+
+.Dependencies
+This adapter is based on JAX-RS, and has been tested with Jersey 2
+
+[options="header"]
+|=======================
+|GroupId |ArtifactId |Version
+|org.glassfish.jersey.core |jersey-common                |2.18
+|org.glassfish.jersey.core |jersey-client                |2.18
+|org.glassfish.jersey.core |jersey-media-json-processing |2.18
+|org.glassfish.jersey.core |jersey-media-multipart       |2.18
+|=======================
+
+
+.Configuration Properties
+[options="header"]
+|=======================
+|Property Name |Value Description |Example
+|adminUrl        |The WebLogic Server administration HTTP URL       |http://localhost:7001
+|adminUserName   |The WebLogic Server administrator username        | 
+|adminPassword   |The WebLogic Server administrator password        | 
+|target          |The deployment target WebLogic Server server name |AdminServer
+|logRESTMessages |true, log REST HTTP messages; false, disables logging of these, unless logRESTEntities is true |
+|logRESTEntities |true, log REST entities (and the associated HTTP messages); false, do not log REST entities    |
+|=======================
+
