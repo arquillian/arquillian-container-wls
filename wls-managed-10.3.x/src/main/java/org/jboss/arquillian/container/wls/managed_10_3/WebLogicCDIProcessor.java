@@ -31,45 +31,36 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
  * If beans.xml is present in the WEB-INF directory, then Weld will be unable to locate it,
  * since the classloader in WebLogic will attempt to find it in the _wl_cls_gen.jar
  * and other JARs in WEB-INF\lib.
- * 
+ * <p>
  * This {@link ProtocolArchiveProcessor} will relocate the beans.xml found in WEB-INF
  * of all protocol deployments, to the WEB-INF/classes/META-INF directory of the archive.
  * When WebLogic packages the WEB-INF\classes contents into the _wl_cls_gen.jar,
  * the classloader will now find the beans.xml file, as it would be placed in the META-INF directory
  * of _wl_cls_gen.jar.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
-public class WebLogicCDIProcessor implements ProtocolArchiveProcessor
-{
+public class WebLogicCDIProcessor implements ProtocolArchiveProcessor {
 
-   public void process(TestDeployment testDeployment, Archive<?> protocolArchive)
-   {
-      Archive<?> testArchive = testDeployment.getApplicationArchive();
-      relocateBeansXML(testArchive, protocolArchive);
-   }
+    public void process(TestDeployment testDeployment, Archive<?> protocolArchive) {
+        Archive<?> testArchive = testDeployment.getApplicationArchive();
+        relocateBeansXML(testArchive, protocolArchive);
+    }
 
-   private void relocateBeansXML(Archive<?> testArchive, Archive<?> protocolArchive)
-   {
-      if(WebArchive.class.isInstance(testArchive) && testArchive.contains("WEB-INF/beans.xml"))
-      {
-         WebArchive webTestArchive = WebArchive.class.cast(testArchive);
-         Asset beansXML = webTestArchive.delete(ArchivePaths.create("WEB-INF/beans.xml")).getAsset();
-         webTestArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
-      }
-      else if(EnterpriseArchive.class.isInstance(testArchive))
-      {
-         EnterpriseArchive enterpriseTestArchive = EnterpriseArchive.class.cast(testArchive);
-         for(WebArchive nestedWebTestArchive : enterpriseTestArchive.getAsType(WebArchive.class, Filters.include("/.*\\.war")))
-         {
-            if(nestedWebTestArchive.contains("WEB-INF/beans.xml"))
-            {
-               Asset beansXML = nestedWebTestArchive.delete(ArchivePaths.create("WEB-INF/beans.xml")).getAsset();
-               nestedWebTestArchive.addAsWebInfResource(beansXML,"classes/META-INF/beans.xml");
+    private void relocateBeansXML(Archive<?> testArchive, Archive<?> protocolArchive) {
+        if (WebArchive.class.isInstance(testArchive) && testArchive.contains("WEB-INF/beans.xml")) {
+            WebArchive webTestArchive = WebArchive.class.cast(testArchive);
+            Asset beansXML = webTestArchive.delete(ArchivePaths.create("WEB-INF/beans.xml")).getAsset();
+            webTestArchive.addAsWebInfResource(beansXML, "classes/META-INF/beans.xml");
+        } else if (EnterpriseArchive.class.isInstance(testArchive)) {
+            EnterpriseArchive enterpriseTestArchive = EnterpriseArchive.class.cast(testArchive);
+            for (WebArchive nestedWebTestArchive : enterpriseTestArchive.getAsType(WebArchive.class,
+                Filters.include("/.*\\.war"))) {
+                if (nestedWebTestArchive.contains("WEB-INF/beans.xml")) {
+                    Asset beansXML = nestedWebTestArchive.delete(ArchivePaths.create("WEB-INF/beans.xml")).getAsset();
+                    nestedWebTestArchive.addAsWebInfResource(beansXML, "classes/META-INF/beans.xml");
+                }
             }
-         }
-      }
-   }
-
+        }
+    }
 }

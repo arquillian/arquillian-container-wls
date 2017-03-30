@@ -23,20 +23,17 @@ import org.jboss.arquillian.container.spi.client.container.LifecycleException;
  */
 public interface WebLogicManagedContainer extends WebLogicRemoteContainer {
 
-  /**
-   * Start the managed container (WLS) instance
-   *
-   * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException
-   */
-  void start() throws LifecycleException;
+    /**
+     * Start the managed container (WLS) instance
+     *
+     * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException
+     */
+    void start() throws LifecycleException;
 
-
-  /**
-   * Stop the managed container (WLS) instance
-   *
-   * @throws LifecycleException
-   */
-  void stop() throws LifecycleException;
-
-
+    /**
+     * Stop the managed container (WLS) instance
+     *
+     * @throws LifecycleException
+     */
+    void stop() throws LifecycleException;
 }

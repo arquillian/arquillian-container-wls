@@ -31,9 +31,8 @@ import java.io.File;
  * <p>
  * Relies completely on the JMX client to perform deployments. WLS 12.1.2 containers and higher are encouraged to use
  * this class.  Will NOT work on WLS 12.1.1 and earlier.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 public class FullJMXRemoteContainer {
 
@@ -46,8 +45,9 @@ public class FullJMXRemoteContainer {
 
     /**
      * Starts a JMX client to read container metadata from the Domain Runtime MBean Server.
-     * 
-     * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException When a connection cannot be created to the MBean Server.
+     *
+     * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException
+     *     When a connection cannot be created to the MBean Server.
      */
     public void start() throws LifecycleException {
         jmxClient = new WebLogicJMXClient(configuration);
@@ -56,28 +56,35 @@ public class FullJMXRemoteContainer {
     /**
      * Wraps the operation of calling the Domain Runtime MBean Server via JMX to deploy an application
      *
-     * @param archive The ShrinkWrap archive to deploy
+     * @param archive
+     *     The ShrinkWrap archive to deploy
+     *
      * @return The metadata for the deployed application
-     * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException 
+     *
+     * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException
      */
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
-        return jmxClient.deploy(getDeploymentName(archive), ShrinkWrapUtil.toFile(archive, configuration.isDeployExplodedArchive()));
+        return jmxClient.deploy(getDeploymentName(archive),
+            ShrinkWrapUtil.toFile(archive, configuration.isDeployExplodedArchive()));
     }
 
     /**
      * Wraps the operation of calling the Domain Runtime MBean Server via JMX to undeploy an application
      *
-     * @param archive The ShrinkWrap archive to undeploy
+     * @param archive
+     *     The ShrinkWrap archive to undeploy
+     *
      * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException
      */
     public void undeploy(Archive<?> archive) throws DeploymentException {
         jmxClient.undeploy(getDeploymentName(archive));
     }
-    
+
     /**
      * Stops the JMX client.
      *
-     * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException When there is failure in closing the JMX connection.
+     * @throws org.jboss.arquillian.container.spi.client.container.LifecycleException
+     *     When there is failure in closing the JMX connection.
      */
     public void stop() throws LifecycleException {
         jmxClient.close();
@@ -91,5 +98,4 @@ public class FullJMXRemoteContainer {
         }
         return archiveFilename;
     }
-
 }

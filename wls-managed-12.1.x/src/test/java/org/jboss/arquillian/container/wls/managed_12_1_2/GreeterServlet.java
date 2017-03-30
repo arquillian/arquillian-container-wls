@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.managed_12_1_2;
@@ -39,16 +38,14 @@ import javax.servlet.http.HttpServletResponse;
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 @WebServlet(urlPatterns = "/Greeter")
-public class GreeterServlet extends HttpServlet
-{
-   private static final long serialVersionUID = 8249673615048070666L;
+public class GreeterServlet extends HttpServlet {
+    private static final long serialVersionUID = 8249673615048070666L;
 
-   @EJB
-   private Greeter greeter;
+    @EJB
+    private Greeter greeter;
 
-   @Override
-   protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
-   {
-      resp.getWriter().append(this.greeter.greet());
-   }
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.getWriter().append(this.greeter.greet());
+    }
 }

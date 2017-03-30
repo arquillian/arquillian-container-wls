@@ -27,9 +27,8 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
 /**
  * WebLogic 12.1.2 container
- * 
+ *
  * @author Vineet Reynolds
- * 
  */
 public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConfiguration> {
 
@@ -72,5 +71,4 @@ public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConf
     public void undeploy(Descriptor descriptor) throws DeploymentException {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
 }

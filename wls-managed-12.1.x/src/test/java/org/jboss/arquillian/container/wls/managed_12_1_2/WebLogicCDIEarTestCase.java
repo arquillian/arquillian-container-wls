@@ -32,9 +32,8 @@ import org.junit.runner.RunWith;
 
 /**
  * TestCase to verify CDI support in test classes when deploying EAR files.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
 public class WebLogicCDIEarTestCase {
@@ -44,22 +43,20 @@ public class WebLogicCDIEarTestCase {
 
     @Deployment
     public static EnterpriseArchive deploy() {
-      WebArchive webArchive = ShrinkWrap.create(WebArchive.class, "foo.war")
+        WebArchive webArchive = ShrinkWrap.create(WebArchive.class, "foo.war")
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
             .addClasses(SimpleBean.class, MyServlet.class)
             //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
             .addClass(WebLogicCDIEarTestCase.class);
-      
-      EnterpriseArchive enterpriseArchive = ShrinkWrap.create(EnterpriseArchive.class, "foo.ear")
+
+        EnterpriseArchive enterpriseArchive = ShrinkWrap.create(EnterpriseArchive.class, "foo.ear")
             .addAsModule(webArchive);
-      
-      return enterpriseArchive;
+
+        return enterpriseArchive;
     }
 
-   @Test
-   public void test()
-   {
-      Assert.assertNotNull(foo);
-   }
-
+    @Test
+    public void test() {
+        Assert.assertNotNull(foo);
+    }
 }

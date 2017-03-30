@@ -19,10 +19,9 @@ package org.jboss.arquillian.container.wls;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 
 /**
- * A utility class for performing operations relevant to a WebLogic container managed by Arquillian. 
- * 
- * @author Vineet Reynolds
+ * A utility class for performing operations relevant to a WebLogic container managed by Arquillian.
  *
+ * @author Vineet Reynolds
  */
 public class ManagedContainer extends RemoteContainer {
 
@@ -36,7 +35,8 @@ public class ManagedContainer extends RemoteContainer {
     }
 
     /**
-     * Starts the managed container process, and then delegates to the remote container implementation to discover additional
+     * Starts the managed container process, and then delegates to the remote container implementation to discover
+     * additional
      * container configuration via JMX.
      */
     @Override
@@ -48,18 +48,18 @@ public class ManagedContainer extends RemoteContainer {
                 super.start();
             } else {
                 throw new LifecycleException("The server is already running! "
-                        + "Managed containers does not support connecting to running server instances due to the "
-                        + "possible harmful effect of connecting to the wrong server. Please stop server before running or "
-                        + "change to another type of container.\n"
-                        + "To disable this check and allow Arquillian to connect to a running server, "
-                        + "set allowConnectingToRunningServer to true in the container configuration");
+                    + "Managed containers does not support connecting to running server instances due to the "
+                    + "possible harmful effect of connecting to the wrong server. Please stop server before running or "
+                    + "change to another type of container.\n"
+                    + "To disable this check and allow Arquillian to connect to a running server, "
+                    + "set allowConnectingToRunningServer to true in the container configuration");
             }
         } else {
             serverControl.startServer();
             super.start();
         }
     }
-    
+
     /**
      * Closes all resources consumed by the remote container client, and then stops the managed container process.
      */
@@ -73,5 +73,4 @@ public class ManagedContainer extends RemoteContainer {
             }
         }
     }
-
 }

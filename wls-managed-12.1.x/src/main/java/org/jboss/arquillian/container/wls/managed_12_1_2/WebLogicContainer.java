@@ -27,9 +27,8 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
 /**
  * Managed WebLogic 12.1.2 container
- * 
+ *
  * @author Vineet Reynolds
- * 
  */
 public class WebLogicContainer implements DeployableContainer<WebLogicManagedConfiguration> {
 
@@ -81,5 +80,4 @@ public class WebLogicContainer implements DeployableContainer<WebLogicManagedCon
     public void undeploy(Descriptor descriptor) throws DeploymentException {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
 }

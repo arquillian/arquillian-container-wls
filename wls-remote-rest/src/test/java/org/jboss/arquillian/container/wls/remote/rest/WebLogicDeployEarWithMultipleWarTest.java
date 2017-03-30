@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.remote.rest;
@@ -45,7 +44,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Verifies arquillian tests can run in container mode with a WebLogic container. An EAR file with multiple WARs is used as a
  * deployment, to verify that Arquillian can find the ServletTestRunner from among multiple web-modules.
- * 
+ *
  * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
@@ -54,22 +53,22 @@ public class WebLogicDeployEarWithMultipleWarTest {
 
     @ArquillianResource
     private URL deploymentUrl;
-    
-    @Deployment(testable=false)
+
+    @Deployment(testable = false)
     public static EnterpriseArchive getTestArchive() {
         WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
-                .addClass(MyServlet.class)
-                //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
-                .addClass(WebLogicDeployEarWithMultipleWarTest.class);
-        
+            .addClass(MyServlet.class)
+            //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
+            .addClass(WebLogicDeployEarWithMultipleWarTest.class);
+
         // Create another web module, but with a name that is alphabetically less than test.war.
         WebArchive anotherWar = ShrinkWrap.create(WebArchive.class, "another.war")
-                .addClass(MyServlet.class);
-        
+            .addClass(MyServlet.class);
+
         EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "foo.ear")
-                .addAsModule(Testable.archiveToTest(war))
-                .addAsModule(anotherWar);
-        
+            .addAsModule(Testable.archiveToTest(war))
+            .addAsModule(anotherWar);
+
         log.info(ear.toString(true));
         return ear;
     }
@@ -77,7 +76,7 @@ public class WebLogicDeployEarWithMultipleWarTest {
     @Test
     public void assertFirstWarDeployed() throws Exception {
         final URLConnection response = new URL(deploymentUrl, "test/" + MyServlet.URL_PATTERN).openConnection();
-        
+
         BufferedReader in = new BufferedReader(new InputStreamReader(response.getInputStream()));
         final String result = in.readLine();
         in.close();
@@ -95,5 +94,4 @@ public class WebLogicDeployEarWithMultipleWarTest {
 
         assertThat(anotherResult, equalTo("hello"));
     }
-
 }

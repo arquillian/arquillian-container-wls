@@ -30,9 +30,8 @@ import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
 
 /**
  * A utility class that encapsulates the logic for creation of a {@link HTTPContext} instance.
- * 
+ *
  * @author Vineet Reynolds
- * 
  */
 class HttpContextBuilder {
 
@@ -53,12 +52,14 @@ class HttpContextBuilder {
     private ObjectName domainRuntimeService;
 
     /**
-     * The set of Server Runtime MBeans to use for preparing the context. This will be one in the case of a deployment against a
+     * The set of Server Runtime MBeans to use for preparing the context. This will be one in the case of a deployment
+     * against a
      * single managed server, and multiple for a deployment against a cluster.
      */
     private ObjectName[] wlServerRuntimes;
 
-    public HttpContextBuilder(String deploymentName, CommonWebLogicConfiguration configuration, MBeanServerConnection connection, ObjectName domainRuntimeService) {
+    public HttpContextBuilder(String deploymentName, CommonWebLogicConfiguration configuration,
+        MBeanServerConnection connection, ObjectName domainRuntimeService) {
         this.deploymentName = deploymentName;
         this.configuration = configuration;
         this.connection = connection;
@@ -71,7 +72,7 @@ class HttpContextBuilder {
         ObjectName appDeployment = findMatchingDeployment(deploymentName);
         if (appDeployment == null) {
             throw new DeploymentException("The specified deployment could not be found in the MBean Server.\n"
-                            + "The deployment must have failed. Verify the output of the weblogic.Deployer process.");
+                + "The deployment must have failed. Verify the output of the weblogic.Deployer process.");
         }
         // Get the targets for the deployment. For now, there will be a single target
         // This will be either a managed server or a cluster.
@@ -95,7 +96,8 @@ class HttpContextBuilder {
             }
         }
         if (httpContext == null) {
-            throw new DeploymentException("An unexpected condition was encountered. The HTTPContext could not be created.");
+            throw new DeploymentException(
+                "An unexpected condition was encountered. The HTTPContext could not be created.");
         } else {
             return httpContext;
         }
@@ -103,9 +105,9 @@ class HttpContextBuilder {
 
     /**
      * Creates the {@link HTTPContext} instance, with the required preconditions in place.
-     * 
+     *
      * @throws Exception
-     *             When an exception is encountered during creation of the context.
+     *     When an exception is encountered during creation of the context.
      */
     private void buildHTTPContext() throws Exception {
         // If there are no running servers, we'll abort as the test cannot be executed.
@@ -116,11 +118,11 @@ class HttpContextBuilder {
             // This may change in a future Arquillian release,
             // to allow different strategies for testing a clustered deployment.
             ObjectName wlServerRuntime = wlServerRuntimes[0];
-            String httpUrlAsString = (String) connection.invoke(wlServerRuntime, "getURL", 
-                new Object[] { "http" },
-                new String[] { "java.lang.String" }
+            String httpUrlAsString = (String) connection.invoke(wlServerRuntime, "getURL",
+                new Object[] {"http"},
+                new String[] {"java.lang.String"}
             );
-            
+
             URL serverHttpUrl = new URL(httpUrlAsString);
             httpContext = new HTTPContext(serverHttpUrl.getHost(), serverHttpUrl.getPort());
             List<ObjectName> servletRuntimes = findServletRuntimes(wlServerRuntime, deploymentName);
@@ -135,12 +137,14 @@ class HttpContextBuilder {
     /**
      * Retrieves the names of cluster members, so that their Runtime MBeans can be fetched from the Domain Runtime MBean
      * Service.
-     * 
+     *
      * @param cluster
-     *            The cluster whose member names are to be fetched
+     *     The cluster whose member names are to be fetched
+     *
      * @return An array of server names whose membership is in the cluster
+     *
      * @throws Exception
-     *             When a failure is encountered when browsing the Domain Configuration MBean Server hierarchy.
+     *     When a failure is encountered when browsing the Domain Configuration MBean Server hierarchy.
      */
     private String[] findMembersOfCluster(ObjectName cluster) throws Exception {
         ObjectName[] servers = (ObjectName[]) connection.getAttribute(cluster, "Servers");
@@ -149,26 +153,30 @@ class HttpContextBuilder {
             String serverName = (String) connection.getAttribute(server, "Name");
             clusterServers.add(serverName);
         }
-        
+
         return clusterServers.toArray(new String[0]);
     }
 
     /**
-     * Returns a set of Runtime MBean instances for the provided WebLogic Server names. This is eventually used to create the
-     * HTTPContext instance with the runtime listen address and port, as only running WebLogic Server instances are considered
+     * Returns a set of Runtime MBean instances for the provided WebLogic Server names. This is eventually used to create
+     * the
+     * HTTPContext instance with the runtime listen address and port, as only running WebLogic Server instances are
+     * considered
      * for creation of the HTTPContext.
-     * 
+     *
      * @param runtimeNames
-     *            The array of WebLogic Server instances for which the Runtime MBeans must be returned
+     *     The array of WebLogic Server instances for which the Runtime MBeans must be returned
+     *
      * @return An array of {@link ObjectName} instances representing running WebLogic Server instances
+     *
      * @throws Exception
-     *             When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+     *     When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
      */
     private ObjectName[] findRunningWLServerRuntimes(String... runtimeNames) throws Exception {
         List<String> runtimeNamesList = Arrays.asList(runtimeNames);
         List<ObjectName> wlServerRuntimeList = new ArrayList<ObjectName>();
         ObjectName[] wlServerRuntimes = (ObjectName[]) connection.getAttribute(domainRuntimeService, "ServerRuntimes");
-        
+
         for (ObjectName wlServerRuntime : wlServerRuntimes) {
             String runtimeName = (String) connection.getAttribute(wlServerRuntime, "Name");
             String runtimeState = (String) connection.getAttribute(wlServerRuntime, "State");
@@ -180,53 +188,61 @@ class HttpContextBuilder {
     }
 
     /**
-     * Retrieves a list of Servlet Runtime MBeans for a deployment against a WebLogic Server instance. This is eventually used
+     * Retrieves a list of Servlet Runtime MBeans for a deployment against a WebLogic Server instance. This is eventually
+     * used
      * to populate the HTTPContext instance with all servlets in the deployment.
-     * 
+     *
      * @param wlServerRuntime
-     *            The WebLogic Server runtime instance which houses the deployment
+     *     The WebLogic Server runtime instance which houses the deployment
      * @param deploymentName
-     *            The deployment for which the Servlet Runtime MBeans must be retrieved
+     *     The deployment for which the Servlet Runtime MBeans must be retrieved
+     *
      * @return A list of {@link ObjectName} representing Servlet Runtime MBeans for the deployment
+     *
      * @throws Exception
-     *             When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+     *     When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
      */
     private List<ObjectName> findServletRuntimes(ObjectName wlServerRuntime, String deploymentName) throws Exception {
         ObjectName[] applicationRuntimes = (ObjectName[]) connection.getAttribute(wlServerRuntime, "ApplicationRuntimes");
         for (ObjectName applicationRuntime : applicationRuntimes) {
             String applicationName = (String) connection.getAttribute(applicationRuntime, "Name");
             if (applicationName.equals(deploymentName)) {
-                ObjectName[] componentRuntimes = (ObjectName[]) connection.getAttribute(applicationRuntime, "ComponentRuntimes");
+                ObjectName[] componentRuntimes =
+                    (ObjectName[]) connection.getAttribute(applicationRuntime, "ComponentRuntimes");
                 List<ObjectName> servletRuntimes = new ArrayList<ObjectName>();
                 for (ObjectName componentRuntime : componentRuntimes) {
                     String componentType = (String) connection.getAttribute(componentRuntime, "Type");
                     if (componentType.toString().equals("WebAppComponentRuntime")) {
-                        servletRuntimes.addAll(Arrays.asList((ObjectName[]) connection.getAttribute(componentRuntime, "Servlets")));
+                        servletRuntimes.addAll(
+                            Arrays.asList((ObjectName[]) connection.getAttribute(componentRuntime, "Servlets")));
                     }
                 }
                 return servletRuntimes;
             }
         }
-        
+
         throw new DeploymentException(
             "The deployment details were not found in the MBean Server. Possible causes include:\n"
-                    + "1. The deployment failed. Review the admin server and the target's log files.\n"
-                    + "2. The deployment succeeded partially. The deployment must be the Active state. Instead, it might be in the 'New' state.\n"
-                    + "   Verify that the the admin server can connect to the target(s), and that no firewall rules are blocking the traffic on the admin channel.");
+                + "1. The deployment failed. Review the admin server and the target's log files.\n"
+                + "2. The deployment succeeded partially. The deployment must be the Active state. Instead, it might be in the 'New' state.\n"
+                + "   Verify that the the admin server can connect to the target(s), and that no firewall rules are blocking the traffic on the admin channel.");
     }
 
     /**
-     * Retrieves an Application Deployment MBean for a specified deployment. This may return <code>null</code> if the specified
-     * deployment is not found, so that this method may be used by both the deployment and undeployment routines to verify if a
+     * Retrieves an Application Deployment MBean for a specified deployment. This may return <code>null</code> if the
+     * specified
+     * deployment is not found, so that this method may be used by both the deployment and undeployment routines to verify
+     * if a
      * deployment is available, or not.
-     * 
+     *
      * @param deploymentName
-     *            The deployment whose MBean must be retrieved
+     *     The deployment whose MBean must be retrieved
+     *
      * @return An {@link ObjectName} representing the Application Deployment MBean for the deployment. This returns
-     *         <code>null</code> if a deployment is not found.
-     * 
+     * <code>null</code> if a deployment is not found.
+     *
      * @throws Exception
-     *             When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+     *     When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
      */
     public ObjectName findMatchingDeployment(String deploymentName) throws Exception {
         ObjectName[] appDeployments = findAllAppDeployments();
@@ -242,10 +258,11 @@ class HttpContextBuilder {
 
     /**
      * Obtains all the deployments in a WebLogic domain
-     * 
+     *
      * @return An array of {@link ObjectName} corresponding to all deployments in a WebLogic domain.
+     *
      * @throws Exception
-     *             When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
+     *     When a failure is encountered when browsing the Domain Runtime MBean Server hierarchy.
      */
     private ObjectName[] findAllAppDeployments() throws Exception {
         ObjectName domainConfig = (ObjectName) connection.getAttribute(domainRuntimeService, "DomainConfiguration");

@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.managed_10_3;
@@ -45,42 +44,42 @@ import org.junit.runner.RunWith;
 
 /**
  * Verifies Arquillian can perform multiple deployments and run tests against the deployments.
- * 
+ *
  * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
 public class WebLogicMultipleDeploymentsTest {
     private static final Logger log = Logger.getLogger(WebLogicMultipleDeploymentsTest.class.getName());
 
-    @Deployment(name = "dep-1", testable=false)
+    @Deployment(name = "dep-1", testable = false)
     public static WebArchive getFirstTestArchive() {
         Class<MyServlet> servletClass = MyServlet.class;
         WebArchive war = ShrinkWrap
-                .create(WebArchive.class, "test.war")
-                .addClasses(MyServlet.class)
-                // The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually
-                // added.
-                .addClass(WebLogicMultipleDeploymentsTest.class)
-                .setWebXML(
-                        new StringAsset(Descriptors.create(WebAppDescriptor.class).version("2.5").createServlet()
-                                .servletName(servletClass.getSimpleName()).servletClass(servletClass.getCanonicalName()).up()
-                                .createServletMapping().servletName(servletClass.getSimpleName()).urlPattern("/Test").up()
-                                .exportAsString()));
+            .create(WebArchive.class, "test.war")
+            .addClasses(MyServlet.class)
+            // The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually
+            // added.
+            .addClass(WebLogicMultipleDeploymentsTest.class)
+            .setWebXML(
+                new StringAsset(Descriptors.create(WebAppDescriptor.class).version("2.5").createServlet()
+                    .servletName(servletClass.getSimpleName()).servletClass(servletClass.getCanonicalName()).up()
+                    .createServletMapping().servletName(servletClass.getSimpleName()).urlPattern("/Test").up()
+                    .exportAsString()));
         return war;
     }
 
-    @Deployment(name = "dep-2", testable=false)
+    @Deployment(name = "dep-2", testable = false)
     public static WebArchive getSecondTestArchive() {
         Class<MyServlet> servletClass = MyServlet.class;
         // Create another web module, but with a name that is alphabetically less than test.war.
         WebArchive war = ShrinkWrap
-                .create(WebArchive.class, "another.war")
-                .addClasses(MyServlet.class)
-                .setWebXML(
-                        new StringAsset(Descriptors.create(WebAppDescriptor.class).version("2.5").createServlet()
-                                .servletName(servletClass.getSimpleName()).servletClass(servletClass.getCanonicalName()).up()
-                                .createServletMapping().servletName(servletClass.getSimpleName()).urlPattern("/Test").up()
-                                .exportAsString()));
+            .create(WebArchive.class, "another.war")
+            .addClasses(MyServlet.class)
+            .setWebXML(
+                new StringAsset(Descriptors.create(WebAppDescriptor.class).version("2.5").createServlet()
+                    .servletName(servletClass.getSimpleName()).servletClass(servletClass.getCanonicalName()).up()
+                    .createServletMapping().servletName(servletClass.getSimpleName()).urlPattern("/Test").up()
+                    .exportAsString()));
 
         log.info(war.toString(true));
         return war;
@@ -91,13 +90,12 @@ public class WebLogicMultipleDeploymentsTest {
     public void assertFirstWarDeployed(@ArquillianResource URL deploymentUrl) throws Exception {
         assertThat(deploymentUrl.toString(), containsString("/test/"));
         final URLConnection response = new URL(deploymentUrl, MyServlet.URL_PATTERN).openConnection();
-        
+
         BufferedReader in = new BufferedReader(new InputStreamReader(response.getInputStream()));
         final String result = in.readLine();
         in.close();
 
         assertThat(result, equalTo("hello"));
-        
     }
 
     @Test
@@ -112,5 +110,4 @@ public class WebLogicMultipleDeploymentsTest {
 
         assertThat(anotherResult, equalTo("hello"));
     }
-
 }

@@ -34,9 +34,8 @@ import org.jboss.arquillian.container.wls.rest.RESTUtils;
 /**
  * The process controller for the managed WebLogic container.
  * Starts and shuts down the WebLogic container through shell scripts in the WebLogic domain directory.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 public class WebLogicServerControl {
 
@@ -49,8 +48,9 @@ public class WebLogicServerControl {
 
     /**
      * Start an AdminServer instance.
-     * 
-     * @throws LifecycleException when there is a failure starting the WLS instance. 
+     *
+     * @throws LifecycleException
+     *     when there is a failure starting the WLS instance.
      */
     public void startServer() throws LifecycleException {
         new StartupAdminServerCommand().execute();
@@ -58,8 +58,9 @@ public class WebLogicServerControl {
 
     /**
      * Stops a running AdminServer instance.
-     * 
-     * @throws LifecycleException when there is a failure stopping the WLS instance.
+     *
+     * @throws LifecycleException
+     *     when there is a failure stopping the WLS instance.
      */
     public void stopServer() throws LifecycleException {
         new ShutdownAdminServerCommand().execute();
@@ -67,55 +68,58 @@ public class WebLogicServerControl {
 
     /**
      * Determine whether the target server is running or not.
-     * 
+     *
      * @return true if it's running; Otherwise, false
      */
     public boolean isServerRunning() {
-      boolean isRunning = false;
+        boolean isRunning = false;
 
-      try {
-        // Use the REST management API to check if the server is running
-        isRunning = RESTUtils.isServerRunning(configuration, logger);
-      } catch (Exception e) {
-        // If the logger level is set to FINE or more granular, then print the stacktrace
-        if (logger.getLevel().intValue() <= Level.FINE.intValue()) {
-          e.printStackTrace();
-        } else { // Otherwise, just print the message from the exception
-          logger.log(Level.ALL, e.getMessage());
+        try {
+            // Use the REST management API to check if the server is running
+            isRunning = RESTUtils.isServerRunning(configuration, logger);
+        } catch (Exception e) {
+            // If the logger level is set to FINE or more granular, then print the stacktrace
+            if (logger.getLevel().intValue() <= Level.FINE.intValue()) {
+                e.printStackTrace();
+            } else { // Otherwise, just print the message from the exception
+                logger.log(Level.ALL, e.getMessage());
+            }
         }
-      }
 
-      return isRunning;
+        return isRunning;
     }
 
     /**
      * An abstract command object to execute shell commands that control the server lifecycle.
-     * 
+     *
      * @author Vineet Reynolds
-     * 
      */
     private abstract class ShellCommand {
-        
+
         /**
          * Executes the shell command.represented by this command object.
-         * 
-         * @throws LifecycleException when there is a failure during execution of the shell command
+         *
+         * @throws LifecycleException
+         *     when there is a failure during execution of the shell command
          */
         protected abstract void execute() throws LifecycleException;
 
         /**
-         * Returns the shell script to be executed by the command. The return value is eventually passed as a parameter to the
+         * Returns the shell script to be executed by the command. The return value is eventually passed as a parameter to
+         * the
          * shell interpreter of the executing environment.
-         * 
+         *
          * @return The script to be executed.
          */
         protected abstract String getScript();
 
         /**
-         * Returns the shell interpret command and a list of arguments to be passed to the interpreter. The list of arguments
+         * Returns the shell interpret command and a list of arguments to be passed to the interpreter. The list of
+         * arguments
          * includes the path to the script file to be executed.
-         * 
-         * @return A {@link List} containing the shell script interpreter for the OS environment and the script to be executed.
+         *
+         * @return A {@link List} containing the shell script interpreter for the OS environment and the script to be
+         * executed.
          */
         protected final List<String> getCommand() {
             List<String> command = new ArrayList<String>();
@@ -125,12 +129,15 @@ public class WebLogicServerControl {
         }
 
         /**
-         * Returns the name of the executable for the shell interpreter and parameters to allow for executing a shell script
-         * file. The executable is assumed to be present in any of the directories in the PATH. An absolute path to the shell
+         * Returns the name of the executable for the shell interpreter and parameters to allow for executing a shell
+         * script
+         * file. The executable is assumed to be present in any of the directories in the PATH. An absolute path to the
+         * shell
          * interpreter will not be returned.
-         * 
-         * @return A {@link List} of strings representing the name of the executable for the shell interpreter, and a parameter
-         *         to allow a shell script file to be passed as an argument to the shell interpreter.
+         *
+         * @return A {@link List} of strings representing the name of the executable for the shell interpreter, and a
+         * parameter
+         * to allow a shell script file to be passed as an argument to the shell interpreter.
          */
         private List<String> getShellInterpreter() {
             List<String> shellCommands = new ArrayList<String>();
@@ -150,30 +157,31 @@ public class WebLogicServerControl {
             }
             return shellCommands;
         }
-
     }
 
     /**
      * The command implementation for starting a new WebLogic Server process.
      * Execute the startWebLogic script in the domainHome/bin directory by default.
-     * 
-     * @author Vineet Reynolds
      *
+     * @author Vineet Reynolds
      */
     private class StartupAdminServerCommand extends ShellCommand {
 
         /**
-         * Starts a new admin server instance by running the startup script in the shell. The script is executed using the WLS
-         * domain home as the working directory of the shell. MW_HOME is passed to the shell environment for use by the script.
-         * 
-         * If the AdminServer is not running by the timeout specified in the Arquillian configuration, the forked process is
+         * Starts a new admin server instance by running the startup script in the shell. The script is executed using the
+         * WLS
+         * domain home as the working directory of the shell. MW_HOME is passed to the shell environment for use by the
+         * script.
+         * <p>
+         * If the AdminServer is not running by the timeout specified in the Arquillian configuration, the forked process
+         * is
          * killed. This may or may not kill the JVM child-process, depending on the OS.
          */
         @Override
         public void execute() throws LifecycleException {
             Process process = null;
-          List<String> command = getCommand();
-          ProcessBuilder builder = new ProcessBuilder(command);
+            List<String> command = getCommand();
+            ProcessBuilder builder = new ProcessBuilder(command);
             try {
                 builder.directory(new File(configuration.getDomainDirectory()));
                 builder.environment().put("MW_HOME", configuration.getMiddlewareHome());
@@ -183,7 +191,7 @@ public class WebLogicServerControl {
                 }
                 builder.redirectErrorStream(true);
 
-                process = createProcess( builder );
+                process = createProcess(builder);
                 final int timeout = configuration.getTimeout();
                 long start = System.currentTimeMillis() / 1000;
                 long now = start;
@@ -192,8 +200,8 @@ public class WebLogicServerControl {
                     serverAvailable = isServerRunning();
                     if (!serverAvailable) {
                         if (processHasDied(process)) {
-                          process.destroy();
-                          process = createProcess( builder );
+                            process.destroy();
+                            process = createProcess(builder);
                         }
                         try {
                             Thread.sleep(5000L);
@@ -207,9 +215,9 @@ public class WebLogicServerControl {
                 if (!serverAvailable) {
                     process.destroy();
                     throw new TimeoutException(String.format("The startup script could not complete in %d seconds.",
-                            configuration.getTimeout()));
+                        configuration.getTimeout()));
                 } else {
-                  Thread.sleep(1000L); // Try this to resolve intermittent deployment failures...
+                    Thread.sleep(1000L); // Try this to resolve intermittent deployment failures...
                 }
                 logger.log(Level.INFO, "Started WebLogic Server.");
                 return;
@@ -219,12 +227,12 @@ public class WebLogicServerControl {
         }
 
         private Process createProcess(ProcessBuilder builder) throws IOException {
-          Process process = builder.start();
-          Thread consoleConsumer = new Thread(new ConsoleConsumer(process, configuration.isOutputToConsole()));
-          consoleConsumer.setDaemon(true);
-          consoleConsumer.start();
+            Process process = builder.start();
+            Thread consoleConsumer = new Thread(new ConsoleConsumer(process, configuration.isOutputToConsole()));
+            consoleConsumer.setDaemon(true);
+            consoleConsumer.start();
 
-          return process;
+            return process;
         }
 
         @Override
@@ -240,23 +248,23 @@ public class WebLogicServerControl {
                 return false;
             }
         }
-
     }
 
     /**
      * The command implementation for stopping a running WLS AdminServer instance.
      * Execute the stopWebLogic script in the domainHome/bin directory by default.
-     * 
-     * @author Vineet Reynolds
      *
+     * @author Vineet Reynolds
      */
     private class ShutdownAdminServerCommand extends ShellCommand {
 
         /**
-         * Stops an existing AdminServer instance by running the shutdown script in the shell. The script is executed using the
-         * WLS domain home as the working directory of the shell. MW_HOME is passed to the shell environment for use by the
+         * Stops an existing AdminServer instance by running the shutdown script in the shell. The script is executed
+         * using the
+         * WLS domain home as the working directory of the shell. MW_HOME is passed to the shell environment for use by
+         * the
          * script.
-         * 
+         * <p>
          * No arguments are passed to the shutdown script. This assumes that the script is configured to connect to the
          * AdminServer and shut it down without passing in credentials as shell parameters.
          */
@@ -294,7 +302,7 @@ public class WebLogicServerControl {
                 if (serverAvailable) {
                     process.destroy();
                     throw new TimeoutException(String.format("The shutdown script could not complete in %d seconds.",
-                            configuration.getTimeout()));
+                        configuration.getTimeout()));
                 }
                 logger.log(Level.INFO, "Stopped WebLogic Server.");
                 return;
@@ -307,15 +315,13 @@ public class WebLogicServerControl {
         protected String getScript() {
             return configuration.getStopServerScript();
         }
-
     }
 
     /**
      * A helper class to read the output stream of the scripts executed by {@link WebLogicServerControl}.
      * Writes the contents of the stream to the console if configured to do so.
-     * 
-     * @author Vineet Reynolds
      *
+     * @author Vineet Reynolds
      */
     private class ConsoleConsumer implements Runnable {
 
@@ -341,7 +347,5 @@ public class WebLogicServerControl {
                 logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
-
     }
-
 }

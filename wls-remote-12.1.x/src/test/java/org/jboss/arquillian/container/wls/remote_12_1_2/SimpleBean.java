@@ -16,6 +16,5 @@
  */
 package org.jboss.arquillian.container.wls.remote_12_1_2;
 
-public class SimpleBean
-{
+public class SimpleBean {
 }

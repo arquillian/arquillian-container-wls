@@ -27,11 +27,11 @@ import org.jboss.arquillian.container.wls.Validate;
  */
 public class WebLogicRemoteConfiguration extends CommonWebLogicConfiguration {
 
-	public void validate() throws ConfigurationException {
-    Validate.notNullOrEmpty(getAdminUrl(), "The adminUrl is empty. Verify the property in arquillian.xml");
-    Validate.notNullOrEmpty(getAdminUserName(), "The username is empty. Verify the credentials in arquillian.xml");
-    Validate.notNullOrEmpty(getAdminPassword(), "The password is empty. Verify the credentials in arquillian.xml");
-    Validate.notNullOrEmpty(getTarget(), "The target for the deployment is empty. Verify the property in arquillian.xml");
-	}
-
+    public void validate() throws ConfigurationException {
+        Validate.notNullOrEmpty(getAdminUrl(), "The adminUrl is empty. Verify the property in arquillian.xml");
+        Validate.notNullOrEmpty(getAdminUserName(), "The username is empty. Verify the credentials in arquillian.xml");
+        Validate.notNullOrEmpty(getAdminPassword(), "The password is empty. Verify the credentials in arquillian.xml");
+        Validate.notNullOrEmpty(getTarget(),
+            "The target for the deployment is empty. Verify the property in arquillian.xml");
+    }
 }

@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.remote_10_3;
@@ -31,16 +30,14 @@ import javax.ejb.Stateless;
  * @author <a href="http://community.jboss.org/people/aslak">Aslak Knutsen</a>
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
-@Stateless(name="GreeterBean", mappedName="Greeter")
-public class GreeterBean implements Serializable, Greeter, GreeterRemote
-{
-   private static final long serialVersionUID = 6410949671035595273L;
+@Stateless(name = "GreeterBean", mappedName = "Greeter")
+public class GreeterBean implements Serializable, Greeter, GreeterRemote {
+    private static final long serialVersionUID = 6410949671035595273L;
 
-   /* (non-Javadoc)
-    * @see org.jboss.arquillian.container.wls.remote_103x.Greeter#greet()
-    */
-   public String greet()
-   {
-      return "Hello";
-   }
+    /* (non-Javadoc)
+     * @see org.jboss.arquillian.container.wls.remote_103x.Greeter#greet()
+     */
+    public String greet() {
+        return "Hello";
+    }
 }

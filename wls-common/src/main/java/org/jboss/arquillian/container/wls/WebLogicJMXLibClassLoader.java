@@ -25,38 +25,30 @@ import java.util.logging.Logger;
 /**
  * A {@link ClassLoader} that is used to load classes
  * from <code>WL_HOME/server/lib/weblogic.jar</code>.
- * 
+ * <p>
  * Classloading is delegated to the parent first, before
  * attempting to load from the weblogic.jar file.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
-class WebLogicJMXLibClassLoader extends URLClassLoader
-{
-   private static final Logger logger = Logger.getLogger(WebLogicJMXLibClassLoader.class.getName());
+class WebLogicJMXLibClassLoader extends URLClassLoader {
+    private static final Logger logger = Logger.getLogger(WebLogicJMXLibClassLoader.class.getName());
 
-   public WebLogicJMXLibClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
-   {
-      super(urls, parent, factory);
-   }
+    public WebLogicJMXLibClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
+        super(urls, parent, factory);
+    }
 
+    public WebLogicJMXLibClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
+    }
 
-   public WebLogicJMXLibClassLoader(URL[] urls, ClassLoader parent)
-   {
-      super(urls, parent);
-   }
+    public WebLogicJMXLibClassLoader(URL[] urls) {
+        super(urls);
+    }
 
-
-   public WebLogicJMXLibClassLoader(URL[] urls)
-   {
-      super(urls);
-   }
-   
-   @Override
-   public Class<?> loadClass(String name) throws ClassNotFoundException
-   {
-      logger.log(Level.FINEST, "Loading class: {0}", name);
-      return super.loadClass(name);
-   }
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        logger.log(Level.FINEST, "Loading class: {0}", name);
+        return super.loadClass(name);
+    }
 }

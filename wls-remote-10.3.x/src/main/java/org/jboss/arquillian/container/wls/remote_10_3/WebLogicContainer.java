@@ -27,63 +27,51 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
 /**
  * WebLogic 10.3.x container
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
-public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConfiguration>
-{
-   
-   private WebLogicRemoteConfiguration configuration;
-   private RemoteContainer remoteContainer;
+public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConfiguration> {
 
-   public Class<WebLogicRemoteConfiguration> getConfigurationClass()
-   {
-      return WebLogicRemoteConfiguration.class;
-   }
+    private WebLogicRemoteConfiguration configuration;
+    private RemoteContainer remoteContainer;
 
-   public void setup(WebLogicRemoteConfiguration configuration)
-   {
-      this.configuration = configuration;
-      this.remoteContainer = new RemoteContainer(this.configuration);
-   }
+    public Class<WebLogicRemoteConfiguration> getConfigurationClass() {
+        return WebLogicRemoteConfiguration.class;
+    }
 
-   public void start() throws LifecycleException
-   {
-      remoteContainer.start();
-   }
+    public void setup(WebLogicRemoteConfiguration configuration) {
+        this.configuration = configuration;
+        this.remoteContainer = new RemoteContainer(this.configuration);
+    }
 
-   public void stop() throws LifecycleException
-   {
-      remoteContainer.stop();
-   }
+    public void start() throws LifecycleException {
+        remoteContainer.start();
+    }
 
-   public ProtocolDescription getDefaultProtocol()
-   {
-      // WLS 10.3.x supports Servlet Spec 2.5 officially.
-      // We'll not concern ourselves with patchsets that may
-      // support Servlet 3.0.
-      return new ProtocolDescription("Servlet 2.5");
-   }
+    public void stop() throws LifecycleException {
+        remoteContainer.stop();
+    }
 
-   public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException
-   {
-      return remoteContainer.deploy(archive);
-   }
+    public ProtocolDescription getDefaultProtocol() {
+        // WLS 10.3.x supports Servlet Spec 2.5 officially.
+        // We'll not concern ourselves with patchsets that may
+        // support Servlet 3.0.
+        return new ProtocolDescription("Servlet 2.5");
+    }
 
-   public void undeploy(Archive<?> archive) throws DeploymentException
-   {
-      remoteContainer.undeploy(archive);
-   }
+    public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
+        return remoteContainer.deploy(archive);
+    }
 
-   public void deploy(Descriptor descriptor) throws DeploymentException
-   {
-      throw new UnsupportedOperationException("Not yet implemented");
-   }
+    public void undeploy(Archive<?> archive) throws DeploymentException {
+        remoteContainer.undeploy(archive);
+    }
 
-   public void undeploy(Descriptor descriptor) throws DeploymentException
-   {
-      throw new UnsupportedOperationException("Not yet implemented");
-   }
+    public void deploy(Descriptor descriptor) throws DeploymentException {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
+    public void undeploy(Descriptor descriptor) throws DeploymentException {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }

@@ -25,16 +25,15 @@ import org.jboss.shrinkwrap.api.Archive;
 
 /**
  * A utility class for performing operations relevant to a remote WebLogic container used by Arquillian.
- * 
+ * <p>
  * <p>
  * This uses a combination of the Deployer utility and JMX. The Deployer utility is used for the actual deployment
  * and undeployment, while JMX is used for verification.
- * 
  * <p>
- * This implementation is not 100% stable and is known to fail occasionally. 
- * 
- * @author Vineet Reynolds
+ * <p>
+ * This implementation is not 100% stable and is known to fail occasionally.
  *
+ * @author Vineet Reynolds
  */
 public class RemoteContainer {
 
@@ -48,8 +47,9 @@ public class RemoteContainer {
 
     /**
      * Starts a JMX client to read container metadata from the Domain Runtime MBean Server.
-     * 
-     * @throws LifecycleException When a connection cannot be created to the MBean Server.
+     *
+     * @throws LifecycleException
+     *     When a connection cannot be created to the MBean Server.
      */
     public void start() throws LifecycleException {
         deployerClient = new WebLogicDeployerClient(configuration);
@@ -58,11 +58,15 @@ public class RemoteContainer {
 
     /**
      * Wraps the operation of forking a weblogic.Deployer process to deploy an application.
-     * 
-     * @param archive The ShrinkWrap archive to deploy
+     *
+     * @param archive
+     *     The ShrinkWrap archive to deploy
+     *
      * @return The metadata for the deployed application
-     * @throws DeploymentException When forking of weblogic.Deployer fails, or when interaction with the forked process fails,
-     *         or when details of the deployment cannot be obtained from the Domain Runtime MBean Server.
+     *
+     * @throws DeploymentException
+     *     When forking of weblogic.Deployer fails, or when interaction with the forked process fails,
+     *     or when details of the deployment cannot be obtained from the Domain Runtime MBean Server.
      */
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
         String deploymentName = getDeploymentName(archive);
@@ -74,10 +78,13 @@ public class RemoteContainer {
 
     /**
      * Wraps the operation of forking a weblogic.Deployer process to undeploy an application.
-     * 
-     * @param archive The ShrinkWrap archive to undeploy
-     * @throws DeploymentException When forking of weblogic.Deployer fails, or when interaction with the forked process fails,
-     *         or when undeployment cannot be confirmed.
+     *
+     * @param archive
+     *     The ShrinkWrap archive to undeploy
+     *
+     * @throws DeploymentException
+     *     When forking of weblogic.Deployer fails, or when interaction with the forked process fails,
+     *     or when undeployment cannot be confirmed.
      */
     public void undeploy(Archive<?> archive) throws DeploymentException {
         // Undeploy the application
@@ -87,11 +94,12 @@ public class RemoteContainer {
         // Verify the undeployment from the Domain Runtime MBean Server.
         jmxClient.verifyUndeployment(deploymentName);
     }
-    
+
     /**
      * Stops the JMX client.
-     * 
-     * @throws LifecycleException When there is failure in closing the JMX connection.
+     *
+     * @throws LifecycleException
+     *     When there is failure in closing the JMX connection.
      */
     public void stop() throws LifecycleException {
         jmxClient.close();
@@ -105,5 +113,4 @@ public class RemoteContainer {
         }
         return archiveFilename;
     }
-
 }

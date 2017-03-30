@@ -26,12 +26,10 @@ import org.jboss.arquillian.container.wls.managed.rest.ManagedContainer;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
-
 /**
  * Managed WebLogic 12.1.x container
- * 
+ *
  * @author Vineet Reynolds
- * 
  */
 public class WebLogicContainer implements DeployableContainer<WebLogicManagedConfiguration> {
 
@@ -83,5 +81,4 @@ public class WebLogicContainer implements DeployableContainer<WebLogicManagedCon
     public void undeploy(Descriptor descriptor) throws DeploymentException {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
 }

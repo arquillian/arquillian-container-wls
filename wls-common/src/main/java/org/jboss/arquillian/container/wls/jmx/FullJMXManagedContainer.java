@@ -25,9 +25,8 @@ import org.jboss.arquillian.container.wls.WebLogicServerControl;
  * <p>
  * Relies completely on the JMX client to perform deployments. WLS 12.1.2 containers and higher are encouraged to use
  * this class. Will NOT work on WLS 12.1.1 and earlier.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 public class FullJMXManagedContainer extends FullJMXRemoteContainer {
 
@@ -41,7 +40,8 @@ public class FullJMXManagedContainer extends FullJMXRemoteContainer {
     }
 
     /**
-     * Starts the managed container process, and then delegates to the remote container implementation to discover additional
+     * Starts the managed container process, and then delegates to the remote container implementation to discover
+     * additional
      * container configuration via JMX.
      */
     @Override
@@ -53,18 +53,18 @@ public class FullJMXManagedContainer extends FullJMXRemoteContainer {
                 super.start();
             } else {
                 throw new LifecycleException("The server is already running! "
-                        + "Managed containers does not support connecting to running server instances due to the "
-                        + "possible harmful effect of connecting to the wrong server. Please stop server before running or "
-                        + "change to another type of container.\n"
-                        + "To disable this check and allow Arquillian to connect to a running server, "
-                        + "set allowConnectingToRunningServer to true in the container configuration");
+                    + "Managed containers does not support connecting to running server instances due to the "
+                    + "possible harmful effect of connecting to the wrong server. Please stop server before running or "
+                    + "change to another type of container.\n"
+                    + "To disable this check and allow Arquillian to connect to a running server, "
+                    + "set allowConnectingToRunningServer to true in the container configuration");
             }
         } else {
             serverControl.startServer();
             super.start();
         }
     }
-    
+
     /**
      * Closes all resources consumed by the remote container client, and then stops the managed container process.
      */
@@ -78,5 +78,4 @@ public class FullJMXManagedContainer extends FullJMXRemoteContainer {
             }
         }
     }
-
 }

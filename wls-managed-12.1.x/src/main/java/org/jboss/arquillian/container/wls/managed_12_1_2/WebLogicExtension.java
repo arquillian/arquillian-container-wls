@@ -21,9 +21,8 @@ import org.jboss.arquillian.core.spi.LoadableExtension;
 
 /**
  * The Arquillian integration for a managed WLS 12.1.2 container.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 public class WebLogicExtension implements LoadableExtension {
 
@@ -31,5 +30,4 @@ public class WebLogicExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
         builder.service(DeployableContainer.class, WebLogicContainer.class);
     }
-
 }

@@ -35,5 +35,4 @@ public class WebLogicEmbeddedConfiguration implements ContainerConfiguration {
     public void setOutputToConsole(boolean outputToConsole) {
         this.outputToConsole = outputToConsole;
     }
-
 }

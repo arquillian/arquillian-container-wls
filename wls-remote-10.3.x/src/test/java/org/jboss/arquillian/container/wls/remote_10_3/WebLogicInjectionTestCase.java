@@ -38,53 +38,49 @@ import org.junit.runner.RunWith;
 
 /**
  * TestCase to verify support for @Resource and @EJB annotation based injection.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
-public class WebLogicInjectionTestCase
-{
+public class WebLogicInjectionTestCase {
 
-   /**
-    * Logger
-    */
-   private static final Logger log = Logger.getLogger(WebLogicInjectionTestCase.class.getName());
-   
-   @Resource(name="resourceInjectionTestName")
-   private String injectedResource;
-   
-   @Resource(mappedName="java:comp/UserTransaction")
-   private UserTransaction transaction;
-   
-   @EJB(mappedName="java:comp/env/ejb/Greeter")
-   private Greeter greeter;
+    /**
+     * Logger
+     */
+    private static final Logger log = Logger.getLogger(WebLogicInjectionTestCase.class.getName());
 
-   /**
-    * Deployment for the test
-    *
-    * @return
-    */
-   @Deployment
-   public static Archive<?> getTestArchive() {
-      final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
+    @Resource(name = "resourceInjectionTestName")
+    private String injectedResource;
+
+    @Resource(mappedName = "java:comp/UserTransaction")
+    private UserTransaction transaction;
+
+    @EJB(mappedName = "java:comp/env/ejb/Greeter")
+    private Greeter greeter;
+
+    /**
+     * Deployment for the test
+     */
+    @Deployment
+    public static Archive<?> getTestArchive() {
+        final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
             .addClasses(GreeterServlet.class, WebLogicInjectionTestCase.class)
             .setWebXML("in-container-web-eartest.xml");
-       final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "test.jar")
-               .addClasses(Greeter.class, GreeterBean.class, GreeterRemote.class);
-       final EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "test.ear")
-               .setApplicationXML("application.xml")
-               .addAsModule(ejb)
-               .addAsModule(war);
-       log.info(ear.toString(true));
-       return ear;
-   }
-   
-   @Test
-   public void shouldBeAbleToInjectEjb() throws Exception {
-      assertThat(injectedResource, equalTo("Hello World from an env-entry"));
-      assertThat(transaction, notNullValue());
-      assertThat(greeter, notNullValue());
-      assertThat(greeter.greet(), equalTo("Hello"));
-   }
+        final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "test.jar")
+            .addClasses(Greeter.class, GreeterBean.class, GreeterRemote.class);
+        final EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "test.ear")
+            .setApplicationXML("application.xml")
+            .addAsModule(ejb)
+            .addAsModule(war);
+        log.info(ear.toString(true));
+        return ear;
+    }
+
+    @Test
+    public void shouldBeAbleToInjectEjb() throws Exception {
+        assertThat(injectedResource, equalTo("Hello World from an env-entry"));
+        assertThat(transaction, notNullValue());
+        assertThat(greeter, notNullValue());
+        assertThat(greeter.greet(), equalTo("Hello"));
+    }
 }

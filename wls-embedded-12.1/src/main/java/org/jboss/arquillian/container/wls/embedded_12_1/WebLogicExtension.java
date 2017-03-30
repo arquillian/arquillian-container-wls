@@ -21,7 +21,7 @@ import org.jboss.arquillian.core.spi.LoadableExtension;
 
 /**
  * The WebLogic 12c embedded container adapter
- * 
+ *
  * @author Vineet Reynolds
  */
 public class WebLogicExtension implements LoadableExtension {
@@ -30,5 +30,4 @@ public class WebLogicExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
         builder.service(DeployableContainer.class, WebLogicContainer.class);
     }
-
 }

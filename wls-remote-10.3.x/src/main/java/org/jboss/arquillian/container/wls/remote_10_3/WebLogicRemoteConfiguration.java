@@ -6,11 +6,9 @@ import org.jboss.arquillian.container.wls.CommonWebLogicConfiguration;
  * Arquillian properties for the WebLogic 10.3.x containers.
  * Properties derived from the {@link CommonWebLogicConfiguration} class
  * can be overridden or added to, here.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
-public class WebLogicRemoteConfiguration extends CommonWebLogicConfiguration
-{
+public class WebLogicRemoteConfiguration extends CommonWebLogicConfiguration {
 
 }

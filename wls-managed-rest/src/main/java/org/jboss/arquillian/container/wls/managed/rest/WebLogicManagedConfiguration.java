@@ -27,13 +27,12 @@ import org.jboss.arquillian.container.wls.Validate;
  */
 public class WebLogicManagedConfiguration extends CommonManagedWebLogicConfiguration {
 
-  public void validate() throws ConfigurationException {
-    Validate.notNullOrEmpty(getWlHome(), "The wlHome property is empty. Verify the property in arquillian.xml");
-    Validate.notNullOrEmpty(getMiddlewareHome(),
-                            "The middlewareHome property value is not specified. Verify the property in arquillian.xml");
-    Validate.notNullOrEmpty(getDomainDirectory(),
-                            "The domainDirectory property value is not specified. Verify the property in arquillian.xml");
-    super.validate();
-  }
-
+    public void validate() throws ConfigurationException {
+        Validate.notNullOrEmpty(getWlHome(), "The wlHome property is empty. Verify the property in arquillian.xml");
+        Validate.notNullOrEmpty(getMiddlewareHome(),
+            "The middlewareHome property value is not specified. Verify the property in arquillian.xml");
+        Validate.notNullOrEmpty(getDomainDirectory(),
+            "The domainDirectory property value is not specified. Verify the property in arquillian.xml");
+        super.validate();
+    }
 }

@@ -3,10 +3,10 @@
     xsi:schemaLocation="http://jboss.org/schema/arquillian
     http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
-    <container qualifier="wls-12c-embedded" default="true">
-        <configuration>
-            <property name="outputToConsole">true</property>
-        </configuration>
-    </container>
+  <container qualifier="wls-12c-embedded" default="true">
+    <configuration>
+      <property name="outputToConsole">true</property>
+    </configuration>
+  </container>
 
 </arquillian>

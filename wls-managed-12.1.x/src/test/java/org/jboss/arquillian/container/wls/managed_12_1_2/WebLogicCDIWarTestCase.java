@@ -32,9 +32,8 @@ import org.junit.runner.RunWith;
 
 /**
  * TestCase to verify CDI support in test classes when deploying WAR files.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
 public class WebLogicCDIWarTestCase {
@@ -44,7 +43,7 @@ public class WebLogicCDIWarTestCase {
 
     @Deployment
     public static WebArchive deploy() {
-      return ShrinkWrap.create(WebArchive.class, "foo.war")
+        return ShrinkWrap.create(WebArchive.class, "foo.war")
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
             .addClasses(SimpleBean.class, MyServlet.class);
     }

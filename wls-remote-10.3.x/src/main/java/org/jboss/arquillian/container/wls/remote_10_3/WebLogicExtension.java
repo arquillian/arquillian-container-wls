@@ -22,17 +22,13 @@ import org.jboss.arquillian.core.spi.LoadableExtension;
 
 /**
  * The Arquillian integration for WLS 10.3.x.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
-public class WebLogicExtension implements LoadableExtension
-{
+public class WebLogicExtension implements LoadableExtension {
 
-   public void register(ExtensionBuilder builder)
-   {
-      builder.service(DeployableContainer.class, WebLogicContainer.class)
-             .service(ProtocolArchiveProcessor.class, WebLogicCDIProcessor.class);
-   }
-
+    public void register(ExtensionBuilder builder) {
+        builder.service(DeployableContainer.class, WebLogicContainer.class)
+            .service(ProtocolArchiveProcessor.class, WebLogicCDIProcessor.class);
+    }
 }

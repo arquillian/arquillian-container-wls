@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.embedded_12_1;
@@ -39,7 +38,7 @@ import org.junit.runner.RunWith;
 
 /**
  * Verifies Arquillian can deploy a JAR and run in-container tests.
- * 
+ *
  * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
@@ -54,7 +53,7 @@ public class WebLogicDeployJarTest {
 
     /**
      * Deployment for the test
-     * 
+     *
      * @return
      */
     @Deployment

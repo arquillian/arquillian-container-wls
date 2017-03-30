@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.remote_12_1_2;
@@ -41,33 +40,33 @@ import static org.junit.Assert.assertThat;
 /**
  * Verifies Arquillian can deploy a EAR file with multiple WARs as a deployment, and run in-container tests. Used to verify that
  * Arquillian can find the ServletTestRunner from among multiple web-modules through the {@link org.jboss.arquillian.container.test.api.Testable} API.
- * 
+ *
  * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
 public class WebLogicTestableWarInEarTest {
     private static final Logger log = Logger.getLogger(WebLogicTestableWarInEarTest.class.getName());
 
-    @EJB(mappedName="java:global/app/ejb/Greeter")
+    @EJB(mappedName = "java:global/app/ejb/Greeter")
     private Greeter greeter;
-    
+
     @Deployment
     public static EnterpriseArchive getInContainerTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
-                .addClasses(GreeterServlet.class)
-                //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
-                .addClass(WebLogicTestableWarInEarTest.class);
-       final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "ejb.jar")
-                   .addClasses(Greeter.class);
-        
+            .addClasses(GreeterServlet.class)
+            //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
+            .addClass(WebLogicTestableWarInEarTest.class);
+        final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "ejb.jar")
+            .addClasses(Greeter.class);
+
         // Create another web module, but with a name that is alphabetically less than test.war.
         WebArchive anotherWar = ShrinkWrap.create(WebArchive.class, "another.war")
-                .addClasses(MyServlet.class);
-        
+            .addClasses(MyServlet.class);
+
         final EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "app.ear")
-                .addAsModule(ejb)
-                .addAsModule(Testable.archiveToTest(war))
-                .addAsModule(anotherWar);
+            .addAsModule(ejb)
+            .addAsModule(Testable.archiveToTest(war))
+            .addAsModule(anotherWar);
         log.info(ear.toString(true));
         return ear;
     }
@@ -77,5 +76,4 @@ public class WebLogicTestableWarInEarTest {
         assertThat(greeter, notNullValue());
         assertThat(greeter.greet(), equalTo("Hello"));
     }
-
 }

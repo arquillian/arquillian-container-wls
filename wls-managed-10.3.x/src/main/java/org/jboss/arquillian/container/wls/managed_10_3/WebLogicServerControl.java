@@ -33,9 +33,8 @@ import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 /**
  * The process controller for the WebLogic 12.1.x container.
  * Starts and shuts down the WebLogic container through shell scripts in the WebLogic domain.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 public class WebLogicServerControl {
 
@@ -81,7 +80,7 @@ public class WebLogicServerControl {
             List<String> command = new ArrayList<String>();
             String domainDir = configuration.getDomainDirectory();
             String executable = (domainDir.endsWith(File.separator) ? domainDir : domainDir + File.separator) + "bin"
-                    + File.separator + getScript();
+                + File.separator + getScript();
             command.addAll(getShellInterpreter());
             command.add(executable);
             return command;
@@ -105,7 +104,6 @@ public class WebLogicServerControl {
             }
             return shellCommands;
         }
-
     }
 
     private class StartupAdminServerCommand extends ShellCommand {
@@ -142,7 +140,7 @@ public class WebLogicServerControl {
                 if (!serverAvailable) {
                     process.destroy();
                     throw new TimeoutException(String.format("The startup script could not complete in [%d] seconds.",
-                            configuration.getTimeout()));
+                        configuration.getTimeout()));
                 }
                 logger.log(Level.INFO, "Started WebLogic Server.");
                 return;
@@ -169,7 +167,6 @@ public class WebLogicServerControl {
                 return false;
             }
         }
-
     }
 
     private class ShutdownAdminServerCommand extends ShellCommand {
@@ -209,7 +206,6 @@ public class WebLogicServerControl {
                 return "stopWebLogic.sh";
             }
         }
-
     }
 
     private class ConsoleConsumer implements Runnable {
@@ -236,7 +232,5 @@ public class WebLogicServerControl {
                 logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
-
     }
-
 }

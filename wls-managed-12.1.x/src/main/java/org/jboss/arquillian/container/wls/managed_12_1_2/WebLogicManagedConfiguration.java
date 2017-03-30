@@ -21,9 +21,8 @@ import org.jboss.arquillian.container.wls.CommonManagedWebLogicConfiguration;
 /**
  * Arquillian properties for the managed WebLogic 12.1.2 container. Properties derived from the
  * {@link org.jboss.arquillian.container.wls.CommonManagedWebLogicConfiguration} class are added to, here.
- * 
+ *
  * @author Vineet Reynolds
- * 
  */
 public class WebLogicManagedConfiguration extends CommonManagedWebLogicConfiguration {
 

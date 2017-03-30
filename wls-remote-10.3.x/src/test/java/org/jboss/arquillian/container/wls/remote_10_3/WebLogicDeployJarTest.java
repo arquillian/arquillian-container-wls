@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.remote_10_3;
@@ -49,9 +48,9 @@ public class WebLogicDeployJarTest {
      */
     private static final Logger log = Logger.getLogger(WebLogicDeployJarTest.class.getName());
 
-    @EJB(mappedName="ejb/Greeter")
+    @EJB(mappedName = "ejb/Greeter")
     private GreeterRemote greeter;
-    
+
     /**
      * Deployment for the test
      *
@@ -60,9 +59,9 @@ public class WebLogicDeployJarTest {
     @Deployment
     public static Archive<?> getTestArchive() {
         final JavaArchive jar = ShrinkWrap.create(JavaArchive.class, "test.jar")
-                .addClasses(Greeter.class, GreeterRemote.class, GreeterBean.class)
-                .addAsManifestResource("ejb-jar.xml")
-                .addAsManifestResource("weblogic-ejb-jar.xml");
+            .addClasses(Greeter.class, GreeterRemote.class, GreeterBean.class)
+            .addAsManifestResource("ejb-jar.xml")
+            .addAsManifestResource("weblogic-ejb-jar.xml");
         log.info(jar.toString(true));
         return jar;
     }

@@ -32,47 +32,46 @@ import javax.ws.rs.client.Client;
  * container used by Arquillian. Relies completely on the REST client to perform
  * deployments. WLS 12.1.3 containers and higher are encouraged to use this
  * class.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 public class RemoteContainer implements WebLogicRemoteContainer {
-	private static final Logger LOGGER = Logger.getLogger(RemoteContainer.class.getName());
-	static {
-		LOGGER.setLevel(Level.ALL);
-	}
+    private static final Logger LOGGER = Logger.getLogger(RemoteContainer.class.getName());
 
-	protected WebLogicRemoteConfiguration config;
+    static {
+        LOGGER.setLevel(Level.ALL);
+    }
 
+    protected WebLogicRemoteConfiguration config;
 
-	public RemoteContainer(WebLogicRemoteConfiguration configuration) {
-		config = configuration;
-	}
+    public RemoteContainer(WebLogicRemoteConfiguration configuration) {
+        config = configuration;
+    }
 
-	/**
-	 * Deploy an application.
-	 *
-	 * @param archive The ShrinkWrap archive to deploy
-   *
-	 * @return The metadata for the deployed application
-   *
-	 * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException
-	 */
-	@SuppressWarnings("resource")
-	public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
-    return RESTUtils.deploy(config, LOGGER, archive);
-	}
+    /**
+     * Deploy an application.
+     *
+     * @param archive
+     *     The ShrinkWrap archive to deploy
+     *
+     * @return The metadata for the deployed application
+     *
+     * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException
+     */
+    @SuppressWarnings("resource")
+    public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
+        return RESTUtils.deploy(config, LOGGER, archive);
+    }
 
-
-	/**
-	 * Undeploy an application.
-	 *
-	 * @param archive The ShrinkWrap archive to undeploy
-   *
-	 * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException
-	 */
-	public void undeploy(Archive<?> archive) throws DeploymentException {
-    RESTUtils.undeploy(config, LOGGER, archive);
-	}
-
+    /**
+     * Undeploy an application.
+     *
+     * @param archive
+     *     The ShrinkWrap archive to undeploy
+     *
+     * @throws org.jboss.arquillian.container.spi.client.container.DeploymentException
+     */
+    public void undeploy(Archive<?> archive) throws DeploymentException {
+        RESTUtils.undeploy(config, LOGGER, archive);
+    }
 }

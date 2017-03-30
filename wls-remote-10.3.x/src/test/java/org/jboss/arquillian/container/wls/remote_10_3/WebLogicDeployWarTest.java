@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.remote_10_3;
@@ -51,12 +50,12 @@ public class WebLogicDeployWarTest {
 
     @ArquillianResource
     private URL deploymentUrl;
-    
-    @Deployment(testable=false)
+
+    @Deployment(testable = false)
     public static WebArchive getTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
-                .addClasses(MyServlet.class)
-                .setWebXML("in-container-web-no-cdi.xml");
+            .addClasses(MyServlet.class)
+            .setWebXML("in-container-web-no-cdi.xml");
         log.info(war.toString(true));
         return war;
     }
@@ -70,5 +69,4 @@ public class WebLogicDeployWarTest {
 
         assertThat(result, equalTo("hello"));
     }
-
 }

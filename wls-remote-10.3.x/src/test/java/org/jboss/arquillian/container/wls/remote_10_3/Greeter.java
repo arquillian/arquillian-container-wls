@@ -21,14 +21,11 @@ import javax.ejb.Local;
 
 /**
  * Local Interface for {@link GreeterBean}, since no-interface views are not present in Java EE 5.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 @Local
-public interface Greeter
-{
+public interface Greeter {
 
-   public String greet();
-
+    public String greet();
 }

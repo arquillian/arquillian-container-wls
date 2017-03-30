@@ -33,9 +33,8 @@ import org.junit.runner.RunWith;
 
 /**
  * TestCase to verify CDI support in test classes when deploying EAR files.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
 public class WebLogicCDIEarTestCase {
@@ -45,30 +44,28 @@ public class WebLogicCDIEarTestCase {
 
     @Deployment
     public static EnterpriseArchive deploy() {
-      WebArchive webArchive = ShrinkWrap.create(WebArchive.class, "foo.war")
+        WebArchive webArchive = ShrinkWrap.create(WebArchive.class, "foo.war")
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
             .addClasses(SimpleBean.class, MyServlet.class)
             //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
             .addClass(WebLogicCDIEarTestCase.class)
             .setWebXML("in-container-web.xml");
-      
-      EnterpriseArchive enterpriseArchive = ShrinkWrap.create(EnterpriseArchive.class, "foo.ear")
+
+        EnterpriseArchive enterpriseArchive = ShrinkWrap.create(EnterpriseArchive.class, "foo.ear")
             .addAsModule(webArchive)
             // Add Weld-Servlet as an enterprise lib, since Arquillian-CDI enricher is also added into EarRoot/lib.
             // If Weld-Servlet is placed in WEB-INF\lib, Weld will not be able to load the CDI enricher service.
             .addAsLibraries(DependencyResolvers.use(MavenDependencyResolver.class)
-                  .loadMetadataFromPom("pom.xml")
-                  .goOffline()
-                  .artifact("org.jboss.weld.servlet:weld-servlet")
-                  .resolveAs(GenericArchive.class));
-      
-      return enterpriseArchive;
+                .loadMetadataFromPom("pom.xml")
+                .goOffline()
+                .artifact("org.jboss.weld.servlet:weld-servlet")
+                .resolveAs(GenericArchive.class));
+
+        return enterpriseArchive;
     }
 
-   @Test
-   public void test()
-   {
-      Assert.assertNotNull(foo);
-   }
-
+    @Test
+    public void test() {
+        Assert.assertNotNull(foo);
+    }
 }

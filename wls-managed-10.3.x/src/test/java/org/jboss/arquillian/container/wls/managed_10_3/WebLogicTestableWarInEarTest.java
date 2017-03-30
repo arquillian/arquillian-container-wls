@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.managed_10_3;
@@ -46,56 +45,63 @@ import org.junit.runner.RunWith;
 /**
  * Verifies Arquillian can deploy a EAR file with multiple WARs as a deployment, and run in-container tests. Used to verify that
  * Arquillian can find the ServletTestRunner from among multiple web-modules through the {@link Testable} API.
- * 
+ *
  * @author Vineet Reynolds
  */
 @RunWith(Arquillian.class)
 public class WebLogicTestableWarInEarTest {
     private static final Logger log = Logger.getLogger(WebLogicTestableWarInEarTest.class.getName());
 
-    @EJB(mappedName="java:comp/env/ejb/Greeter")
+    @EJB(mappedName = "java:comp/env/ejb/Greeter")
     private Greeter greeter;
-    
+
     @Deployment
     public static EnterpriseArchive getInContainerTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
-                .addClasses(GreeterServlet.class)
-                //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
-                .addClass(WebLogicTestableWarInEarTest.class)
-                .setWebXML("in-container-web-eartest.xml");
-       final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "test.jar")
-                   .addClasses(Greeter.class, GreeterRemote.class, GreeterBean.class);
-        
+            .addClasses(GreeterServlet.class)
+            //The deployed EAR does not contain the test class when we build an EnterpriseArchive, and must be manually added.
+            .addClass(WebLogicTestableWarInEarTest.class)
+            .setWebXML("in-container-web-eartest.xml");
+        final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "test.jar")
+            .addClasses(Greeter.class, GreeterRemote.class, GreeterBean.class);
+
         // Create another web module, but with a name that is alphabetically less than test.war.
         Class<MyServlet> anotherServletClass = MyServlet.class;
         WebArchive anotherWar = ShrinkWrap.create(WebArchive.class, "another.war")
-                .addClasses(MyServlet.class)
-                .setWebXML(
-                        new StringAsset(Descriptors.create(WebAppDescriptor.class).version("2.5").createServlet()
-                                .servletName(anotherServletClass.getSimpleName()).servletClass(anotherServletClass.getCanonicalName()).up()
-                                .createServletMapping().servletName(anotherServletClass.getSimpleName()).urlPattern("/Test").up()
-                                .exportAsString()));
-        
+            .addClasses(MyServlet.class)
+            .setWebXML(
+                new StringAsset(Descriptors.create(WebAppDescriptor.class)
+                    .version("2.5")
+                    .createServlet()
+                    .servletName(anotherServletClass.getSimpleName())
+                    .servletClass(anotherServletClass.getCanonicalName())
+                    .up()
+                    .createServletMapping()
+                    .servletName(anotherServletClass.getSimpleName())
+                    .urlPattern("/Test")
+                    .up()
+                    .exportAsString()));
+
         final EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "test.ear")
-                .addAsModule(ejb)
-                .addAsModule(Testable.archiveToTest(war))
-                .addAsModule(anotherWar)
-                .setApplicationXML(new StringAsset(Descriptors.create(ApplicationDescriptor.class)
-                        .version("5")
-                        .createModule()
-                            .ejb("test.jar")
-                            .up()
-                        .createModule()
-                            .getOrCreateWeb()
-                                .webUri("test.war").contextRoot("/test")
-                                .up()
-                            .up()
-                        .createModule()
-                            .getOrCreateWeb()
-                                .webUri("another.war").contextRoot("/another")
-                                .up()
-                            .up().
-                        exportAsString()));
+            .addAsModule(ejb)
+            .addAsModule(Testable.archiveToTest(war))
+            .addAsModule(anotherWar)
+            .setApplicationXML(new StringAsset(Descriptors.create(ApplicationDescriptor.class)
+                .version("5")
+                .createModule()
+                .ejb("test.jar")
+                .up()
+                .createModule()
+                .getOrCreateWeb()
+                .webUri("test.war").contextRoot("/test")
+                .up()
+                .up()
+                .createModule()
+                .getOrCreateWeb()
+                .webUri("another.war").contextRoot("/another")
+                .up()
+                .up().
+                    exportAsString()));
         log.info(ear.toString(true));
         return ear;
     }
@@ -105,5 +111,4 @@ public class WebLogicTestableWarInEarTest {
         assertThat(greeter, notNullValue());
         assertThat(greeter.greet(), equalTo("Hello"));
     }
-
 }

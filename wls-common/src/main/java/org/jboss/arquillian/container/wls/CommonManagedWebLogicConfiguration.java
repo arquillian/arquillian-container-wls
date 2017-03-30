@@ -21,9 +21,8 @@ import org.jboss.arquillian.container.spi.ConfigurationException;
 /**
  * Arquillian properties for the managed WebLogic container. Properties derived from the
  * {@link CommonWebLogicConfiguration} class are added to, here.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
 public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfiguration {
 
@@ -48,16 +47,16 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
     @Override
     public void validate() throws ConfigurationException {
         Validate.directoryExists(middlewareHome,
-                                 "The middlewareHome resolved to " + middlewareHome +
-                                 " and could not be located. Verify the property in arquillian.xml");
+            "The middlewareHome resolved to " + middlewareHome +
+                " and could not be located. Verify the property in arquillian.xml");
 
         Validate.directoryExists(domainDirectory,
-                                 "The domainDirectory resolved to " + domainDirectory +
-                                 " and could not be located. Verify the property in arquillian.xml");
+            "The domainDirectory resolved to " + domainDirectory +
+                " and could not be located. Verify the property in arquillian.xml");
 
         if (startServerScript != null && startServerScript.length() > 0) {
             Validate.isValidFile(startServerScript, "The startServerScript resolved to " + startServerScript
-                    + " and could not be located. Verify the property in arquillian.xml");
+                + " and could not be located. Verify the property in arquillian.xml");
         } else {
             String os = System.getProperty("os.name").toLowerCase();
             if (os.startsWith("windows")) {
@@ -68,7 +67,7 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
         }
         if (stopServerScript != null && stopServerScript.length() > 0) {
             Validate.isValidFile(stopServerScript, "The stopServerScript resolved to " + stopServerScript
-                    + " and could not be located. Verify the property in arquillian.xml");
+                + " and could not be located. Verify the property in arquillian.xml");
         } else {
             String os = System.getProperty("os.name").toLowerCase();
             if (os.startsWith("windows")) {
@@ -79,15 +78,15 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
         }
         super.validate();
     }
-    
+
     public String getMiddlewareHome() {
         return middlewareHome;
     }
 
     /**
-     * 
-     * @param middlewareHome The directory representing the Oracle Middleware Home. Defaults to the MW_HOME environment
-     *        variable.
+     * @param middlewareHome
+     *     The directory representing the Oracle Middleware Home. Defaults to the MW_HOME environment
+     *     variable.
      */
     public void setMiddlewareHome(String middlewareHome) {
         this.middlewareHome = middlewareHome;
@@ -98,8 +97,8 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
     }
 
     /**
-     * 
-     * @param domainDirectory The WebLogic Server domain directory.
+     * @param domainDirectory
+     *     The WebLogic Server domain directory.
      */
     public void setDomainDirectory(String domainDirectory) {
         this.domainDirectory = domainDirectory;
@@ -110,9 +109,9 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
     }
 
     /**
-     * 
-     * @param jvmOptions Used to set the JAVA_OPTIONS environment variable for the shell environment. The environment variable
-     *        can then be used in the script used to start the server.
+     * @param jvmOptions
+     *     Used to set the JAVA_OPTIONS environment variable for the shell environment. The environment variable
+     *     can then be used in the script used to start the server.
      */
     public void setJvmOptions(String jvmOptions) {
         this.jvmOptions = jvmOptions;
@@ -123,10 +122,11 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
     }
 
     /**
-     * 
-     * @param timeout The duration in number of seconds, by which the startup and shutdown script should complete. Defaults to
-     *        60. If the server is not detected to have started or shutdown by this interval, the container action is deemed to
-     *        have failed.
+     * @param timeout
+     *     The duration in number of seconds, by which the startup and shutdown script should complete. Defaults to
+     *     60. If the server is not detected to have started or shutdown by this interval, the container action is deemed
+     *     to
+     *     have failed.
      */
     public void setTimeout(int timeout) {
         this.timeout = timeout;
@@ -137,8 +137,8 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
     }
 
     /**
-     * 
-     * @param outputToConsole Whether the output from the execution of the shell scripts should be logged to the console.
+     * @param outputToConsole
+     *     Whether the output from the execution of the shell scripts should be logged to the console.
      */
     public void setOutputToConsole(boolean outputToConsole) {
         this.outputToConsole = outputToConsole;
@@ -149,9 +149,9 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
     }
 
     /**
-     * 
-     * @param allowConnectingToRunningServer Whether Arquillian should be allowed to connect and run tests in an already running
-     *        WebLogic Server instance.
+     * @param allowConnectingToRunningServer
+     *     Whether Arquillian should be allowed to connect and run tests in an already running
+     *     WebLogic Server instance.
      */
     public void setAllowConnectingToRunningServer(boolean allowConnectingToRunningServer) {
         this.allowConnectingToRunningServer = allowConnectingToRunningServer;
@@ -162,9 +162,9 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
     }
 
     /**
-     * 
-     * @param startServerScript The script used to start the WebLogic Server instance. Defaults to the startWebLogic script in
-     *        the bin sub-directory of the domain home.
+     * @param startServerScript
+     *     The script used to start the WebLogic Server instance. Defaults to the startWebLogic script in
+     *     the bin sub-directory of the domain home.
      */
     public void setStartServerScript(String startServerScript) {
         this.startServerScript = startServerScript;
@@ -175,12 +175,11 @@ public class CommonManagedWebLogicConfiguration extends CommonWebLogicConfigurat
     }
 
     /**
-     * 
-     * @param stopServerScript The script used to stop the WebLogic Server instance. Defaults to the stopWebLogic script in the
-     *        bin sub-directory of the domain home.
+     * @param stopServerScript
+     *     The script used to stop the WebLogic Server instance. Defaults to the stopWebLogic script in the
+     *     bin sub-directory of the domain home.
      */
     public void setStopServerScript(String stopServerScript) {
         this.stopServerScript = stopServerScript;
     }
-
 }

@@ -1,97 +1,98 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <!-- Parent -->
-    <parent>
-        <groupId>org.jboss</groupId>
-        <artifactId>jboss-parent</artifactId>
-        <version>16</version>
-        <relativePath />
-    </parent>
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss</groupId>
+    <artifactId>jboss-parent</artifactId>
+    <version>16</version>
+    <relativePath/>
+  </parent>
 
-    <!-- Model Version -->
-    <modelVersion>4.0.0</modelVersion>
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
 
-    <!-- Artifact Configuration -->
-    <groupId>org.jboss.arquillian.container</groupId>
-    <artifactId>arquillian-parent-wls</artifactId>
-    <version>1.0.2.Final-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <description>WebLogic Containers integration with the Arquillian project</description>
-    <name>Arquillian Container - WebLogic Parent Project</name>
+  <!-- Artifact Configuration -->
+  <groupId>org.jboss.arquillian.container</groupId>
+  <artifactId>arquillian-parent-wls</artifactId>
+  <version>1.0.2.Final-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <description>WebLogic Containers integration with the Arquillian project</description>
+  <name>Arquillian Container - WebLogic Parent Project</name>
 
-    <!-- SCM Info -->
-    <scm>
-        <connection>scm:git:git://github.com/arquillian/arquillian-container-weblogic.git</connection>
-        <developerConnection>scm:git:git@github.com:arquillian/arquillian-container-weblogic.git</developerConnection>
-        <url>https://github.com/arquillian/arquillian-container-weblogic</url>
-      <tag>HEAD</tag>
+  <!-- SCM Info -->
+  <scm>
+    <connection>scm:git:git://github.com/arquillian/arquillian-container-weblogic.git</connection>
+    <developerConnection>scm:git:git@github.com:arquillian/arquillian-container-weblogic.git</developerConnection>
+    <url>https://github.com/arquillian/arquillian-container-weblogic</url>
+    <tag>HEAD</tag>
   </scm>
 
-    <!-- Properties -->
-    <properties>
-        <maven.compiler.argument.source>1.5</maven.compiler.argument.source>
-        <maven.compiler.argument.target>1.5</maven.compiler.argument.target>
-        <version.arquillian_core>1.0.3.Final</version.arquillian_core>
-        <version.weld_servlet>1.1.2.Final</version.weld_servlet>
-        <version.surefire.plugin>2.9</version.surefire.plugin>
-    </properties>
+  <!-- Properties -->
+  <properties>
+    <maven.compiler.argument.source>1.5</maven.compiler.argument.source>
+    <maven.compiler.argument.target>1.5</maven.compiler.argument.target>
+    <version.arquillian_core>1.0.3.Final</version.arquillian_core>
+    <version.weld_servlet>1.1.2.Final</version.weld_servlet>
+    <version.surefire.plugin>2.9</version.surefire.plugin>
+  </properties>
 
-    <!-- Dependency Management -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>${version.arquillian_core}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-build</artifactId>
-                <version>${version.arquillian_core}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.weld.servlet</groupId>
-                <artifactId>weld-servlet</artifactId>
-                <version>${version.weld_servlet}</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+  <!-- Dependency Management -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jboss.arquillian</groupId>
+        <artifactId>arquillian-bom</artifactId>
+        <version>${version.arquillian_core}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.arquillian</groupId>
+        <artifactId>arquillian-build</artifactId>
+        <version>${version.arquillian_core}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.weld.servlet</groupId>
+        <artifactId>weld-servlet</artifactId>
+        <version>${version.weld_servlet}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <pushChanges>false</pushChanges>
-                    <localCheckout>true</localCheckout>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-    <modules>
-        <module>wls-common</module>
-        <module>wls-embedded-12.1</module>        
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <pushChanges>false</pushChanges>
+          <localCheckout>true</localCheckout>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <modules>
+    <module>wls-common</module>
+    <module>wls-embedded-12.1</module>
 
-        <module>wls-remote-10.3.x</module>
-        <module>wls-remote-12.1.x</module>
-        <module>wls-remote-rest</module>
+    <module>wls-remote-10.3.x</module>
+    <module>wls-remote-12.1.x</module>
+    <module>wls-remote-rest</module>
 
-        <module>wls-managed-10.3.x</module>
-        <module>wls-managed-12.1.x</module>
-        <module>wls-managed-rest</module>
+    <module>wls-managed-10.3.x</module>
+    <module>wls-managed-12.1.x</module>
+    <module>wls-managed-rest</module>
 
-        <!-- relocation modules for backward compat -->
-        <module>reloc-wls-remote-10.3</module>
-        <module>reloc-wls-remote-12.1</module>
-        <module>reloc-wls-remote-12.1.2</module>
-        <module>reloc-wls-managed-10.3</module>
-        <module>reloc-wls-managed-12.1</module>
-        <module>reloc-wls-managed-12.1.2</module>
-    </modules>
+    <!-- relocation modules for backward compat -->
+    <module>reloc-wls-remote-10.3</module>
+    <module>reloc-wls-remote-12.1</module>
+    <module>reloc-wls-remote-12.1.2</module>
+    <module>reloc-wls-managed-10.3</module>
+    <module>reloc-wls-managed-12.1</module>
+    <module>reloc-wls-managed-12.1.2</module>
+  </modules>
 </project>

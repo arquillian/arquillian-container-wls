@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.embedded_12_1;
@@ -30,14 +29,12 @@ import javax.ejb.Stateless;
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 @Stateless
-public class Greeter
-{
+public class Greeter {
 
-   /* (non-Javadoc)
-    * @see org.jboss.arquillian.container.wls.remote_103x.Greeter#greet()
-    */
-   public String greet()
-   {
-      return "Hello";
-   }
+    /* (non-Javadoc)
+     * @see org.jboss.arquillian.container.wls.remote_103x.Greeter#greet()
+     */
+    public String greet() {
+        return "Hello";
+    }
 }

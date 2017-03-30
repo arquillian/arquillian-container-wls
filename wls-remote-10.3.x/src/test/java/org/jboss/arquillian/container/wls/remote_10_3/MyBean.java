@@ -21,13 +21,11 @@ import javax.annotation.Resource;
 /**
  * @author Dan Allen
  */
-public class MyBean
-{
-   @Resource(name = "resourceInjectionTestName")
-   private String name;
+public class MyBean {
+    @Resource(name = "resourceInjectionTestName")
+    private String name;
 
-   public String getName()
-   {
-      return name;
-   }
+    public String getName() {
+        return name;
+    }
 }

@@ -38,8 +38,9 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
 /**
- * A {@link DeployableContainer} implementation that uses the {@link EJBContainer} API to control an embedded WLS 12c container.
- * 
+ * A {@link DeployableContainer} implementation that uses the {@link EJBContainer} API to control an embedded WLS 12c
+ * container.
+ *
  * @author Vineet Reynolds
  */
 public class WebLogicContainer implements DeployableContainer<WebLogicEmbeddedConfiguration> {
@@ -84,7 +85,8 @@ public class WebLogicContainer implements DeployableContainer<WebLogicEmbeddedCo
     @Override
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
         if (ejbContainer != null) {
-            throw new DeploymentException("The embedded container does not support multiple deployments in a single test.");
+            throw new DeploymentException(
+                "The embedded container does not support multiple deployments in a single test.");
         }
         logger.log(Level.FINE, "Deploying archive {0}", archive);
         // Write the deployment to disk
@@ -131,5 +133,4 @@ public class WebLogicContainer implements DeployableContainer<WebLogicEmbeddedCo
         }
         return archiveFilename;
     }
-
 }

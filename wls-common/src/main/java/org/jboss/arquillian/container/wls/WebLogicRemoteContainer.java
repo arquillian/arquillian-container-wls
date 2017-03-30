@@ -20,32 +20,28 @@ import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.shrinkwrap.api.Archive;
 
-
 /**
  * @author <a href="mailto:phil.zampino@oracle.com">Phil Zampino</a>
  */
 public interface WebLogicRemoteContainer {
 
-  /**
-   * Deploy an archive to the container
-   *
-   * @param archive The ShrinkWrap archive to deploy
-   *
-   * @return
-   *
-   * @throws DeploymentException
-   */
-  ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException;
+    /**
+     * Deploy an archive to the container
+     *
+     * @param archive
+     *     The ShrinkWrap archive to deploy
+     *
+     * @throws DeploymentException
+     */
+    ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException;
 
-
-  /**
-   * Undeploy the specified archive from the container
-   *
-   * @param archive The ShrinkWrap archive to undeploy
-   *
-   * @throws DeploymentException
-   */
-  void undeploy(Archive<?> archive) throws DeploymentException;
-
-
+    /**
+     * Undeploy the specified archive from the container
+     *
+     * @param archive
+     *     The ShrinkWrap archive to undeploy
+     *
+     * @throws DeploymentException
+     */
+    void undeploy(Archive<?> archive) throws DeploymentException;
 }

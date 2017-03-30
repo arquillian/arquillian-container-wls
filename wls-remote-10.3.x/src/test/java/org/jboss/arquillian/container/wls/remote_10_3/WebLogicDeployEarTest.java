@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.remote_10_3;
@@ -63,14 +62,14 @@ public class WebLogicDeployEarTest {
     @Deployment(testable = false)
     public static Archive<?> getTestArchive() {
         final WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
-                .addClasses(GreeterServlet.class)
-                .setWebXML("in-container-web-eartest.xml");
+            .addClasses(GreeterServlet.class)
+            .setWebXML("in-container-web-eartest.xml");
         final JavaArchive ejb = ShrinkWrap.create(JavaArchive.class, "test.jar")
-                .addClasses(Greeter.class, GreeterRemote.class, GreeterBean.class);
+            .addClasses(Greeter.class, GreeterRemote.class, GreeterBean.class);
         final EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "test.ear")
-                .setApplicationXML("application.xml")
-                .addAsModule(war)
-                .addAsModule(ejb);
+            .setApplicationXML("application.xml")
+            .addAsModule(war)
+            .addAsModule(ejb);
         log.info(ear.toString(true));
         return ear;
     }

@@ -27,529 +27,501 @@ import org.jboss.arquillian.container.spi.client.container.ContainerConfiguratio
 
 /**
  * The Arquillian properties that are common across WebLogic containers.
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
-public class CommonWebLogicConfiguration implements ContainerConfiguration
-{
-   private static final Logger logger = Logger.getLogger(CommonWebLogicConfiguration.class.getName());
-   private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
-   private static final String JMX_CLIENT_JAR_PATH = "server/lib/wljmxclient.jar";
-   
-   private String adminUrl;
-   
-   private String adminProtocol;
+public class CommonWebLogicConfiguration implements ContainerConfiguration {
+    private static final Logger logger = Logger.getLogger(CommonWebLogicConfiguration.class.getName());
+    private static final String WEBLOGIC_JAR_PATH = "server/lib/weblogic.jar";
+    private static final String JMX_CLIENT_JAR_PATH = "server/lib/wljmxclient.jar";
 
-   private String adminListenAddress;
+    private String adminUrl;
 
-   private int adminListenPort;
-   
-   private String adminUserName;
-   
-   private String adminPassword;
-   
-   private String wlsHome;
-   
-   private String wlHome = System.getenv("WL_HOME");
-   
-   private String target;
-   
-   private String weblogicJarPath;
-   
-   private String jmxClientJarPath;
-   
-   private String jmxProtocol;
-   
-   private String jmxHost;
-   
-   private int jmxPort;
-   
-   private boolean useDemoTrust = false;
+    private String adminProtocol;
 
-   private boolean useCustomTrust = false;
+    private String adminListenAddress;
 
-   private boolean useJavaStandardTrust = false;
-   
-   private String trustStoreLocation;
-   
-   private String trustStorePassword;
-   
-   private boolean ignoreHostNameVerification;
-   
-   private String hostnameVerifierClass;
-   
-   private String classPath;
-   
-   private boolean useURandom;
-   
-   private boolean deployExplodedArchive;
+    private int adminListenPort;
 
-   private boolean restMessageLogging = false;
+    private String adminUserName;
 
-   private boolean restEntityLogging = false;
+    private String adminPassword;
 
-   public void validate() throws ConfigurationException
-   {
-      // Verify the mandatory properties
-      if(wlsHome != null && wlsHome.length() > 0)
-      {
-         Validate.directoryExists(wlsHome,
-            "The wlsHome directory resolved to " + wlsHome + " and could not be located. Verify the property in arquillian.xml");
-         logger.log(Level.WARNING, "The wlsHome property is deprecated. Use the wlHome property instead.");
-         wlHome = wlsHome;
-      }
-      Validate.directoryExists(wlHome,
-              "The wlHome directory resolved to " + wlHome + " and could not be located. Verify the property in arquillian.xml");
-      Validate.notNullOrEmpty(adminUrl, "The adminUrl is empty. Verify the property in arquillian.xml");
-      Validate.notNullOrEmpty(adminUserName,
+    private String wlsHome;
+
+    private String wlHome = System.getenv("WL_HOME");
+
+    private String target;
+
+    private String weblogicJarPath;
+
+    private String jmxClientJarPath;
+
+    private String jmxProtocol;
+
+    private String jmxHost;
+
+    private int jmxPort;
+
+    private boolean useDemoTrust = false;
+
+    private boolean useCustomTrust = false;
+
+    private boolean useJavaStandardTrust = false;
+
+    private String trustStoreLocation;
+
+    private String trustStorePassword;
+
+    private boolean ignoreHostNameVerification;
+
+    private String hostnameVerifierClass;
+
+    private String classPath;
+
+    private boolean useURandom;
+
+    private boolean deployExplodedArchive;
+
+    private boolean restMessageLogging = false;
+
+    private boolean restEntityLogging = false;
+
+    public void validate() throws ConfigurationException {
+        // Verify the mandatory properties
+        if (wlsHome != null && wlsHome.length() > 0) {
+            Validate.directoryExists(wlsHome,
+                "The wlsHome directory resolved to "
+                    + wlsHome
+                    + " and could not be located. Verify the property in arquillian.xml");
+            logger.log(Level.WARNING, "The wlsHome property is deprecated. Use the wlHome property instead.");
+            wlHome = wlsHome;
+        }
+        Validate.directoryExists(wlHome,
+            "The wlHome directory resolved to "
+                + wlHome
+                + " and could not be located. Verify the property in arquillian.xml");
+        Validate.notNullOrEmpty(adminUrl, "The adminUrl is empty. Verify the property in arquillian.xml");
+        Validate.notNullOrEmpty(adminUserName,
             "The username provided to weblogic.Deployer is empty. Verify the credentials in arquillian.xml");
-      Validate.notNullOrEmpty(adminPassword,
+        Validate.notNullOrEmpty(adminPassword,
             "The password provided to weblogic.Deployer is empty. Verify the credentials in arquillian.xml");
-      Validate.notNullOrEmpty(target, "The target for the deployment is empty. Verify the properties in arquillian.xml");
+        Validate.notNullOrEmpty(target,
+            "The target for the deployment is empty. Verify the properties in arquillian.xml");
 
-      // Once validated, set the properties that can be derived, if not already set.
-      try
-      {
-         URI adminURI = new URI(adminUrl);
-         adminProtocol = adminURI.getScheme();
-         adminListenAddress = adminURI.getHost();
-         adminListenPort = adminURI.getPort();
-         Validate.notNullOrEmpty(adminProtocol, "The adminProtocol is empty. Verify the adminUrl and adminProtocol properties in arquillian.xml");
-         Validate.isInList(adminProtocol, new String[]
-               {"t3", "t3s", "http", "https", "iiop", "iiops"},
-               "The adminProtocol is invalid. It must be either t3, t3s, http, https, iiop or iiops.");
-         Validate.notNullOrEmpty(adminListenAddress,
-               "The adminListenAddress is empty. Verify the adminUrl and adminListenAddress properties in arquillian.xml");
-         Validate.isInRange(adminListenPort, 0, 65535,
-               "The adminListenPort is invalid. Verify the adminUrl and adminListenPort properties in arquillian.xml");
-      }
-      catch (URISyntaxException uriEx)
-      {
-         throw new IllegalArgumentException("Failed to parse the adminUrl property - " + adminUrl + " as a URI.",uriEx);
-      }
-      
-      if (weblogicJarPath == null || weblogicJarPath.equals(""))
-      {
-         this.weblogicJarPath = this.wlHome.endsWith(File.separator) ? wlHome.concat(WEBLOGIC_JAR_PATH) : wlHome
-               .concat(File.separator).concat(WEBLOGIC_JAR_PATH);
-      }
-      if (jmxClientJarPath == null || jmxClientJarPath.equals(""))
-      {
-         this.jmxClientJarPath = this.wlHome.endsWith(File.separator) ? wlHome.concat(JMX_CLIENT_JAR_PATH) : wlHome
-               .concat(File.separator).concat(JMX_CLIENT_JAR_PATH);
-      }
-      if((jmxProtocol == null || jmxProtocol.equals("")) && (jmxHost == null || jmxHost.equals("")))
-      {
-         jmxProtocol = adminProtocol;
-         jmxHost = adminListenAddress;
-         jmxPort = adminListenPort;
-      }
-      
-      Boolean[] trustTypes = new Boolean[]
-      {useDemoTrust, useCustomTrust, useJavaStandardTrust};
-      int specifiedTrustType = 0;
-      for (int ctr = 0; ctr < trustTypes.length; ctr++)
-      {
-         if (trustTypes[ctr])
-         {
-            specifiedTrustType++;
-         }
-      }
-      if (specifiedTrustType > 1)
-      {
-         throw new IllegalArgumentException(
-               "Only one of useDemoTrust, useCustomTrust and useJavaStandardTrust must be specified as true. Verify these properties in arquillian.xml ");
-      }
-      
-      if (useDemoTrust)
-      {
-         trustStoreLocation = wlHome.endsWith(File.separator) ? wlHome.concat("server/lib/DemoTrust.jks") : wlHome
-               .concat(File.separator).concat("server/lib/DemoTrust.jks");
-         Validate.isValidFile(trustStoreLocation, "The DemoTrust.jks file was resolved to " + trustStoreLocation
-               + " and could not be located. Verify the wlsHome and useDemoTrust properties in arquillian.xml");
-      }
-      if(useCustomTrust)
-      {
-         Validate.isValidFile(trustStoreLocation, "The trustStoreLocation file was resolved to " + trustStoreLocation
-               + " and could not be located. Verify the useCustomTrust and trustStoreLocation properties in arquillian.xml");
-      }
-      if(useJavaStandardTrust)
-      {
-         trustStoreLocation = System.getProperty("java.home") + File.separator + "lib" + File.separator + "security"
-               + File.separator + "cacerts";
-         Validate.isValidFile(trustStoreLocation, "The trustStoreLocation file was resolved to " + trustStoreLocation
-               + " and could not be located. Verify that the cacerts file is present in the JRE installation.");
-      }
-      
-      // Set the classpath for weblogic.Deployer
-      Validate
-      .isValidFile(weblogicJarPath,
-            "The weblogic.jar could not be located. Verify the wlsHome and weblogicJarPath properties in arquillian.xml");
-      if(classPath != null && !classPath.equals(""))
-      {
-         classPath = weblogicJarPath + File.pathSeparator + classPath;
-      }
-      else
-      {
-         classPath = weblogicJarPath;
-      }
-      
-      //Validate these derived properties
-      Validate
+        // Once validated, set the properties that can be derived, if not already set.
+        try {
+            URI adminURI = new URI(adminUrl);
+            adminProtocol = adminURI.getScheme();
+            adminListenAddress = adminURI.getHost();
+            adminListenPort = adminURI.getPort();
+            Validate.notNullOrEmpty(adminProtocol,
+                "The adminProtocol is empty. Verify the adminUrl and adminProtocol properties in arquillian.xml");
+            Validate.isInList(adminProtocol, new String[]
+                    {"t3", "t3s", "http", "https", "iiop", "iiops"},
+                "The adminProtocol is invalid. It must be either t3, t3s, http, https, iiop or iiops.");
+            Validate.notNullOrEmpty(adminListenAddress,
+                "The adminListenAddress is empty. Verify the adminUrl and adminListenAddress properties in arquillian.xml");
+            Validate.isInRange(adminListenPort, 0, 65535,
+                "The adminListenPort is invalid. Verify the adminUrl and adminListenPort properties in arquillian.xml");
+        } catch (URISyntaxException uriEx) {
+            throw new IllegalArgumentException("Failed to parse the adminUrl property - " + adminUrl + " as a URI.",
+                uriEx);
+        }
+
+        if (weblogicJarPath == null || weblogicJarPath.equals("")) {
+            this.weblogicJarPath = this.wlHome.endsWith(File.separator) ? wlHome.concat(WEBLOGIC_JAR_PATH) : wlHome
+                .concat(File.separator).concat(WEBLOGIC_JAR_PATH);
+        }
+        if (jmxClientJarPath == null || jmxClientJarPath.equals("")) {
+            this.jmxClientJarPath = this.wlHome.endsWith(File.separator) ? wlHome.concat(JMX_CLIENT_JAR_PATH) : wlHome
+                .concat(File.separator).concat(JMX_CLIENT_JAR_PATH);
+        }
+        if ((jmxProtocol == null || jmxProtocol.equals("")) && (jmxHost == null || jmxHost.equals(""))) {
+            jmxProtocol = adminProtocol;
+            jmxHost = adminListenAddress;
+            jmxPort = adminListenPort;
+        }
+
+        Boolean[] trustTypes = new Boolean[]
+            {useDemoTrust, useCustomTrust, useJavaStandardTrust};
+        int specifiedTrustType = 0;
+        for (int ctr = 0; ctr < trustTypes.length; ctr++) {
+            if (trustTypes[ctr]) {
+                specifiedTrustType++;
+            }
+        }
+        if (specifiedTrustType > 1) {
+            throw new IllegalArgumentException(
+                "Only one of useDemoTrust, useCustomTrust and useJavaStandardTrust must be specified as true. Verify these properties in arquillian.xml ");
+        }
+
+        if (useDemoTrust) {
+            trustStoreLocation = wlHome.endsWith(File.separator) ? wlHome.concat("server/lib/DemoTrust.jks") : wlHome
+                .concat(File.separator).concat("server/lib/DemoTrust.jks");
+            Validate.isValidFile(trustStoreLocation, "The DemoTrust.jks file was resolved to " + trustStoreLocation
+                + " and could not be located. Verify the wlsHome and useDemoTrust properties in arquillian.xml");
+        }
+        if (useCustomTrust) {
+            Validate.isValidFile(trustStoreLocation, "The trustStoreLocation file was resolved to " + trustStoreLocation
+                + " and could not be located. Verify the useCustomTrust and trustStoreLocation properties in arquillian.xml");
+        }
+        if (useJavaStandardTrust) {
+            trustStoreLocation = System.getProperty("java.home") + File.separator + "lib" + File.separator + "security"
+                + File.separator + "cacerts";
+            Validate.isValidFile(trustStoreLocation, "The trustStoreLocation file was resolved to " + trustStoreLocation
+                + " and could not be located. Verify that the cacerts file is present in the JRE installation.");
+        }
+
+        // Set the classpath for weblogic.Deployer
+        Validate
+            .isValidFile(weblogicJarPath,
+                "The weblogic.jar could not be located. Verify the wlsHome and weblogicJarPath properties in arquillian.xml");
+        if (classPath != null && !classPath.equals("")) {
+            classPath = weblogicJarPath + File.pathSeparator + classPath;
+        } else {
+            classPath = weblogicJarPath;
+        }
+
+        //Validate these derived properties
+        Validate
             .notNullOrEmpty(jmxProtocol,
-                  "The jmxProtocol is empty. Verify the adminUrl, adminProtocol and jmxProtocol properties in arquillian.xml");
-      Validate.isInList(jmxProtocol, new String[]
-            {"t3", "t3s", "http", "https", "iiop", "iiops"},
+                "The jmxProtocol is empty. Verify the adminUrl, adminProtocol and jmxProtocol properties in arquillian.xml");
+        Validate.isInList(jmxProtocol, new String[]
+                {"t3", "t3s", "http", "https", "iiop", "iiops"},
             "The jmxProtocol is invalid. It must be either t3, t3s, http, https, iiop or iiops.");
-      Validate.notNullOrEmpty(jmxHost,
+        Validate.notNullOrEmpty(jmxHost,
             "The jmxHost is empty. Verify the adminUrl, adminListenAddress and jmxHost properties in arquillian.xml");
-      Validate.isInRange(jmxPort, 0, 65535,
+        Validate.isInRange(jmxPort, 0, 65535,
             "The jmxPort is invalid. Verify the adminUrl, adminListenPort and jmxPort properties in arquillian.xml");
-   }
+    }
 
-   public String getAdminUrl()
-   {
-      return adminUrl;
-   }
-
-   /**
-    * @param adminUrl The administration URL to connect to.
-    */
-   public void setAdminUrl(String adminUrl)
-   {
-      this.adminUrl = adminUrl;
-   }
-
-   public String getAdminProtocol()
-   {
-      return adminProtocol;
-   }
+    public String getAdminUrl() {
+        return adminUrl;
+    }
 
     /**
-     * @param adminProtocol Protocol to use to connect to AdminServer. This is optional. It can be derived from the adminUrl.
+     * @param adminUrl
+     *     The administration URL to connect to.
      */
-   public void setAdminProtocol(String adminProtocol)
-   {
-      this.adminProtocol = adminProtocol;
-   }
+    public void setAdminUrl(String adminUrl) {
+        this.adminUrl = adminUrl;
+    }
 
-   public String getAdminListenAddress()
-   {
-      return adminListenAddress;
-   }
+    public String getAdminProtocol() {
+        return adminProtocol;
+    }
 
     /**
-     * @param adminListenAddress The listen address of the admin server. This is optional. It can be derived from the adminUrl.
+     * @param adminProtocol
+     *     Protocol to use to connect to AdminServer. This is optional. It can be derived from the adminUrl.
      */
-   public void setAdminListenAddress(String adminListenAddress)
-   {
-      this.adminListenAddress = adminListenAddress;
-   }
+    public void setAdminProtocol(String adminProtocol) {
+        this.adminProtocol = adminProtocol;
+    }
 
-   public int getAdminListenPort()
-   {
-      return adminListenPort;
-   }
+    public String getAdminListenAddress() {
+        return adminListenAddress;
+    }
 
     /**
-     * @param adminListenPort The port of the admin server. This is optional. It can be derived from the adminUrl.
+     * @param adminListenAddress
+     *     The listen address of the admin server. This is optional. It can be derived from the adminUrl.
      */
-   public void setAdminListenPort(int adminListenPort)
-   {
-      this.adminListenPort = adminListenPort;
-   }
+    public void setAdminListenAddress(String adminListenAddress) {
+        this.adminListenAddress = adminListenAddress;
+    }
 
-   public String getAdminUserName()
-   {
-      return adminUserName;
-   }
+    public int getAdminListenPort() {
+        return adminListenPort;
+    }
 
     /**
-     * @param adminUserName The name of the Administrator user.
+     * @param adminListenPort
+     *     The port of the admin server. This is optional. It can be derived from the adminUrl.
      */
-   public void setAdminUserName(String adminUserName)
-   {
-      this.adminUserName = adminUserName;
-   }
+    public void setAdminListenPort(int adminListenPort) {
+        this.adminListenPort = adminListenPort;
+    }
 
-   public String getAdminPassword()
-   {
-      return adminPassword;
-   }
+    public String getAdminUserName() {
+        return adminUserName;
+    }
 
     /**
-     * @param adminPassword The password of the Administrator user.
+     * @param adminUserName
+     *     The name of the Administrator user.
      */
-   public void setAdminPassword(String adminPassword)
-   {
-      this.adminPassword = adminPassword;
-   }
+    public void setAdminUserName(String adminUserName) {
+        this.adminUserName = adminUserName;
+    }
 
-   public String getWlsHome()
-   {
-      return wlsHome;
-   }
+    public String getAdminPassword() {
+        return adminPassword;
+    }
 
     /**
+     * @param adminPassword
+     *     The password of the Administrator user.
+     */
+    public void setAdminPassword(String adminPassword) {
+        this.adminPassword = adminPassword;
+    }
+
+    public String getWlsHome() {
+        return wlsHome;
+    }
+
+    /**
+     * @param wlsHome
+     *     The location of the local WebLogic Server installation. The parent directory of this location is usually
+     *     named wlserver_x.y. The directory must also contain the 'common' and 'server' subdirectories.
+     *
      * @deprecated Use the wlHome property.
-     * 
-     * @param wlsHome The location of the local WebLogic Server installation. The parent directory of this location is usually
-     *        named wlserver_x.y. The directory must also contain the 'common' and 'server' subdirectories.
      */
-   public void setWlsHome(String wlsHome)
-   {
-      this.wlsHome = wlsHome;
-   }
-   
-   public String getWlHome()
-   {
-      return wlHome;
-   }
+    public void setWlsHome(String wlsHome) {
+        this.wlsHome = wlsHome;
+    }
+
+    public String getWlHome() {
+        return wlHome;
+    }
 
     /**
-     * 
-     * @param wlHome The location of the local WebLogic Server installation. The parent directory of this location is usually
-     *        named wlserver_x.y. The directory must also contain the 'common' and 'server' subdirectories. Defaults to the
-     *        value of the WL_HOME environment variable.
+     * @param wlHome
+     *     The location of the local WebLogic Server installation. The parent directory of this location is usually
+     *     named wlserver_x.y. The directory must also contain the 'common' and 'server' subdirectories. Defaults to the
+     *     value of the WL_HOME environment variable.
      */
-   public void setWlHome(String wlHome)
-   {
-      this.wlHome = wlHome;
-   }
+    public void setWlHome(String wlHome) {
+        this.wlHome = wlHome;
+    }
 
-   public String getTarget()
-   {
-      return target;
-   }
+    public String getTarget() {
+        return target;
+    }
 
     /**
-     * @param target The name of the target for the deployment. This can be the name of the Admin Server i.e. "AdminServer", the
-     *        name of an individual Managed Server or the name of a Cluster (not yet supported).
+     * @param target
+     *     The name of the target for the deployment. This can be the name of the Admin Server i.e. "AdminServer", the
+     *     name of an individual Managed Server or the name of a Cluster (not yet supported).
      */
-   public void setTarget(String target)
-   {
-      this.target = target;
-   }
+    public void setTarget(String target) {
+        this.target = target;
+    }
 
-   public String getWeblogicJarPath()
-   {
-      return weblogicJarPath;
-   }
+    public String getWeblogicJarPath() {
+        return weblogicJarPath;
+    }
 
     /**
-     * @param weblogicJarPath The location of weblogic.jar (optional)
+     * @param weblogicJarPath
+     *     The location of weblogic.jar (optional)
      */
-   public void setWeblogicJarPath(String weblogicJarPath)
-   {
-      this.weblogicJarPath = weblogicJarPath;
-   }
-   
-   public String getJmxClientJarPath()
-   {
-      return jmxClientJarPath;
-   }
+    public void setWeblogicJarPath(String weblogicJarPath) {
+        this.weblogicJarPath = weblogicJarPath;
+    }
+
+    public String getJmxClientJarPath() {
+        return jmxClientJarPath;
+    }
 
     /**
-     * @param jmxClientJarPath The location of wljmxclient.jar or an equivalent library. (optional)
+     * @param jmxClientJarPath
+     *     The location of wljmxclient.jar or an equivalent library. (optional)
      */
-   public void setJmxClientJarPath(String jmxClientJarPath)
-   {
-      this.jmxClientJarPath = jmxClientJarPath;
-   }
+    public void setJmxClientJarPath(String jmxClientJarPath) {
+        this.jmxClientJarPath = jmxClientJarPath;
+    }
 
-   public String getJmxProtocol()
-   {
-      return jmxProtocol;
-   }
+    public String getJmxProtocol() {
+        return jmxProtocol;
+    }
 
     /**
-     * @param jmxProtocol The protocol to use, when connecting to the WebLogic Domain Runtime MBean Server. (optional)
+     * @param jmxProtocol
+     *     The protocol to use, when connecting to the WebLogic Domain Runtime MBean Server. (optional)
      */
-   public void setJmxProtocol(String jmxProtocol)
-   {
-      this.jmxProtocol = jmxProtocol;
-   }
+    public void setJmxProtocol(String jmxProtocol) {
+        this.jmxProtocol = jmxProtocol;
+    }
 
-   public String getJmxHost()
-   {
-      return jmxHost;
-   }
+    public String getJmxHost() {
+        return jmxHost;
+    }
 
     /**
-     * @param jmxHost The host where the WebLogic Domain Runtime MBean Server resides. (optional)
+     * @param jmxHost
+     *     The host where the WebLogic Domain Runtime MBean Server resides. (optional)
      */
-   public void setJmxHost(String jmxHost)
-   {
-      this.jmxHost = jmxHost;
-   }
+    public void setJmxHost(String jmxHost) {
+        this.jmxHost = jmxHost;
+    }
 
-   public int getJmxPort()
-   {
-      return jmxPort;
-   }
+    public int getJmxPort() {
+        return jmxPort;
+    }
 
     /**
-     * @param jmxPort The port that the WebLogic Domain Runtime MBean Server listens on. (optional)
+     * @param jmxPort
+     *     The port that the WebLogic Domain Runtime MBean Server listens on. (optional)
      */
-   public void setJmxPort(int jmxPort)
-   {
-      this.jmxPort = jmxPort;
-   }
+    public void setJmxPort(int jmxPort) {
+        this.jmxPort = jmxPort;
+    }
 
-   public boolean isUseDemoTrust()
-   {
-      return useDemoTrust;
-   }
+    public boolean isUseDemoTrust() {
+        return useDemoTrust;
+    }
 
     /**
-     * @param useDemoTrust Use the Demo Truststore, to connect to a WebLogic Server that uses Demo Identity and Trust stores.
+     * @param useDemoTrust
+     *     Use the Demo Truststore, to connect to a WebLogic Server that uses Demo Identity and Trust stores.
      */
-   public void setUseDemoTrust(boolean useDemoTrust)
-   {
-      this.useDemoTrust = useDemoTrust;
-   }
+    public void setUseDemoTrust(boolean useDemoTrust) {
+        this.useDemoTrust = useDemoTrust;
+    }
 
-   public boolean isUseCustomTrust()
-   {
-      return useCustomTrust;
-   }
+    public boolean isUseCustomTrust() {
+        return useCustomTrust;
+    }
 
     /**
-     * @param useCustomTrust Use a custom Truststore, to connect to a WebLogic Server that uses a Custom Trust store.
+     * @param useCustomTrust
+     *     Use a custom Truststore, to connect to a WebLogic Server that uses a Custom Trust store.
      */
-   public void setUseCustomTrust(boolean useCustomTrust)
-   {
-      this.useCustomTrust = useCustomTrust;
-   }
+    public void setUseCustomTrust(boolean useCustomTrust) {
+        this.useCustomTrust = useCustomTrust;
+    }
 
-   public boolean isUseJavaStandardTrust()
-   {
-      return useJavaStandardTrust;
-   }
+    public boolean isUseJavaStandardTrust() {
+        return useJavaStandardTrust;
+    }
 
     /**
-     * @param useJavaStandardTrust Use a the Truststore of the running JRE, to connect to a WebLogic Server that uses the Java
-     *        Standard Trust store.
+     * @param useJavaStandardTrust
+     *     Use a the Truststore of the running JRE, to connect to a WebLogic Server that uses the Java
+     *     Standard Trust store.
      */
-   public void setUseJavaStandardTrust(boolean useJavaStandardTrust)
-   {
-      this.useJavaStandardTrust = useJavaStandardTrust;
-   }
+    public void setUseJavaStandardTrust(boolean useJavaStandardTrust) {
+        this.useJavaStandardTrust = useJavaStandardTrust;
+    }
 
-   public String getTrustStoreLocation()
-   {
-      return trustStoreLocation;
-   }
+    public String getTrustStoreLocation() {
+        return trustStoreLocation;
+    }
 
     /**
-     * @param trustStoreLocation The location of the truststore. This should be specified when using a custom trust store. This
-     *        is computed internally, when using the Java Standard Trust or the Demo Trust store.
+     * @param trustStoreLocation
+     *     The location of the truststore. This should be specified when using a custom trust store. This
+     *     is computed internally, when using the Java Standard Trust or the Demo Trust store.
      */
-   public void setTrustStoreLocation(String trustStoreLocation)
-   {
-      this.trustStoreLocation = trustStoreLocation;
-   }
+    public void setTrustStoreLocation(String trustStoreLocation) {
+        this.trustStoreLocation = trustStoreLocation;
+    }
 
-   public String getTrustStorePassword()
-   {
-      return trustStorePassword;
-   }
-
-   /**
-    * @param trustStorePassword The password for the trust store.
-    */
-   public void setTrustStorePassword(String trustStorePassword)
-   {
-      this.trustStorePassword = trustStorePassword;
-   }
-
-   public boolean isIgnoreHostNameVerification()
-   {
-      return ignoreHostNameVerification;
-   }
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
 
     /**
-     * @param ignoreHostNameVerification Specifies whether hostname verification should be enabled or disabled for the
-     *        weblogic.Deployer process.
+     * @param trustStorePassword
+     *     The password for the trust store.
      */
-   public void setIgnoreHostNameVerification(boolean ignoreHostNameVerification)
-   {
-      this.ignoreHostNameVerification = ignoreHostNameVerification;
-   }
+    public void setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+    }
 
-   public String getHostnameVerifierClass()
-   {
-      return hostnameVerifierClass;
-   }
+    public boolean isIgnoreHostNameVerification() {
+        return ignoreHostNameVerification;
+    }
 
     /**
-     * @param hostnameVerifierClass The fully qualified class name of the hostname verifier class
+     * @param ignoreHostNameVerification
+     *     Specifies whether hostname verification should be enabled or disabled for the
+     *     weblogic.Deployer process.
      */
-   public void setHostnameVerifierClass(String hostnameVerifierClass)
-   {
-      this.hostnameVerifierClass = hostnameVerifierClass;
-   }
+    public void setIgnoreHostNameVerification(boolean ignoreHostNameVerification) {
+        this.ignoreHostNameVerification = ignoreHostNameVerification;
+    }
 
-   public String getClassPath()
-   {
-      return classPath;
-   }
+    public String getHostnameVerifierClass() {
+        return hostnameVerifierClass;
+    }
 
     /**
-     * @param classPath The classpath entries that will be added to the classpath used by weblogic.Deployer. The location of the
-     *        hostname verifier class can be provided via this property.
+     * @param hostnameVerifierClass
+     *     The fully qualified class name of the hostname verifier class
      */
-   public void setClassPath(String classPath)
-   {
-      this.classPath = classPath;
-   }
-   
-   public boolean isUseURandom()
-   {
-      return useURandom;
-   }
+    public void setHostnameVerifierClass(String hostnameVerifierClass) {
+        this.hostnameVerifierClass = hostnameVerifierClass;
+    }
 
-   /**
-    * 
-    * @param useURandom Enables the use of /dev/urandom as the entropy gathering device for the JVM used to launch
-    *        weblogic.Deployer. To be used in Linux/Unix.
-    */
-   public void setUseURandom(boolean useURandom)
-   {
-      this.useURandom = useURandom;
-   }
-
-   public boolean isDeployExplodedArchive() {
-      return deployExplodedArchive;
-   }
+    public String getClassPath() {
+        return classPath;
+    }
 
     /**
-     * @param deployExplodedArchive Specifies whether to deploy explode WAR before deploying, or not (default = false).
+     * @param classPath
+     *     The classpath entries that will be added to the classpath used by weblogic.Deployer. The location of the
+     *     hostname verifier class can be provided via this property.
      */
-   public void setDeployExplodedArchive(boolean deployExplodedArchive) {
-       this.deployExplodedArchive = deployExplodedArchive;
-   }
+    public void setClassPath(String classPath) {
+        this.classPath = classPath;
+    }
 
-   /**
-    * @param restMessageLogging The value of the logRESTMessages configuration property.
-    */
-   public void setLogRESTMessages(boolean restMessageLogging) { this.restMessageLogging = restMessageLogging; }
+    public boolean isUseURandom() {
+        return useURandom;
+    }
 
-   /**
-    * @return The boolean value of the logRESTMessages configuration property.
-    */
-   public boolean isLogRESTMessages() { return restMessageLogging; }
+    /**
+     * @param useURandom
+     *     Enables the use of /dev/urandom as the entropy gathering device for the JVM used to launch
+     *     weblogic.Deployer. To be used in Linux/Unix.
+     */
+    public void setUseURandom(boolean useURandom) {
+        this.useURandom = useURandom;
+    }
 
-   /**
-    *
-    * @param restEntityLogging The value of the logRESTEntities configuration property.
-    */
-   public void setLogRESTEntities(boolean restEntityLogging) { this.restEntityLogging = restEntityLogging; }
+    public boolean isDeployExplodedArchive() {
+        return deployExplodedArchive;
+    }
 
-   /**
-    * @return The value of the logRESTEntities configuration property.
-    */
-   public boolean isLogRESTEntities() { return restEntityLogging; }
+    /**
+     * @param deployExplodedArchive
+     *     Specifies whether to deploy explode WAR before deploying, or not (default = false).
+     */
+    public void setDeployExplodedArchive(boolean deployExplodedArchive) {
+        this.deployExplodedArchive = deployExplodedArchive;
+    }
 
+    /**
+     * @param restMessageLogging
+     *     The value of the logRESTMessages configuration property.
+     */
+    public void setLogRESTMessages(boolean restMessageLogging) {
+        this.restMessageLogging = restMessageLogging;
+    }
+
+    /**
+     * @return The boolean value of the logRESTMessages configuration property.
+     */
+    public boolean isLogRESTMessages() {
+        return restMessageLogging;
+    }
+
+    /**
+     * @param restEntityLogging
+     *     The value of the logRESTEntities configuration property.
+     */
+    public void setLogRESTEntities(boolean restEntityLogging) {
+        this.restEntityLogging = restEntityLogging;
+    }
+
+    /**
+     * @return The value of the logRESTEntities configuration property.
+     */
+    public boolean isLogRESTEntities() {
+        return restEntityLogging;
+    }
 }

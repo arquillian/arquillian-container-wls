@@ -29,17 +29,16 @@ import javax.servlet.http.HttpServletResponse;
  * @author <a href="mailto:aslak@redhat.com">Aslak Knutsen</a>
  * @version $Revision: $
  */
-public class MyServlet extends HttpServlet
-{
-   private static final long serialVersionUID = 1L;
+public class MyServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
 
-   public static final String URL_PATTERN = "Test";
+    public static final String URL_PATTERN = "Test";
 
-   public static final String MESSAGE = "hello";
+    public static final String MESSAGE = "hello";
 
-   @Override
-   protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-   {
-      response.getWriter().append(MESSAGE);
-   }
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        response.getWriter().append(MESSAGE);
+    }
 }

@@ -27,52 +27,47 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
 /**
  * WebLogic 12.1.x container
- * 
- * @author Vineet Reynolds
  *
+ * @author Vineet Reynolds
  */
-public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConfiguration>
-{
-   
-   private WebLogicRemoteConfiguration configuration;
+public class WebLogicContainer implements DeployableContainer<WebLogicRemoteConfiguration> {
 
-   private WebLogicRemoteContainer remoteContainer;
+    private WebLogicRemoteConfiguration configuration;
 
-   public Class<WebLogicRemoteConfiguration> getConfigurationClass()
-   {
-      return WebLogicRemoteConfiguration.class;
-   }
+    private WebLogicRemoteContainer remoteContainer;
 
-   public void setup(WebLogicRemoteConfiguration configuration) {
-      this.configuration = configuration;
-      this.remoteContainer = new RemoteContainer(this.configuration);
-   }
+    public Class<WebLogicRemoteConfiguration> getConfigurationClass() {
+        return WebLogicRemoteConfiguration.class;
+    }
 
-   public void start() throws LifecycleException {
-   }
+    public void setup(WebLogicRemoteConfiguration configuration) {
+        this.configuration = configuration;
+        this.remoteContainer = new RemoteContainer(this.configuration);
+    }
 
-   public void stop() throws LifecycleException {
-   }
+    public void start() throws LifecycleException {
+    }
 
-   public ProtocolDescription getDefaultProtocol()
-   {
-      return new ProtocolDescription("Servlet 3.0");
-   }
+    public void stop() throws LifecycleException {
+    }
 
-   public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
-       return remoteContainer.deploy(archive);
-   }
+    public ProtocolDescription getDefaultProtocol() {
+        return new ProtocolDescription("Servlet 3.0");
+    }
 
-   public void undeploy(Archive<?> archive) throws DeploymentException {
-      remoteContainer.undeploy(archive);
-   }
+    public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
+        return remoteContainer.deploy(archive);
+    }
 
-   public void deploy(Descriptor descriptor) throws DeploymentException {
-      throw new UnsupportedOperationException("Not yet implemented");
-   }
+    public void undeploy(Archive<?> archive) throws DeploymentException {
+        remoteContainer.undeploy(archive);
+    }
 
-   public void undeploy(Descriptor descriptor) throws DeploymentException {
-      throw new UnsupportedOperationException("Not yet implemented");
-   }
+    public void deploy(Descriptor descriptor) throws DeploymentException {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
+    public void undeploy(Descriptor descriptor) throws DeploymentException {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }

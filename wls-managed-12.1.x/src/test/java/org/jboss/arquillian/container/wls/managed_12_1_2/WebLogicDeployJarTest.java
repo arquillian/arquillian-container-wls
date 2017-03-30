@@ -16,7 +16,6 @@
  */
 
 /**
- *
  * @author <a href="http://community.jboss.org/people/LightGuard">Jason Porter</a>
  */
 package org.jboss.arquillian.container.wls.managed_12_1_2;
@@ -52,7 +51,7 @@ public class WebLogicDeployJarTest {
 
     @EJB
     private Greeter greeter;
-    
+
     /**
      * Deployment for the test
      *
@@ -61,7 +60,7 @@ public class WebLogicDeployJarTest {
     @Deployment
     public static Archive<?> getTestArchive() {
         final JavaArchive jar = ShrinkWrap.create(JavaArchive.class, "test.jar")
-                .addClasses(Greeter.class);
+            .addClasses(Greeter.class);
         log.info(jar.toString(true));
         return jar;
     }
