@@ -41,7 +41,8 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration {
 
     private String adminListenAddress;
 
-    private int adminListenPort;
+    private int adminListenPort = 7001;
+    private boolean adminListenPortSet = false;
 
     private String adminUserName;
 
@@ -114,7 +115,9 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration {
             URI adminURI = new URI(adminUrl);
             adminProtocol = adminURI.getScheme();
             adminListenAddress = adminURI.getHost();
-            adminListenPort = adminURI.getPort();
+            if(!adminListenPortSet) {
+                adminListenPort = adminURI.getPort();
+            }
             Validate.notNullOrEmpty(adminProtocol,
                 "The adminProtocol is empty. Verify the adminUrl and adminProtocol properties in arquillian.xml");
             Validate.isInList(adminProtocol, new String[]
@@ -241,6 +244,7 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration {
      *     The port of the admin server. This is optional. It can be derived from the adminUrl.
      */
     public void setAdminListenPort(int adminListenPort) {
+        this.adminListenPortSet = true;
         this.adminListenPort = adminListenPort;
     }
 
