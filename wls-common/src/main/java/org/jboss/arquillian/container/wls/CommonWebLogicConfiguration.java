@@ -42,7 +42,7 @@ public class CommonWebLogicConfiguration implements ContainerConfiguration {
     private String adminListenAddress;
 
     private int adminListenPort = 7001;
-    private boolean adminListenPortSet = false;
+    protected boolean adminListenPortSet = false;
 
     private String adminUserName;
 
