@@ -20,6 +20,8 @@ import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.wls.CommonWebLogicConfiguration;
 import org.jboss.arquillian.container.wls.Validate;
 
+import javax.ws.rs.core.UriBuilder;
+
 /**
  * Arquillian properties for remote WebLogic 12.1.x+ containers.
  *
@@ -33,5 +35,20 @@ public class WebLogicRemoteConfiguration extends CommonWebLogicConfiguration {
         Validate.notNullOrEmpty(getAdminPassword(), "The password is empty. Verify the credentials in arquillian.xml");
         Validate.notNullOrEmpty(getTarget(),
             "The target for the deployment is empty. Verify the property in arquillian.xml");
+        if(this.adminListenPortSet) {
+            renewAdminUrl();
+        }
+    }
+    
+    @Override
+    public void setAdminListenPort(int adminListenPort) {
+        super.setAdminListenPort(adminListenPort);
+        if(null != getAdminUrl()) {
+            renewAdminUrl();
+        }
+    }
+    
+    private void renewAdminUrl() {
+        setAdminUrl(UriBuilder.fromUri(getAdminUrl()).port(getAdminListenPort()).build().toString());
     }
 }
