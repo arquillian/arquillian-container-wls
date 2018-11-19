@@ -11,7 +11,7 @@
   <name>Arquillian WebLogic Managed 12.1.x Container Adapter</name>
   <description>The managed container adapter for WebLogic Server 12.1.x</description>
   <properties>
-    <version.jboss.javaee-6_api>1.0.0.Final</version.jboss.javaee-6_api>
+    <version.jboss.javaee-6_api>3.0.3.Final</version.jboss.javaee-6_api>
   </properties>
 
   <dependencies>
