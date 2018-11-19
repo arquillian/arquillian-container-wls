@@ -11,7 +11,7 @@
   <name>Arquillian WebLogic Remote 12.1.x Container Adapter</name>
   <description>The remote container adapter for WebLogic Server 12.1.x</description>
   <properties>
-    <version.jboss.javaee-6_api>1.0.0.Final</version.jboss.javaee-6_api>
+    <version.jboss.javaee-6_api>3.0.3.Final</version.jboss.javaee-6_api>
     <cdi.api.version>1.0-SP1</cdi.api.version>
   </properties>
   <dependencies>
