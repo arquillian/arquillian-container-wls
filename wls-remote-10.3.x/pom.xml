@@ -12,7 +12,7 @@
   <description>The remote container adapter for WebLogic Server 10.3.x</description>
   <properties>
     <servlet.api.version>2.5.0.GA</servlet.api.version>
-    <ejb.api.version>3.0.0.GA</ejb.api.version>
+    <ejb.api.version>3.0.0.20070913080910</ejb.api.version>
     <cdi.api.version>1.0-SP1</cdi.api.version>
   </properties>
   <dependencies>
