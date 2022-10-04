@@ -20,6 +20,7 @@ package org.jboss.arquillian.container.wls;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
+import java.nio.file.Files;
 
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
@@ -45,9 +46,7 @@ public final class ShrinkWrapUtil {
     public static URL toURL(final Archive<?> archive) {
         // create a random named temp file, then delete and use it as a directory
         try {
-            File root = File.createTempFile("arquillian", archive.getName());
-            root.delete();
-            root.mkdirs();
+            File root = Files.createTempDirectory("arquillian" + archive.getName()).toFile();
 
             File deployment = new File(root, archive.getName());
             deployment.deleteOnExit();
@@ -61,9 +60,7 @@ public final class ShrinkWrapUtil {
     public static URL toURL(final Descriptor descriptor) {
         // create a random named temp file, then delete and use it as a directory
         try {
-            File root = File.createTempFile("arquillian", descriptor.getDescriptorName());
-            root.delete();
-            root.mkdirs();
+            File root = Files.createTempDirectory("arquillian" + descriptor.getDescriptorName()).toFile();
 
             File deployment = new File(root, descriptor.getDescriptorName());
             deployment.deleteOnExit();
@@ -106,9 +103,7 @@ public final class ShrinkWrapUtil {
     public static File toFile(final Archive<?> archive, final boolean exploded) {
         // create a random named temp file, then delete and use it as a directory
         try {
-            File root = File.createTempFile("arquillian", archive.getName());
-            root.delete();
-            root.mkdirs();
+            File root = Files.createTempDirectory("arquillian" + archive.getName()).toFile();
 
             File deployment = new File(root, archive.getName());
             deployment.deleteOnExit();
